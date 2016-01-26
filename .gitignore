@@ -1,0 +1,9 @@
+
+.vs
+packages/
+_Resharper*
+[Bb]in
+[Oo]bj
+
+*.dll
+*.csproj.user
