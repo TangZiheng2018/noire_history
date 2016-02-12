@@ -24,7 +24,7 @@ namespace Noire.Graphics.Elements.Tests
         void Initialize()
         {
             VertexFormat customFormat = VertexFormat.Position | VertexFormat.Diffuse;
-            _vertexBuffer = new VertexBuffer(_manager.Screen.Device, 3 * Utilities.SizeOf<CustomVertex2>(), Usage.None, customFormat, Pool.Managed);
+            _vertexBuffer = new VertexBuffer(_manager.Screen.Device, 3 * Utilities.SizeOf<CustomVertex2>(), Usage.WriteOnly, customFormat, Pool.Managed);
             var ptr = _vertexBuffer.Lock(0, 0, LockFlags.None);
             var vertices = new CustomVertex2[3];
 

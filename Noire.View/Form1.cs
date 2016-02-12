@@ -32,8 +32,10 @@ namespace Noire.View
             Focus();
             using (var dx = new RenderManager(this))
             {
-                dx.Stage.Children.Add(new RotatingTriangle(dx));
-
+                DisplayObject displayObject;
+                displayObject = new IndexBufferTest(dx);
+                displayObject.Initialize();
+                dx.Stage.Children.Add(displayObject);
                 dx.Run();
             }
         }
