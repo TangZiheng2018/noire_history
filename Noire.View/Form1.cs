@@ -33,7 +33,7 @@ namespace Noire.View
             using (var dx = new RenderManager(this))
             {
                 DisplayObject displayObject;
-                displayObject = new IndexBufferTest(dx);
+                displayObject = new LightAndMaterialTest(dx);
                 displayObject.Initialize();
                 dx.Stage.Children.Add(displayObject);
                 dx.Run();

@@ -121,7 +121,9 @@
   <ItemGroup>
     <Compile Include="Elements\Tests\DefaultTriangle.cs" />
     <Compile Include="Elements\Tests\IndexBufferTest.cs" />
+    <Compile Include="Elements\Tests\LightAndMaterialTest.cs" />
     <Compile Include="Elements\Tests\RotatingTriangle.cs" />
+    <Compile Include="Interop\CustomVertex3.cs" />
     <Compile Include="Interop\CustomVertex2.cs" />
     <Compile Include="Interop\CustomVertex.cs" />
     <Compile Include="NoireUtilities.cs" />
