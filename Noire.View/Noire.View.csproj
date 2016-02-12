@@ -82,7 +82,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Noire.Graphics\Noire.Graphics.csproj">
       <Project>{78c8f484-104a-40e0-b151-583bb506c3b3}</Project>
-      <Name>Noire.Engine</Name>
+      <Name>Noire.Graphics</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
