@@ -33,9 +33,9 @@ namespace Noire.View
             using (var dx = new RenderManager(this))
             {
                 DisplayObject displayObject;
-                displayObject = new TextureAndLightCubeTest(dx);
+                displayObject = new SphereLightTest(dx);
                 displayObject.Initialize();
-                (displayObject as TextureAndLightCubeTest).SetTexture(@"res/images/metal-material-texture.jpg");
+                (displayObject as SphereLightTest).LoadSTL(@"res/models/sphere_bin.stl");
                 dx.Stage.Children.Add(displayObject);
                 dx.Run();
             }

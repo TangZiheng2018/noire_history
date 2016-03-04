@@ -120,6 +120,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Elements\Tests\DefaultTriangle.cs" />
+    <Compile Include="Elements\Tests\SphereLightTest.cs" />
     <Compile Include="Elements\Tests\TextureAndLightCubeTest.cs" />
     <Compile Include="Elements\Tests\TextureCubeTest.cs" />
     <Compile Include="Elements\Tests\IndexBufferTest.cs" />
@@ -136,6 +137,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RenderTarget.cs" />
     <Compile Include="Stage.cs" />
+    <Compile Include="Misc\STLReader.cs" />
+    <Compile Include="Misc\StreamUtilities.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
