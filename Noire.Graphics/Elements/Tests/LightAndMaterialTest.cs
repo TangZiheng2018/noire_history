@@ -57,6 +57,8 @@ namespace Noire.Graphics.Elements.Tests
             material.Emissive = new Color(0f, 0f, 0f);
             device.Material = material; //(ref material);
 
+            SetLight(target);
+
             device.SetRenderState(RenderState.Lighting, true);
             device.SetRenderState(RenderState.NormalizeNormals, true);
             device.SetRenderState(RenderState.SpecularEnable, true);
@@ -69,7 +71,7 @@ namespace Noire.Graphics.Elements.Tests
             vertexBuffer.Dispose();
         }
 
-        protected override void UpdateInternal(RenderTarget target)
+        private void SetLight(RenderTarget target)
         {
             var light = new Light();
             light.Type = LightType;
@@ -112,7 +114,10 @@ namespace Noire.Graphics.Elements.Tests
             device.SetLight(0, ref light);
             device.EnableLight(0, true);
             device.SetRenderState(RenderState.Ambient, new Color(92, 92, 92).ToBgra());
+        }
 
+        protected override void UpdateInternal(RenderTarget target)
+        {
             _rotation += 2f;
             var rad = MathUtil.DegreesToRadians(_rotation);
             _worldMatrix = Matrix.RotationY(rad);

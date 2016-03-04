@@ -60,6 +60,8 @@ namespace Noire.Graphics.Elements.Tests
 
             device.SetTransform(TransformState.World, _worldMatrix);
 
+            SetLight(target);
+
             device.SetStreamSource(0, vertexBuffer, 0, Utilities.SizeOf<CustomVertex4>());
             device.VertexFormat = CustomVertex4.FVF;
             device.Indices = indexBuffer;
@@ -141,7 +143,6 @@ namespace Noire.Graphics.Elements.Tests
                 device.SetRenderState(RenderState.NormalizeNormals, true);
                 device.SetRenderState(RenderState.SpecularEnable, true);
             }
-            SetLight(target);
             _degree += 2;
             var rad = MathUtil.DegreesToRadians(_degree);
             _worldMatrix = Matrix.RotationY(rad) * Matrix.RotationZ(rad * 0.5f) * Matrix.RotationX(rad * 0.25f);

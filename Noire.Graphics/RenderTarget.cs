@@ -21,7 +21,8 @@ namespace Noire.Graphics
             pp.SwapEffect = SwapEffect.Discard;
             pp.Windowed = true;
             pp.DeviceWindowHandle = manager.Control.Handle;
-            pp.EnableAutoDepthStencil = false;
+            pp.EnableAutoDepthStencil = true;
+            pp.AutoDepthStencilFormat = Format.D16;
 
             _device = new Device(manager.Direct3D, adapter, DeviceType.Hardware, manager.Control.Handle, createFlags, pp);
             _device.SetRenderState(RenderState.Lighting, false);
@@ -36,7 +37,7 @@ namespace Noire.Graphics
             }
             Color screenColor = Color.MidnightBlue;
             // depth: http://www.gamedev.net/page/resources/_/technical/graphics-programming-and-theory/perspective-projections-in-lh-and-rh-systems-r3598
-            _device.Clear(ClearFlags.Target, screenColor, 1, 0);
+            _device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, screenColor, 1, 0);
         }
 
         public void Present()

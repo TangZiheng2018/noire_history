@@ -37,6 +37,8 @@ namespace Noire.View
                 displayObject.Initialize();
                 (displayObject as SphereLightTest).LoadSTL(@"res/models/sphere_bin.stl");
                 dx.Stage.Children.Add(displayObject);
+                displayObject = new LightAndMaterialTest(dx);
+                dx.Stage.Children.Add(displayObject);
                 dx.Run();
             }
         }
