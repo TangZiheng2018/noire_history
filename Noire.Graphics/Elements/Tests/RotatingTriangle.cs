@@ -23,8 +23,7 @@ namespace Noire.Graphics.Elements.Tests
 
         void Initialize()
         {
-            VertexFormat customFormat = VertexFormat.Position | VertexFormat.Diffuse;
-            _vertexBuffer = new VertexBuffer(_manager.Screen.Device, 3 * Utilities.SizeOf<CustomVertex2>(), Usage.WriteOnly, customFormat, Pool.Managed);
+            _vertexBuffer = new VertexBuffer(_manager.Screen.Device, 3 * Utilities.SizeOf<CustomVertex2>(), Usage.WriteOnly, CustomVertex2.FVF, Pool.Managed);
             var ptr = _vertexBuffer.Lock(0, 0, LockFlags.None);
             var vertices = new CustomVertex2[3];
 
@@ -51,15 +50,15 @@ namespace Noire.Graphics.Elements.Tests
 
         protected override void RenderInternal(RenderTarget target)
         {
-            target.Device.VertexFormat = VertexFormat.Position | VertexFormat.Diffuse;
+            target.Device.VertexFormat = CustomVertex2.FVF;
 
             Matrix matrix;
             matrix = Matrix.LookAtLH(new Vector3(0, 0, 10), new Vector3(0, 0, 0), new Vector3(0, 1, 0));
             target.Device.SetTransform(TransformState.View, matrix);
             var size = _manager.Control.Size;
-            // Invalid matrix
+            // Invalid matrix (in SharpDX 3.0.1)
             //matrix = Matrix.PerspectiveFovLH(MathUtil.DegreesToRadians(45), (float)_manager.Control.Width / _manager.Control.Height, 0f, 100f);
-            // Works
+            // Works (an PR of this version is made, supposed to be integrated in 3.0.2 or later)
             //matrix = Matrix.OrthoLH(size.Width, size.Height, -100, 100);
             matrix = perspective(MathUtil.DegreesToRadians(45), (float)size.Width / size.Height, 0, 100);
             target.Device.SetTransform(TransformState.Projection, matrix);

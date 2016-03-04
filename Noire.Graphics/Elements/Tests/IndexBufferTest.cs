@@ -21,9 +21,8 @@ namespace Noire.Graphics.Elements.Tests
         {
             var device = target.Device;
             var size = _manager.Control.ClientSize;
-            var format = VertexFormat.Position | VertexFormat.Diffuse;
 
-            var vertexBuffer = new VertexBuffer(device, _vertices.Length * Utilities.SizeOf<CustomVertex2>(), Usage.WriteOnly, format, Pool.Managed);
+            var vertexBuffer = new VertexBuffer(device, _vertices.Length * Utilities.SizeOf<CustomVertex2>(), Usage.WriteOnly, CustomVertex2.FVF, Pool.Managed);
             var ptr1 = vertexBuffer.Lock(0, 0, LockFlags.None);
             ptr1.WriteRange(_vertices);
             vertexBuffer.Unlock();
@@ -48,7 +47,7 @@ namespace Noire.Graphics.Elements.Tests
             device.SetRenderState(RenderState.CullMode, Cull.Counterclockwise);
 
             device.SetStreamSource(0, vertexBuffer, 0, Utilities.SizeOf<CustomVertex2>());
-            device.VertexFormat = format;
+            device.VertexFormat = CustomVertex2.FVF;
             device.Indices = indexBuffer;
             device.DrawIndexedPrimitive(PrimitiveType.TriangleList, 0, 0, 8, 0, 12);
 

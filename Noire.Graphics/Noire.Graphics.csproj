@@ -120,12 +120,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Elements\Tests\DefaultTriangle.cs" />
+    <Compile Include="Elements\Tests\TextureCubeTest.cs" />
     <Compile Include="Elements\Tests\IndexBufferTest.cs" />
     <Compile Include="Elements\Tests\LightAndMaterialTest.cs" />
     <Compile Include="Elements\Tests\RotatingTriangle.cs" />
+    <Compile Include="Interop\CustomVertex4.cs" />
     <Compile Include="Interop\CustomVertex3.cs" />
     <Compile Include="Interop\CustomVertex2.cs" />
-    <Compile Include="Interop\CustomVertex.cs" />
+    <Compile Include="Interop\CustomVertex1.cs" />
     <Compile Include="NoireUtilities.cs" />
     <Compile Include="RenderManager.cs" />
     <Compile Include="DisplayGroup.cs" />

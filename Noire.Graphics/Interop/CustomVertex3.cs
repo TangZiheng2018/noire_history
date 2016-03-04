@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using SharpDX;
+using SharpDX.Direct3D9;
 using SharpDX.Mathematics.Interop;
 
 namespace Noire.Graphics.Interop
@@ -16,6 +17,8 @@ namespace Noire.Graphics.Interop
 
         public Vector3 Position;
         public Vector3 Normals;
+
+        public static readonly VertexFormat FVF = VertexFormat.Position | VertexFormat.Normal;
 
     }
 }

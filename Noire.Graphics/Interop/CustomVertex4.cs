@@ -12,13 +12,14 @@ namespace Noire.Graphics.Interop
 {
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    struct CustomVertex2
+    struct CustomVertex4
     {
 
         public Vector3 Position;
-        public ColorBGRA Color;
+        public Vector3 Normals;
+        public Vector2 TextureCoords;
 
-        public static readonly VertexFormat FVF = VertexFormat.Position | VertexFormat.Diffuse;
+        public static readonly VertexFormat FVF = VertexFormat.Position | VertexFormat.Normal | VertexFormat.Texture1;
 
     }
 }

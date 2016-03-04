@@ -33,9 +33,8 @@ namespace Noire.Graphics.Elements.Tests
         {
             var device = target.Device;
             var size = _manager.Control.ClientSize;
-            var format = VertexFormat.Position | VertexFormat.Normal;
 
-            var vertexBuffer = new VertexBuffer(device, Utilities.SizeOf(_vertices), Usage.WriteOnly, format, Pool.Managed);
+            var vertexBuffer = new VertexBuffer(device, Utilities.SizeOf(_vertices), Usage.WriteOnly, CustomVertex3.FVF, Pool.Managed);
             var ptr1 = vertexBuffer.Lock(0, 0, LockFlags.None);
             ptr1.WriteRange(_vertices);
             vertexBuffer.Unlock();
@@ -64,7 +63,7 @@ namespace Noire.Graphics.Elements.Tests
             device.SetRenderState(RenderState.CullMode, Cull.Counterclockwise);
 
             device.SetStreamSource(0, vertexBuffer, 0, Utilities.SizeOf<CustomVertex3>());
-            device.VertexFormat = format;
+            device.VertexFormat = CustomVertex3.FVF;
             device.DrawPrimitives(PrimitiveType.TriangleList, 0, 4);
 
             vertexBuffer.Dispose();
