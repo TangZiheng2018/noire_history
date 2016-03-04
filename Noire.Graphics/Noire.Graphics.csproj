@@ -120,6 +120,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Elements\Tests\DefaultTriangle.cs" />
+    <Compile Include="Elements\Tests\TextureAndLightCubeTest.cs" />
     <Compile Include="Elements\Tests\TextureCubeTest.cs" />
     <Compile Include="Elements\Tests\IndexBufferTest.cs" />
     <Compile Include="Elements\Tests\LightAndMaterialTest.cs" />
