@@ -9,20 +9,17 @@ using SharpDX;
 using SharpDX.Direct3D9;
 using SharpDX.Mathematics.Interop;
 
-namespace Noire.Graphics.Elements.Tests
-{
-    public sealed class RotatingTriangle : DisplayObject
-    {
+namespace Noire.Graphics.Elements.Tests {
+    public sealed class RotatingTriangle : DisplayObject {
 
         public RotatingTriangle(RenderManager manager)
-            : base(manager)
-        {
+            : base(manager) {
             _rotationDegree = 0.0f;
             Initialize();
         }
 
-        void Initialize()
-        {
+        public override void Initialize() {
+            base.Initialize();
             _vertexBuffer = new VertexBuffer(_manager.Screen.Device, 3 * Utilities.SizeOf<CustomVertex2>(), Usage.WriteOnly, CustomVertex2.FVF, Pool.Managed);
             var ptr = _vertexBuffer.Lock(0, 0, LockFlags.None);
             var vertices = new CustomVertex2[3];
@@ -37,8 +34,7 @@ namespace Noire.Graphics.Elements.Tests
             _vertexBuffer.Unlock();
         }
 
-        static Matrix perspective(float fov, float aspect, float near, float far)
-        {
+        static Matrix perspective(float fov, float aspect, float near, float far) {
             var m = new Matrix();
             m.M11 = (float)(1 / Math.Tan(fov * 0.5)) / aspect;
             m.M22 = (float)(1 / Math.Tan(fov * 0.5));
@@ -48,8 +44,7 @@ namespace Noire.Graphics.Elements.Tests
             return m;
         }
 
-        protected override void RenderInternal(RenderTarget target)
-        {
+        protected override void RenderInternal(RenderTarget target) {
             target.Device.VertexFormat = CustomVertex2.FVF;
 
             Matrix matrix;
@@ -63,21 +58,22 @@ namespace Noire.Graphics.Elements.Tests
             matrix = perspective(MathUtil.DegreesToRadians(45), (float)size.Width / size.Height, 0, 100);
             target.Device.SetTransform(TransformState.Projection, matrix);
             target.Device.SetTransform(TransformState.World, Matrix.RotationY(_rotationDegree));
-            
+
+            target.Device.SetRenderState(RenderState.Lighting, false);
+            target.Device.SetRenderState(RenderState.CullMode, Cull.None);
+
             target.Device.SetStreamSource(0, _vertexBuffer, 0, Utilities.SizeOf<CustomVertex2>());
             target.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, 1);
         }
 
-        protected override void UpdateInternal(RenderTarget target)
-        {
+        protected override void UpdateInternal(RenderTarget target) {
             _rotationDegree += 0.05f;
         }
 
         /// <summary>
         /// 执行与释放或重置非托管资源关联的应用程序定义的任务。
         /// </summary>
-        public override void Dispose()
-        {
+        public override void Dispose() {
             _vertexBuffer.Dispose();
             base.Dispose();
         }

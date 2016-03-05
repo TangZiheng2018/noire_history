@@ -7,14 +7,11 @@ using System.Windows.Forms;
 using SharpDX.Direct3D9;
 using SharpDX.Windows;
 
-namespace Noire.Graphics
-{
+namespace Noire.Graphics {
 
-    public sealed class RenderManager : IDisposable
-    {
+    public sealed class RenderManager : IDisposable {
 
-        public RenderManager(Control control)
-        {
+        public RenderManager(Control control) {
             _control = control;
             _direct3D = new Direct3D();
             _screenTarget = new RenderTarget(this, 0);
@@ -24,32 +21,26 @@ namespace Noire.Graphics
         /// <summary>
         /// 执行与释放或重置非托管资源关联的应用程序定义的任务。
         /// </summary>
-        public void Dispose()
-        {
+        public void Dispose() {
             NoireUtilities.SafeDispose(ref _screenTarget);
             NoireUtilities.SafeDispose(ref _direct3D);
             _control = null;
         }
 
-        public void Update()
-        {
+        public void Update() {
             _stage.Update(_screenTarget);
         }
 
-        public void Render()
-        {
+        public void Render() {
             _screenTarget.Clear();
             _screenTarget.Device.BeginScene();
             _stage.Render(_screenTarget);
             _screenTarget.Device.EndScene();
         }
 
-        public void Run()
-        {
-            using (var renderLoop = new RenderLoop(_control))
-            {
-                while (renderLoop.NextFrame())
-                {
+        public void Run() {
+            using (var renderLoop = new RenderLoop(_control)) {
+                while (renderLoop.NextFrame()) {
                     Update();
                     Render();
                     _screenTarget.Present();

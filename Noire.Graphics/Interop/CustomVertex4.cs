@@ -8,12 +8,10 @@ using SharpDX;
 using SharpDX.Direct3D9;
 using SharpDX.Mathematics.Interop;
 
-namespace Noire.Graphics.Interop
-{
+namespace Noire.Graphics.Interop {
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    struct CustomVertex4
-    {
+    struct CustomVertex4 {
 
         public Vector3 Position;
         public Vector3 Normals;

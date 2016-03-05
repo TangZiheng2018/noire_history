@@ -121,8 +121,8 @@
   <ItemGroup>
     <Compile Include="Elements\Tests\DefaultTriangle.cs" />
     <Compile Include="Elements\Tests\SphereLightTest.cs" />
-    <Compile Include="Elements\Tests\TextureAndLightCubeTest.cs" />
-    <Compile Include="Elements\Tests\TextureCubeTest.cs" />
+    <Compile Include="Elements\Tests\TexturedCubeAndLightTest.cs" />
+    <Compile Include="Elements\Tests\TexturedCubeTest.cs" />
     <Compile Include="Elements\Tests\IndexBufferTest.cs" />
     <Compile Include="Elements\Tests\LightAndMaterialTest.cs" />
     <Compile Include="Elements\Tests\RotatingTriangle.cs" />
@@ -130,6 +130,8 @@
     <Compile Include="Interop\CustomVertex3.cs" />
     <Compile Include="Interop\CustomVertex2.cs" />
     <Compile Include="Interop\CustomVertex1.cs" />
+    <Compile Include="Misc\SafeList.cs" />
+    <Compile Include="Misc\SafeList.ListOp.cs" />
     <Compile Include="NoireUtilities.cs" />
     <Compile Include="RenderManager.cs" />
     <Compile Include="DisplayGroup.cs" />
@@ -141,6 +143,8 @@
     <Compile Include="Misc\StreamUtilities.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Misc\SafeList.Enumerator.cs" />
+    <Compile Include="Misc\SafeList.ListOpType.cs" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

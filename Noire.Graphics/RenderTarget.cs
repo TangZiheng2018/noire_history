@@ -6,14 +6,11 @@ using System.Threading.Tasks;
 using SharpDX;
 using SharpDX.Direct3D9;
 
-namespace Noire.Graphics
-{
+namespace Noire.Graphics {
 
-    public class RenderTarget : IDisposable
-    {
+    public class RenderTarget : IDisposable {
 
-        internal RenderTarget(RenderManager manager, int adapter)
-        {
+        internal RenderTarget(RenderManager manager, int adapter) {
             CreateFlags createFlags = CreateFlags.HardwareVertexProcessing;
 
             PresentParameters pp = new PresentParameters(manager.Control.Width, manager.Control.Height);
@@ -29,10 +26,8 @@ namespace Noire.Graphics
             _device.SetRenderState(RenderState.CullMode, Cull.None);
         }
 
-        public void Clear()
-        {
-            if (_device == null)
-            {
+        public void Clear() {
+            if (_device == null) {
                 return;
             }
             Color screenColor = Color.MidnightBlue;
@@ -40,10 +35,8 @@ namespace Noire.Graphics
             _device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, screenColor, 1, 0);
         }
 
-        public void Present()
-        {
-            if (_device == null)
-            {
+        public void Present() {
+            if (_device == null) {
                 return;
             }
             _device.Present();
@@ -52,8 +45,7 @@ namespace Noire.Graphics
         /// <summary>
         /// 执行与释放或重置非托管资源关联的应用程序定义的任务。
         /// </summary>
-        public virtual void Dispose()
-        {
+        public virtual void Dispose() {
             NoireUtilities.SafeDispose(ref _device);
         }
 

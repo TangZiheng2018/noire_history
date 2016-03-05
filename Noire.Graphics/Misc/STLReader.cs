@@ -8,31 +8,23 @@ using System.Threading.Tasks;
 using Noire.Graphics.Interop;
 using SharpDX;
 
-namespace Noire.Graphics.Misc
-{
-    internal static class STLReader
-    {
+namespace Noire.Graphics.Misc {
+    internal static class STLReader {
 
-        public static CustomVertex3[] ReadBinary(string filename)
-        {
-            if (!File.Exists(filename))
-            {
+        public static CustomVertex3[] ReadBinary(string filename) {
+            if (!File.Exists(filename)) {
                 return null;
             }
-            using (var stream = new FileStream(filename, FileMode.Open, FileAccess.Read))
-            {
-                try
-                {
+            using (var stream = new FileStream(filename, FileMode.Open, FileAccess.Read)) {
+                try {
                     stream.Seek(80, SeekOrigin.Begin);
                     var triangleCount = stream.ReadInt32();
                     var vertices = new CustomVertex3[triangleCount * 3];
-                    for (var i = 0; i < triangleCount; ++i)
-                    {
+                    for (var i = 0; i < triangleCount; ++i) {
                         var normal1 = stream.ReadSingle();
                         var normal2 = stream.ReadSingle();
                         var normal3 = stream.ReadSingle();
-                        for (var j = 0; j < 3; ++j)
-                        {
+                        for (var j = 0; j < 3; ++j) {
                             var v = new CustomVertex3();
                             v.Normals = new Vector3(normal1, normal2, normal3);
                             var f1 = stream.ReadSingle();
@@ -44,9 +36,7 @@ namespace Noire.Graphics.Misc
                         stream.Seek(2, SeekOrigin.Current);
                     }
                     return vertices;
-                }
-                catch (IOException ex)
-                {
+                } catch (IOException ex) {
                     Debug.Print(ex.Message);
                     return null;
                 }

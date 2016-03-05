@@ -7,18 +7,14 @@ using System.Text;
 using System.Threading.Tasks;
 using Noire.Graphics.Interop;
 
-namespace Noire.Graphics.Elements.Tests
-{
-    public sealed class DefaultTriangle : DisplayObject
-    {
+namespace Noire.Graphics.Elements.Tests {
+    public sealed class DefaultTriangle : DisplayObject {
 
         public DefaultTriangle(RenderManager manager)
-            : base(manager)
-        {
+            : base(manager) {
         }
-        
-        protected override void RenderInternal(RenderTarget target)
-        {
+
+        protected override void RenderInternal(RenderTarget target) {
             // 注释：其实这里可以用 XYZRHW
             // http://www.cppblog.com/lovedday/archive/2008/04/30/48507.html
             // 这是一个 D3D 比 OpenGL 方便的地方wwww
@@ -49,15 +45,13 @@ namespace Noire.Graphics.Elements.Tests
             _vertexBuffer.Dispose();
         }
 
-        protected override void UpdateInternal(RenderTarget target)
-        {
+        protected override void UpdateInternal(RenderTarget target) {
         }
 
         /// <summary>
         /// 执行与释放或重置非托管资源关联的应用程序定义的任务。
         /// </summary>
-        public override void Dispose()
-        {
+        public override void Dispose() {
             NoireUtilities.SafeDispose(ref _vertexBuffer);
             NoireUtilities.SafeDispose(ref _vertexDeclaration);
             base.Dispose();

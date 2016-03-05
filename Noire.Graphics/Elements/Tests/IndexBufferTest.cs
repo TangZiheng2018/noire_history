@@ -7,18 +7,14 @@ using Noire.Graphics.Interop;
 using SharpDX;
 using SharpDX.Direct3D9;
 
-namespace Noire.Graphics.Elements.Tests
-{
-    public sealed class IndexBufferTest : DisplayObject
-    {
+namespace Noire.Graphics.Elements.Tests {
+    public sealed class IndexBufferTest : DisplayObject {
 
         public IndexBufferTest(RenderManager manager)
-            : base(manager)
-        {
+            : base(manager) {
         }
 
-        protected override void RenderInternal(RenderTarget target)
-        {
+        protected override void RenderInternal(RenderTarget target) {
             var device = target.Device;
             var size = _manager.Control.ClientSize;
 
@@ -55,8 +51,7 @@ namespace Noire.Graphics.Elements.Tests
             vertexBuffer.Dispose();
         }
 
-        protected override void UpdateInternal(RenderTarget target)
-        {
+        protected override void UpdateInternal(RenderTarget target) {
             _degree += 2;
             var rad = MathUtil.DegreesToRadians(_degree);
             _worldMatrix = Matrix.RotationY(rad) * Matrix.RotationZ(rad * 0.5f) * Matrix.RotationX(rad * 0.25f);

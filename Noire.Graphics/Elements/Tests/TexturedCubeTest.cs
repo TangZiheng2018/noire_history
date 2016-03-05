@@ -7,18 +7,14 @@ using Noire.Graphics.Interop;
 using SharpDX;
 using SharpDX.Direct3D9;
 
-namespace Noire.Graphics.Elements.Tests
-{
-    public sealed class TextureCubeTest : DisplayObject
-    {
+namespace Noire.Graphics.Elements.Tests {
+    public sealed class TexturedCubeTest : DisplayObject {
 
-        public TextureCubeTest(RenderManager manager)
-            : base(manager)
-        {
+        public TexturedCubeTest(RenderManager manager)
+            : base(manager) {
         }
 
-        public void SetTexture(string filePath)
-        {
+        public void SetTexture(string filePath) {
             DisposeTexture();
             _texturePath = filePath;
         }
@@ -26,14 +22,12 @@ namespace Noire.Graphics.Elements.Tests
         /// <summary>
         /// 执行与释放或重置非托管资源关联的应用程序定义的任务。
         /// </summary>
-        public override void Dispose()
-        {
+        public override void Dispose() {
             DisposeTexture();
             base.Dispose();
         }
 
-        protected override void RenderInternal(RenderTarget target)
-        {
+        protected override void RenderInternal(RenderTarget target) {
             var device = target.Device;
             var size = _manager.Control.ClientSize;
 
@@ -67,14 +61,11 @@ namespace Noire.Graphics.Elements.Tests
             vertexBuffer.Dispose();
         }
 
-        protected override void UpdateInternal(RenderTarget target)
-        {
-            if (_texture == null && _texturePath != null)
-            {
+        protected override void UpdateInternal(RenderTarget target) {
+            if (_texture == null && _texturePath != null) {
                 var device = target.Device;
                 _texture = Texture.FromFile(device, _texturePath);
-                if (_texture != null)
-                {
+                if (_texture != null) {
                     device.SetTexture(0, _texture);
                     device.SetSamplerState(0, SamplerState.MagFilter, TextureFilter.Linear);
                     device.SetSamplerState(0, SamplerState.MinFilter, TextureFilter.Linear);
@@ -124,10 +115,8 @@ namespace Noire.Graphics.Elements.Tests
             new CustomVertex4() {Position = new Vector3(1, 1, -1), Normals = new Vector3(0, 0, -1), TextureCoords = new Vector2(0, 0)},
         };
 
-        private void DisposeTexture()
-        {
-            if (_texture != null)
-            {
+        private void DisposeTexture() {
+            if (_texture != null) {
                 _texture.Dispose();
                 _texture = null;
             }

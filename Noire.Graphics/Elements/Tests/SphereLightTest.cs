@@ -8,35 +8,28 @@ using Noire.Graphics.Misc;
 using SharpDX;
 using SharpDX.Direct3D9;
 
-namespace Noire.Graphics.Elements.Tests
-{
-    public sealed class SphereLightTest : DisplayObject
-    {
+namespace Noire.Graphics.Elements.Tests {
+    public sealed class SphereLightTest : DisplayObject {
 
         public SphereLightTest(RenderManager manager)
-            : base(manager)
-        {
+            : base(manager) {
         }
 
-        public override void Dispose()
-        {
+        public override void Dispose() {
             base.Dispose();
         }
 
-        public override void Initialize()
-        {
+        public override void Initialize() {
             base.Initialize();
         }
 
-        public void LoadSTL(string fileName)
-        {
+        public void LoadSTL(string fileName) {
             _vertices = STLReader.ReadBinary(fileName);
         }
 
         public LightType LightType { get; set; } = LightType.Spot;
 
-        protected override void RenderInternal(RenderTarget target)
-        {
+        protected override void RenderInternal(RenderTarget target) {
             var device = target.Device;
             var size = _manager.Control.ClientSize;
 
@@ -78,12 +71,10 @@ namespace Noire.Graphics.Elements.Tests
             vertexBuffer.Dispose();
         }
 
-        private void SetLight(RenderTarget target)
-        {
+        private void SetLight(RenderTarget target) {
             var light = new Light();
             light.Type = LightType;
-            switch (LightType)
-            {
+            switch (LightType) {
                 case LightType.Point:
                     light.Ambient = new Color(0.8f, 0.8f, 0.8f);
                     light.Diffuse = new Color(1f, 1f, 1f);
@@ -125,8 +116,7 @@ namespace Noire.Graphics.Elements.Tests
             device.SetRenderState(RenderState.Ambient, new Color(92, 92, 92).ToBgra());
         }
 
-        protected override void UpdateInternal(RenderTarget target)
-        {
+        protected override void UpdateInternal(RenderTarget target) {
             _rotation += 2f;
             var rad = MathUtil.DegreesToRadians(_rotation);
             _worldMatrix = Matrix.RotationX(rad);
