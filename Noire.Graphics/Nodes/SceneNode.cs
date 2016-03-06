@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Noire.Graphics.Nodes;
 using SharpDX.Direct3D9;
 using SharpDX.Windows;
+using Noire.Misc;
 
-namespace Noire.Graphics {
-    public sealed class Direct3DRuntime : Node {
+namespace Noire.Graphics.Nodes {
+    public sealed class SceneNode : Node {
 
-        public Direct3DRuntime(Control control)
+        public SceneNode(Control control)
             : base(null, true) {
             _control = control;
             _direct3D = new Direct3D();
@@ -32,9 +32,11 @@ namespace Noire.Graphics {
             }
         }
 
-        public override Direct3DRuntime D3DRuntime => this;
+        public override SceneNode Scene => this;
 
         public CameraNode CurrentCamera { get; set; }
+
+        public Device CurrentDevice => CurrentCamera?.Device;
 
         public Direct3D Direct3D => _direct3D;
 

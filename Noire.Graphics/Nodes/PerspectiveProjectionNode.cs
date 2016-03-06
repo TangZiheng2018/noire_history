@@ -9,8 +9,8 @@ using SharpDX.Direct3D9;
 namespace Noire.Graphics.Nodes {
     public class PerspectiveProjectionNode : Node {
 
-        public PerspectiveProjectionNode(Direct3DRuntime runtime)
-            : base(runtime, false) {
+        public PerspectiveProjectionNode(SceneNode scene)
+            : base(scene, false) {
         }
 
         private static Matrix PerspectiveWorkaround(float fov, float aspect, float near, float far) {
@@ -23,15 +23,20 @@ namespace Noire.Graphics.Nodes {
             return m;
         }
 
-        protected override void RenderA() {
-            _originalProjectionMatrix = (D3DRuntime.CurrentCamera?.Device.GetTransform(TransformState.Projection)).GetValueOrDefault();
-            var clientSize = D3DRuntime.Control.ClientSize;
-            var projectionMatrix = PerspectiveWorkaround(MathUtil.DegreesToRadians(FieldOfViewDeg), (float)clientSize.Width / clientSize.Height, NearPlane, FarPlane);
-            D3DRuntime.CurrentCamera?.Device?.SetTransform(TransformState.Projection, projectionMatrix);
+        protected override void RenderBeforeChildren()
+        {
+            var device = Scene.CurrentDevice;
+            if (device != null)
+            {
+                _originalProjectionMatrix = device.GetTransform(TransformState.Projection);
+                var clientSize = Scene.Control.ClientSize;
+                var projectionMatrix = PerspectiveWorkaround(MathUtil.DegreesToRadians(FieldOfViewDeg), (float) clientSize.Width/clientSize.Height, NearPlane, FarPlane);
+                device.SetTransform(TransformState.Projection, projectionMatrix);
+            }
         }
 
-        protected override void RenderB() {
-            D3DRuntime.CurrentCamera?.Device?.SetTransform(TransformState.Projection, _originalProjectionMatrix);
+        protected override void RenderAfterChildren() {
+            Scene.CurrentDevice?.SetTransform(TransformState.Projection, _originalProjectionMatrix);
         }
 
         public float FieldOfViewDeg { get; set; } = 45;

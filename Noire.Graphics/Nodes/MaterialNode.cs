@@ -5,12 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using SharpDX;
 using SharpDX.Direct3D9;
+using Noire.Extensions;
 
 namespace Noire.Graphics.Nodes {
     public sealed class MaterialNode : Node {
 
-        public MaterialNode(Direct3DRuntime runtime)
-            : base(runtime, false) {
+        public MaterialNode(SceneNode scene)
+            : base(scene, false) {
             _material = new Material();
         }
 
@@ -41,16 +42,16 @@ namespace Noire.Graphics.Nodes {
 
         public Material Material => _material;
 
-        protected override void RenderA() {
-            var device = D3DRuntime.CurrentCamera?.Device;
+        protected override void RenderBeforeChildren() {
+            var device = Scene.CurrentDevice;
             if (device != null) {
                 _originalMaterial = device.Material;
                 device.Material = _material;
             }
         }
 
-        protected override void RenderB() {
-            var device = D3DRuntime.CurrentCamera?.Device;
+        protected override void RenderAfterChildren() {
+            var device = Scene.CurrentDevice;
             if (device != null) {
                 device.Material = _originalMaterial;
             }

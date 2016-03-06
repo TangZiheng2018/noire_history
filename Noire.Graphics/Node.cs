@@ -4,19 +4,28 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Noire.Graphics.Nodes;
 using Noire.Misc;
+using Noire.Misc.Extensions;
+using SharpDX.Direct3D9;
 
 namespace Noire.Graphics {
     public abstract class Node : INode {
 
-        public Node(Direct3DRuntime d3dRuntime, bool isRoot) {
+        public Node(SceneNode scene, bool isRoot) {
             _isRoot = isRoot;
             _children = new SafeList<INode>();
             _childrenReflection = _children.AsReadOnly();
-            _d3dRuntime = d3dRuntime;
+            _scene = scene;
         }
 
-        public bool Enabled { get; set; } = true;
+        public event EventHandler<DeviceChangedEventArgs> DeviceChanged;
+
+        public event EventHandler<EventArgs> DeviceReset;
+
+        public event EventHandler<EventArgs> DeviceLost;
+
+        public bool UpdateEnabled { get; set; } = true;
 
         public bool IsRoot => _isRoot;
 
@@ -31,6 +40,13 @@ namespace Noire.Graphics {
                     }
                     _parent = value;
                     _parent.AddChild(this);
+
+                    var oldDevice = GetSourceDevice();
+                    var newDevice = GetSourceDeviceOf(value);
+                    _sourceDevice = newDevice;
+                    if (oldDevice != newDevice) {
+                        OnDeviceChanged(this, new DeviceChangedEventArgs(oldDevice, newDevice));
+                    }
                 }
             }
         }
@@ -41,7 +57,22 @@ namespace Noire.Graphics {
             }
         }
 
-        public bool Visible { get; set; } = true;
+        public bool IsAncestorOf(INode node) {
+            if (node == null || node == this) {
+                return false;
+            }
+            if (Children.Contains(node)) {
+                return true;
+            }
+            foreach (var child in Children) {
+                if (child.IsAncestorOf(node)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool RenderEnabled { get; set; } = true;
 
         public void AddChild(INode node) {
             _children.Add(node);
@@ -54,44 +85,81 @@ namespace Noire.Graphics {
         public ReadOnlyCollection<INode> Children => _childrenReflection;
 
         public virtual void Render() {
-            if (Visible) {
-                RenderA();
+            if (RenderEnabled) {
+                RenderBeforeChildren();
                 foreach (var child in Children) {
                     child.Render();
                 }
-                RenderB();
+                RenderAfterChildren();
             }
         }
 
         public virtual void Update() {
-            if (Enabled) {
-                UpdateA();
+            if (UpdateEnabled) {
+                UpdateBeforeChildren();
                 foreach (var child in Children) {
                     child.Update();
                 }
-                UpdateB();
+                UpdateAfterChildren();
             }
         }
 
-        public virtual Direct3DRuntime D3DRuntime => _d3dRuntime;
+        public virtual SceneNode Scene => _scene;
 
-        protected virtual void RenderA() {
+        public Device SourceDevice => SourceDevice;
+
+        protected virtual void RenderBeforeChildren() {
         }
 
-        protected virtual void RenderB() {
+        protected virtual void RenderAfterChildren() {
         }
 
-        protected virtual void UpdateA() {
+        protected virtual void UpdateBeforeChildren() {
         }
 
-        protected virtual void UpdateB() {
+        protected virtual void UpdateAfterChildren() {
+        }
+
+        protected virtual void OnDeviceChanged(object sender, DeviceChangedEventArgs e) {
+            DeviceChanged.RaiseEvent(sender, e);
+            foreach (var child in Children) {
+                (child as Node)?.OnDeviceChanged(sender, e);
+            }
+        }
+
+        protected virtual void OnDeviceReset(object sender, EventArgs e) {
+            DeviceReset.RaiseEvent(sender, e);
+            foreach (var child in Children) {
+                (child as Node)?.OnDeviceReset(sender, e);
+            }
+        }
+
+        protected virtual void OnDeviceLost(object sender, EventArgs e) {
+            DeviceLost.RaiseEvent(sender, e);
+            foreach (var child in Children) {
+                (child as Node)?.OnDeviceLost(sender, e);
+            }
+        }
+
+        private Device GetSourceDevice() => GetSourceDeviceOf(this);
+
+        private static Device GetSourceDeviceOf(INode whichNode) {
+            var node = whichNode.Parent;
+            while (node != null) {
+                if (node is CameraNode) {
+                    return (node as CameraNode).Device;
+                }
+                node = node.Parent;
+            }
+            return null;
         }
 
         private SafeList<INode> _children;
         private ReadOnlyCollection<INode> _childrenReflection;
         private bool _isRoot;
         private INode _parent;
-        private Direct3DRuntime _d3dRuntime;
+        private SceneNode _scene;
+        private Device _sourceDevice;
 
     }
 }

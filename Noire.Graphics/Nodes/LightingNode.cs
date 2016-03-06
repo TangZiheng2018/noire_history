@@ -10,8 +10,8 @@ using SharpDX.Direct3D9;
 namespace Noire.Graphics.Nodes {
     public class LightingNode : Node {
 
-        public LightingNode(Direct3DRuntime runtime)
-            : base(runtime, false) {
+        public LightingNode(SceneNode scene)
+            : base(scene, false) {
             _lights = new List<DXLight>();
             _originalLights = new Queue<DXLight>();
         }
@@ -20,8 +20,8 @@ namespace Noire.Graphics.Nodes {
 
         public List<DXLight> Lights => _lights;
 
-        protected override void RenderA() {
-            var device = D3DRuntime.CurrentCamera?.Device;
+        protected override void RenderBeforeChildren() {
+            var device = Scene.CurrentDevice;
             if (device != null) {
                 _originalLighting = device.GetRenderState<bool>(RenderState.Lighting);
                 device.SetRenderState(RenderState.Lighting, Lighting);
@@ -41,8 +41,8 @@ namespace Noire.Graphics.Nodes {
             }
         }
 
-        protected override void RenderB() {
-            var device = D3DRuntime.CurrentCamera?.Device;
+        protected override void RenderAfterChildren() {
+            var device = Scene.CurrentDevice;
             if (device != null) {
                 if (Lighting) {
                     while (_originalLights.Count > 0) {

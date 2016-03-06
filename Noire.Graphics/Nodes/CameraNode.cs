@@ -5,15 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 using SharpDX;
 using SharpDX.Direct3D9;
+using Noire.Misc;
 
 namespace Noire.Graphics.Nodes {
     public class CameraNode : Node {
 
-        public CameraNode(Direct3DRuntime runtime)
-            : this(runtime, 0) {
+        public CameraNode(SceneNode scene)
+            : this(scene, 0) {
         }
 
-        public CameraNode(Direct3DRuntime runtime, int adapter)
+        public CameraNode(SceneNode runtime, int adapter)
             : base(runtime, false) {
             CreateFlags createFlags = CreateFlags.HardwareVertexProcessing;
 
@@ -30,15 +31,15 @@ namespace Noire.Graphics.Nodes {
         }
 
         public override void Dispose() {
-            if (D3DRuntime.CurrentCamera == this) {
-                D3DRuntime.CurrentCamera = null;
+            if (Scene.CurrentCamera == this) {
+                Scene.CurrentCamera = null;
             }
             NoireUtilities.SafeDispose(ref _device);
             base.Dispose();
         }
 
-        protected override void RenderA() {
-            D3DRuntime.CurrentCamera = this;
+        protected override void RenderBeforeChildren() {
+            Scene.CurrentCamera = this;
             _device?.BeginScene();
             // depth: http://www.gamedev.net/page/resources/_/technical/graphics-programming-and-theory/perspective-projections-in-lh-and-rh-systems-r3598
             _device?.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.MidnightBlue, 1, 0);
@@ -48,7 +49,7 @@ namespace Noire.Graphics.Nodes {
             _device?.SetTransform(TransformState.View, viewMatrix);
         }
 
-        protected override void RenderB() {
+        protected override void RenderAfterChildren() {
             _device?.SetTransform(TransformState.View, _originalViewMatrix);
             _device?.EndScene();
             _device?.Present();

@@ -3,21 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SharpDX;
-using SharpDX.Mathematics.Interop;
+using Noire.Graphics;
 
-namespace Noire.Graphics {
-
-    public static class NoireUtilities {
-
-        public static void SafeDispose<T>(ref T obj) where T : class, IDisposable {
-            obj?.Dispose();
-            obj = null;
-        }
-
-        public static Color ToColor(this RawColor4 color) {
-            return new Color(color.R, color.G, color.B, color.A);
-        }
+namespace Noire.Extensions {
+    public static class NodeExtensions {
 
         public static void InsertAfter(this INode node, INode referenceNode) {
             foreach (var child in referenceNode.Children) {
@@ -37,5 +26,4 @@ namespace Noire.Graphics {
         }
 
     }
-
 }

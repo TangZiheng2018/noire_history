@@ -74,6 +74,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\Direct3DExtensions.cs" />
+    <Compile Include="Extensions\EventExtensions.cs" />
+    <Compile Include="NoireUtilities.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SafeList.cs" />
     <Compile Include="SafeList.Enumerator.cs" />

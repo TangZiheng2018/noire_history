@@ -82,19 +82,19 @@ namespace Noire.View {
         private void Form1_Load(object sender, EventArgs e) {
             Show();
             Focus();
-            using (var rt = new Direct3DRuntime(this)) {
-                var camera = new CameraNode(rt);
+            using (var scene = new SceneNode(this)) {
+                var camera = new CameraNode(scene);
                 camera.Eye = new Vector3(0, -30, 0);
-                var pers = new PerspectiveProjectionNode(rt);
-                var trans = new RotatingTransformNode(rt);
-                var lighting = new LightingNode(rt);
+                var pers = new PerspectiveProjectionNode(scene);
+                var trans = new RotatingTransformNode(scene);
+                var lighting = new LightingNode(scene);
                 lighting.Lighting = true;
-                var mtl = new MaterialNode(rt);
+                var mtl = new MaterialNode(scene);
                 mtl.Ambient = new SharpDX.Color(1f, 1f, 1f);
                 mtl.Diffuse = new SharpDX.Color(1f, 1f, 1f);
                 mtl.Specular = new SharpDX.Color(0.8f, 0.3f, 0.3f);
                 mtl.Emissive = new SharpDX.Color(0f, 0f, 0f);
-                var obj = new SimpleCubeNode(rt);
+                var obj = new SimpleCubeNode(scene);
 
                 var dxLight = new PointLight(0);
                 dxLight.Ambient = new SharpDX.Color(0.8f, 0.8f, 0.8f);
@@ -107,24 +107,28 @@ namespace Noire.View {
                 dxLight.Range = 20f;
                 lighting.Lights.Add(dxLight);
 
+                // 按照设计（见 Node.OnDeviceChanged），必须首先将 CameraNode 添加到场景根节点（SceneNode），
+                // 那些依赖于 Device 的类（如要 VertexBuffer、Effect 的）才能正常工作。
+                scene.AddChild(camera);
+
                 mtl.AddChild(obj);
                 lighting.AddChild(mtl);
                 trans.AddChild(lighting);
                 pers.AddChild(trans);
                 camera.AddChild(pers);
-                rt.AddChild(camera);
-                rt.Run();
+
+                scene.Run();
             }
         }
 
         private class RotatingTransformNode : TransformNode {
 
-            public RotatingTransformNode(Direct3DRuntime runtime)
+            public RotatingTransformNode(SceneNode runtime)
                 : base(runtime) {
                 _degree = 0;
             }
 
-            protected override void UpdateA() {
+            protected override void UpdateBeforeChildren() {
                 _degree += 2;
                 var rad = MathUtil.DegreesToRadians(_degree);
                 Transform = Matrix.RotationY(rad) * Matrix.RotationZ(rad * 0.5f) * Matrix.RotationX(rad * 0.25f);

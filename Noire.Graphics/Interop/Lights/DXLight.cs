@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SharpDX.Direct3D9;
+using Noire.Extensions;
 
 namespace Noire.Graphics.Interop.Lights {
     public abstract class DXLight {

@@ -10,13 +10,13 @@ using SharpDX.Direct3D9;
 namespace Noire.Graphics.Nodes.Tests {
     public class SimpleCubeNode : Node {
 
-        public SimpleCubeNode(Direct3DRuntime runtime)
+        public SimpleCubeNode(SceneNode runtime)
             : base(runtime, false) {
         }
 
-        protected override void RenderB() {
-            var device = D3DRuntime.CurrentCamera?.Device;
-            var size = D3DRuntime.Control.ClientSize;
+        protected override void RenderAfterChildren() {
+            var device = Scene.CurrentCamera?.Device;
+            var size = Scene.Control.ClientSize;
             if (device != null) {
                 var vertexBuffer = new VertexBuffer(device, _vertices.Length * Utilities.SizeOf<PositionColor>(), Usage.WriteOnly, PositionColor.FVF, Pool.Managed);
                 var ptr1 = vertexBuffer.Lock(0, 0, LockFlags.None);
