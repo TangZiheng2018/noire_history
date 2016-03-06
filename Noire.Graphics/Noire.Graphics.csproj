@@ -119,38 +119,49 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Elements\Tests\DefaultTriangle.cs" />
-    <Compile Include="Elements\Tests\SphereLightTest.cs" />
-    <Compile Include="Elements\Tests\TexturedCubeAndLightTest.cs" />
-    <Compile Include="Elements\Tests\TexturedCubeTest.cs" />
-    <Compile Include="Elements\Tests\IndexBufferTest.cs" />
-    <Compile Include="Elements\Tests\LightAndMaterialTest.cs" />
-    <Compile Include="Elements\Tests\RotatingTriangle.cs" />
-    <Compile Include="Interop\CustomVertex4.cs" />
-    <Compile Include="Interop\CustomVertex3.cs" />
-    <Compile Include="Interop\CustomVertex2.cs" />
-    <Compile Include="Interop\CustomVertex1.cs" />
-    <Compile Include="Misc\SafeList.cs" />
-    <Compile Include="Misc\SafeList.ListOp.cs" />
+    <Compile Include="Direct3DRuntime.cs" />
+    <Compile Include="Node.cs" />
+    <Compile Include="Nodes\CameraNode.cs" />
+    <Compile Include="Nodes\DeviceNode.cs" />
+    <Compile Include="Nodes\LightingNode.cs" />
+    <Compile Include="Nodes\PerspectiveProjectionNode.cs" />
+    <Compile Include="Nodes\Tests\SimpleCubeNode.cs" />
+    <Compile Include="Nodes\TransformNode.cs" />
+    <Compile Include="Obsolete\Elements\Tests\DefaultTriangle.cs" />
+    <Compile Include="Obsolete\Elements\Tests\SphereLightTest.cs" />
+    <Compile Include="Obsolete\Elements\Tests\STLReader.cs" />
+    <Compile Include="Obsolete\Elements\Tests\TexturedCubeAndLightTest.cs" />
+    <Compile Include="Obsolete\Elements\Tests\TexturedCubeTest.cs" />
+    <Compile Include="Obsolete\Elements\Tests\IndexBufferTest.cs" />
+    <Compile Include="Obsolete\Elements\Tests\LightAndMaterialTest.cs" />
+    <Compile Include="Obsolete\Elements\Tests\RotatingTriangle.cs" />
+    <Compile Include="INode.cs" />
+    <Compile Include="Obsolete\Interop\CustomVertex4.cs" />
+    <Compile Include="Obsolete\Interop\CustomVertex3.cs" />
+    <Compile Include="Obsolete\Interop\CustomVertex2.cs" />
+    <Compile Include="Obsolete\Interop\CustomVertex1.cs" />
     <Compile Include="NoireUtilities.cs" />
-    <Compile Include="RenderManager.cs" />
-    <Compile Include="DisplayGroup.cs" />
-    <Compile Include="DisplayObject.cs" />
+    <Compile Include="Obsolete\RenderManager.cs" />
+    <Compile Include="Obsolete\DisplayGroup.cs" />
+    <Compile Include="Obsolete\DisplayObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RenderTarget.cs" />
-    <Compile Include="Stage.cs" />
-    <Compile Include="Misc\STLReader.cs" />
-    <Compile Include="Misc\StreamUtilities.cs" />
+    <Compile Include="Obsolete\RenderTarget.cs" />
+    <Compile Include="Obsolete\Stage.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Misc\SafeList.Enumerator.cs" />
-    <Compile Include="Misc\SafeList.ListOpType.cs" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="sharpdx_direct3d11_1_effects_arm.dll" />
     <Content Include="sharpdx_direct3d11_1_effects_x64.dll" />
     <Content Include="sharpdx_direct3d11_1_effects_x86.dll" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Noire.Misc\Noire.Misc.csproj">
+      <Project>{a45fa6a8-e30e-4d2b-ae5c-5d9414920fba}</Project>
+      <Name>Noire.Misc</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

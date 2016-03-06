@@ -8,7 +8,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Noire.Graphics;
-using Noire.Graphics.Elements.Tests;
+using Noire.Graphics.Nodes;
+using Noire.Graphics.Obsolete;
+using Noire.Graphics.Obsolete.Elements.Tests;
+using SharpDX;
+using Noire.Graphics.Nodes.Tests;
 
 namespace Noire.View {
     public partial class Form1 : Form {
@@ -43,7 +47,7 @@ namespace Noire.View {
         private void MnuTestsTexturedCubeAndLight_CheckedChanged(object sender, EventArgs e) {
             if (mnuTestsTexturedCubeAndLight.Checked) {
                 var o = new TexturedCubeAndLightTest(_dx);
-                o.SetTexture(@"res/images/metal-material-texture.jpg");
+                o.SetTexture(@"res/images/318753-1312240Z43725.jpg");
                 _dx.Stage.Children.Add(o);
             } else {
                 _dx.Stage.Children.RemoveAll(obj => obj is TexturedCubeAndLightTest);
@@ -99,12 +103,46 @@ namespace Noire.View {
         private void Form1_Load(object sender, EventArgs e) {
             Show();
             Focus();
-            using (_dx = new RenderManager(this)) {
-                _dx.Run();
+            //using (_dx = new RenderManager(this)) {
+            //    _dx.Run();
+            //}
+            using (var rt = new Direct3DRuntime(this)) {
+                var device = new DeviceNode(rt, 0);
+                var camera = new CameraNode(rt);
+                camera.Eye = new Vector3(0, -30, 0);
+                var pers = new PerspectiveProjectionNode(rt);
+                var trans = new RotatingTransformNode(rt);
+                var lighting = new LightingNode(rt);
+                lighting.Lighting = false;
+                var obj = new SimpleCubeNode(rt);
+                lighting.AddChild(obj);
+                trans.AddChild(lighting);
+                pers.AddChild(trans);
+                camera.AddChild(pers);
+                device.AddChild(camera);
+                rt.AddChild(device);
+                rt.Run();
             }
         }
 
         private RenderManager _dx;
+
+        private class RotatingTransformNode : TransformNode {
+
+            public RotatingTransformNode(Direct3DRuntime runtime)
+                : base(runtime) {
+                _degree = 0;
+            }
+
+            protected override void UpdateA() {
+                _degree += 2;
+                var rad = MathUtil.DegreesToRadians(_degree);
+                Transform = Matrix.RotationY(rad) * Matrix.RotationZ(rad * 0.5f) * Matrix.RotationX(rad * 0.25f);
+            }
+
+            private float _degree;
+
+        }
 
     }
 }
