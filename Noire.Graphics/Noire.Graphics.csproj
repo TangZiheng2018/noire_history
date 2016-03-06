@@ -125,7 +125,7 @@
     <Compile Include="Interop\Lights\DXLight.cs" />
     <Compile Include="Interop\Lights\PointLight.cs" />
     <Compile Include="Interop\Lights\SpotLight.cs" />
-    <Compile Include="Interop\Vertices\CustomVertex2.cs" />
+    <Compile Include="Interop\Vertices\PositionColor.cs" />
     <Compile Include="Nodes\SceneNode.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="Nodes\CameraNode.cs" />
@@ -147,7 +147,7 @@
     <Content Include="sharpdx_direct3d11_1_effects_x86.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Nodes\HLSL\" />
+    <Folder Include="Nodes\Effects\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Noire.Misc\Noire.Misc.csproj">
