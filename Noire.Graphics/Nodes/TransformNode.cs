@@ -17,12 +17,12 @@ namespace Noire.Graphics.Nodes {
         public Matrix Transform { get; set; }
 
         protected override void RenderA() {
-            _originalWorldMatrix = (D3DRuntime.CurrentDevice?.Device.GetTransform(TransformState.World)).GetValueOrDefault();
-            D3DRuntime.CurrentDevice?.Device?.SetTransform(TransformState.World, Transform);
+            _originalWorldMatrix = (D3DRuntime.CurrentCamera?.Device.GetTransform(TransformState.World)).GetValueOrDefault();
+            D3DRuntime.CurrentCamera?.Device?.SetTransform(TransformState.World, Transform);
         }
 
         protected override void RenderB() {
-            D3DRuntime.CurrentDevice?.Device?.SetTransform(TransformState.World, _originalWorldMatrix);
+            D3DRuntime.CurrentCamera?.Device?.SetTransform(TransformState.World, _originalWorldMatrix);
         }
 
         private Matrix _originalWorldMatrix;

@@ -24,14 +24,14 @@ namespace Noire.Graphics.Nodes {
         }
 
         protected override void RenderA() {
-            _originalProjectionMatrix = (D3DRuntime.CurrentDevice?.Device.GetTransform(TransformState.Projection)).GetValueOrDefault();
+            _originalProjectionMatrix = (D3DRuntime.CurrentCamera?.Device.GetTransform(TransformState.Projection)).GetValueOrDefault();
             var clientSize = D3DRuntime.Control.ClientSize;
             var projectionMatrix = PerspectiveWorkaround(MathUtil.DegreesToRadians(FieldOfViewDeg), (float)clientSize.Width / clientSize.Height, NearPlane, FarPlane);
-            D3DRuntime.CurrentDevice?.Device?.SetTransform(TransformState.Projection, projectionMatrix);
+            D3DRuntime.CurrentCamera?.Device?.SetTransform(TransformState.Projection, projectionMatrix);
         }
 
         protected override void RenderB() {
-            D3DRuntime.CurrentDevice?.Device?.SetTransform(TransformState.Projection, _originalProjectionMatrix);
+            D3DRuntime.CurrentCamera?.Device?.SetTransform(TransformState.Projection, _originalProjectionMatrix);
         }
 
         public float FieldOfViewDeg { get; set; } = 45;

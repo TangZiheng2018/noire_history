@@ -107,7 +107,6 @@ namespace Noire.View {
             //    _dx.Run();
             //}
             using (var rt = new Direct3DRuntime(this)) {
-                var device = new DeviceNode(rt, 0);
                 var camera = new CameraNode(rt);
                 camera.Eye = new Vector3(0, -30, 0);
                 var pers = new PerspectiveProjectionNode(rt);
@@ -119,8 +118,7 @@ namespace Noire.View {
                 trans.AddChild(lighting);
                 pers.AddChild(trans);
                 camera.AddChild(pers);
-                device.AddChild(camera);
-                rt.AddChild(device);
+                rt.AddChild(camera);
                 rt.Run();
             }
         }

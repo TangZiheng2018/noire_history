@@ -15,12 +15,12 @@ namespace Noire.Graphics.Nodes {
         public bool Lighting { get; set; }
 
         protected override void RenderA() {
-            _originalLighting = (D3DRuntime.CurrentDevice?.Device?.GetRenderState<bool>(RenderState.Lighting)).GetValueOrDefault();
-            D3DRuntime.CurrentDevice?.Device?.SetRenderState(RenderState.Lighting, Lighting);
+            _originalLighting = (D3DRuntime.CurrentCamera?.Device?.GetRenderState<bool>(RenderState.Lighting)).GetValueOrDefault();
+            D3DRuntime.CurrentCamera?.Device?.SetRenderState(RenderState.Lighting, Lighting);
         }
 
         protected override void RenderB() {
-            D3DRuntime.CurrentDevice?.Device?.SetRenderState(RenderState.Lighting, _originalLighting);
+            D3DRuntime.CurrentCamera?.Device?.SetRenderState(RenderState.Lighting, _originalLighting);
         }
 
         private bool _originalLighting;

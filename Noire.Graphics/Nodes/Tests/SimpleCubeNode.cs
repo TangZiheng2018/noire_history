@@ -15,7 +15,7 @@ namespace Noire.Graphics.Nodes.Tests {
         }
 
         protected override void RenderB() {
-            var device = D3DRuntime.CurrentDevice?.Device;
+            var device = D3DRuntime.CurrentCamera?.Device;
             var size = D3DRuntime.Control.ClientSize;
             if (device != null) {
                 var vertexBuffer = new VertexBuffer(device, _vertices.Length * Utilities.SizeOf<CustomVertex2>(), Usage.WriteOnly, CustomVertex2.FVF, Pool.Managed);

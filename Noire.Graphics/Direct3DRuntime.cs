@@ -34,7 +34,7 @@ namespace Noire.Graphics {
 
         public override Direct3DRuntime D3DRuntime => this;
 
-        public DeviceNode CurrentDevice { get; set; }
+        public CameraNode CurrentCamera { get; set; }
 
         public Direct3D Direct3D => _direct3D;
 

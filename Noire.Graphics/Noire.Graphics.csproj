@@ -122,7 +122,6 @@
     <Compile Include="Direct3DRuntime.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="Nodes\CameraNode.cs" />
-    <Compile Include="Nodes\DeviceNode.cs" />
     <Compile Include="Nodes\LightingNode.cs" />
     <Compile Include="Nodes\PerspectiveProjectionNode.cs" />
     <Compile Include="Nodes\Tests\SimpleCubeNode.cs" />

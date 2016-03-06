@@ -10,17 +10,48 @@ namespace Noire.Graphics.Nodes {
     public class CameraNode : Node {
 
         public CameraNode(Direct3DRuntime runtime)
+            : this(runtime, 0) {
+        }
+
+        public CameraNode(Direct3DRuntime runtime, int adapter)
             : base(runtime, false) {
+            CreateFlags createFlags = CreateFlags.HardwareVertexProcessing;
+
+            var clientSize = runtime.Control.ClientSize;
+            PresentParameters pp = new PresentParameters(clientSize.Width, clientSize.Height);
+            pp.PresentationInterval = PresentInterval.Default;
+            pp.SwapEffect = SwapEffect.Discard;
+            pp.Windowed = true;
+            pp.DeviceWindowHandle = runtime.Control.Handle;
+            pp.EnableAutoDepthStencil = true;
+            pp.AutoDepthStencilFormat = Format.D16;
+
+            _device = new Device(runtime.Direct3D, adapter, DeviceType.Hardware, runtime.Control.Handle, createFlags, pp);
+        }
+
+        public override void Dispose() {
+            if (D3DRuntime.CurrentCamera == this) {
+                D3DRuntime.CurrentCamera = null;
+            }
+            NoireUtilities.SafeDispose(ref _device);
+            base.Dispose();
         }
 
         protected override void RenderA() {
-            _originalViewMatrix = (D3DRuntime.CurrentDevice?.Device?.GetTransform(TransformState.View)).GetValueOrDefault();
+            D3DRuntime.CurrentCamera = this;
+            _device?.BeginScene();
+            // depth: http://www.gamedev.net/page/resources/_/technical/graphics-programming-and-theory/perspective-projections-in-lh-and-rh-systems-r3598
+            _device?.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.MidnightBlue, 1, 0);
+
+            _originalViewMatrix = (_device?.GetTransform(TransformState.View)).GetValueOrDefault();
             var viewMatrix = Matrix.LookAtLH(Eye, LookAt, Up);
-            D3DRuntime.CurrentDevice?.Device?.SetTransform(TransformState.View, viewMatrix);
+            _device?.SetTransform(TransformState.View, viewMatrix);
         }
 
         protected override void RenderB() {
-            D3DRuntime.CurrentDevice?.Device?.SetTransform(TransformState.View, _originalViewMatrix);
+            _device?.SetTransform(TransformState.View, _originalViewMatrix);
+            _device?.EndScene();
+            _device?.Present();
         }
 
         public Vector3 Eye { get; set; } = new Vector3(0, -1, 0);
@@ -29,7 +60,11 @@ namespace Noire.Graphics.Nodes {
 
         public Vector3 Up { get; set; } = new Vector3(0, 0, 1);
 
+        public Device Device => _device;
+
         private Matrix _originalViewMatrix;
+
+        private Device _device;
 
     }
 }
