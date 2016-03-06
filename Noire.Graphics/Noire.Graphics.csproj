@@ -119,6 +119,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Interop\Vertices\CustomVertex2.cs" />
     <Compile Include="Direct3DRuntime.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="Nodes\CameraNode.cs" />
@@ -126,26 +127,9 @@
     <Compile Include="Nodes\PerspectiveProjectionNode.cs" />
     <Compile Include="Nodes\Tests\SimpleCubeNode.cs" />
     <Compile Include="Nodes\TransformNode.cs" />
-    <Compile Include="Obsolete\Elements\Tests\DefaultTriangle.cs" />
-    <Compile Include="Obsolete\Elements\Tests\SphereLightTest.cs" />
-    <Compile Include="Obsolete\Elements\Tests\STLReader.cs" />
-    <Compile Include="Obsolete\Elements\Tests\TexturedCubeAndLightTest.cs" />
-    <Compile Include="Obsolete\Elements\Tests\TexturedCubeTest.cs" />
-    <Compile Include="Obsolete\Elements\Tests\IndexBufferTest.cs" />
-    <Compile Include="Obsolete\Elements\Tests\LightAndMaterialTest.cs" />
-    <Compile Include="Obsolete\Elements\Tests\RotatingTriangle.cs" />
     <Compile Include="INode.cs" />
-    <Compile Include="Obsolete\Interop\CustomVertex4.cs" />
-    <Compile Include="Obsolete\Interop\CustomVertex3.cs" />
-    <Compile Include="Obsolete\Interop\CustomVertex2.cs" />
-    <Compile Include="Obsolete\Interop\CustomVertex1.cs" />
     <Compile Include="NoireUtilities.cs" />
-    <Compile Include="Obsolete\RenderManager.cs" />
-    <Compile Include="Obsolete\DisplayGroup.cs" />
-    <Compile Include="Obsolete\DisplayObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Obsolete\RenderTarget.cs" />
-    <Compile Include="Obsolete\Stage.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

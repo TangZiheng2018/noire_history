@@ -8,15 +8,15 @@ using SharpDX;
 using SharpDX.Direct3D9;
 using SharpDX.Mathematics.Interop;
 
-namespace Noire.Graphics.Obsolete.Interop {
+namespace Noire.Graphics.Interop.Vertices {
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    struct CustomVertex2 {
+    internal struct PositionColor {
 
         public Vector3 Position;
         public ColorBGRA Color;
 
-        public static readonly VertexFormat FVF = VertexFormat.Position | VertexFormat.Diffuse;
+        public static VertexFormat FVF => VertexFormat.Position | VertexFormat.Diffuse;
 
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Noire.Graphics.Obsolete.Interop;
+using Noire.Graphics.Interop.Vertices;
 using SharpDX;
 using SharpDX.Direct3D9;
 
@@ -18,7 +18,7 @@ namespace Noire.Graphics.Nodes.Tests {
             var device = D3DRuntime.CurrentCamera?.Device;
             var size = D3DRuntime.Control.ClientSize;
             if (device != null) {
-                var vertexBuffer = new VertexBuffer(device, _vertices.Length * Utilities.SizeOf<CustomVertex2>(), Usage.WriteOnly, CustomVertex2.FVF, Pool.Managed);
+                var vertexBuffer = new VertexBuffer(device, _vertices.Length * Utilities.SizeOf<PositionColor>(), Usage.WriteOnly, PositionColor.FVF, Pool.Managed);
                 var ptr1 = vertexBuffer.Lock(0, 0, LockFlags.None);
                 ptr1.WriteRange(_vertices);
                 vertexBuffer.Unlock();
@@ -28,8 +28,8 @@ namespace Noire.Graphics.Nodes.Tests {
                 ptr2.WriteRange(_indices);
                 indexBuffer.Unlock();
                 
-                device.SetStreamSource(0, vertexBuffer, 0, Utilities.SizeOf<CustomVertex2>());
-                device.VertexFormat = CustomVertex2.FVF;
+                device.SetStreamSource(0, vertexBuffer, 0, Utilities.SizeOf<PositionColor>());
+                device.VertexFormat = PositionColor.FVF;
                 device.Indices = indexBuffer;
                 device.DrawIndexedPrimitive(PrimitiveType.TriangleList, 0, 0, _vertices.Length, 0, _indices.Length / 3);
 
@@ -38,16 +38,16 @@ namespace Noire.Graphics.Nodes.Tests {
             }
         }
 
-        private CustomVertex2[] _vertices = new[]
+        private PositionColor[] _vertices = new[]
         {
-            new CustomVertex2() {Position = new Vector3(-5, 5, -5), Color = new Color(255, 0, 0)},
-            new CustomVertex2() {Position = new Vector3(-5, 5, 5), Color = new Color(0, 255, 0)},
-            new CustomVertex2() {Position = new Vector3(5, 5, 5), Color = new Color(0, 0, 255)},
-            new CustomVertex2() {Position = new Vector3(5, 5, -5), Color = new Color(255, 255, 0)},
-            new CustomVertex2() {Position = new Vector3(-5, -5, -5), Color = new Color(255, 0, 255)},
-            new CustomVertex2() {Position = new Vector3(-5, -5, 5), Color = new Color(0, 255, 255)},
-            new CustomVertex2() {Position = new Vector3(5, -5, 5), Color = new Color(0, 0, 0)},
-            new CustomVertex2() {Position = new Vector3(5, -5, -5), Color = new Color(255, 255, 255)},
+            new PositionColor() {Position = new Vector3(-5, 5, -5), Color = new Color(255, 0, 0)},
+            new PositionColor() {Position = new Vector3(-5, 5, 5), Color = new Color(0, 255, 0)},
+            new PositionColor() {Position = new Vector3(5, 5, 5), Color = new Color(0, 0, 255)},
+            new PositionColor() {Position = new Vector3(5, 5, -5), Color = new Color(255, 255, 0)},
+            new PositionColor() {Position = new Vector3(-5, -5, -5), Color = new Color(255, 0, 255)},
+            new PositionColor() {Position = new Vector3(-5, -5, 5), Color = new Color(0, 255, 255)},
+            new PositionColor() {Position = new Vector3(5, -5, 5), Color = new Color(0, 0, 0)},
+            new PositionColor() {Position = new Vector3(5, -5, -5), Color = new Color(255, 255, 255)},
         };
 
         private ushort[] _indices = new ushort[]
