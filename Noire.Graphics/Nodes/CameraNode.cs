@@ -14,20 +14,20 @@ namespace Noire.Graphics.Nodes {
             : this(scene, 0) {
         }
 
-        public CameraNode(SceneNode runtime, int adapter)
-            : base(runtime, false) {
+        public CameraNode(SceneNode scene, int adapter)
+            : base(scene) {
             CreateFlags createFlags = CreateFlags.HardwareVertexProcessing;
 
-            var clientSize = runtime.Control.ClientSize;
+            var clientSize = scene.Control.ClientSize;
             PresentParameters pp = new PresentParameters(clientSize.Width, clientSize.Height);
             pp.PresentationInterval = PresentInterval.Default;
             pp.SwapEffect = SwapEffect.Discard;
             pp.Windowed = true;
-            pp.DeviceWindowHandle = runtime.Control.Handle;
+            pp.DeviceWindowHandle = scene.Control.Handle;
             pp.EnableAutoDepthStencil = true;
             pp.AutoDepthStencilFormat = Format.D16;
 
-            _device = new Device(runtime.Direct3D, adapter, DeviceType.Hardware, runtime.Control.Handle, createFlags, pp);
+            _device = new Device(scene.Direct3D, adapter, DeviceType.Hardware, scene.Control.Handle, createFlags, pp);
         }
 
         public override void Dispose() {

@@ -10,7 +10,7 @@ namespace Noire.Graphics.Nodes {
     public class PerspectiveProjectionNode : Node {
 
         public PerspectiveProjectionNode(SceneNode scene)
-            : base(scene, false) {
+            : base(scene) {
         }
 
         private static Matrix PerspectiveWorkaround(float fov, float aspect, float near, float far) {

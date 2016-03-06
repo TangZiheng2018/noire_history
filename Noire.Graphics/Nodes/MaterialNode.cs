@@ -11,7 +11,7 @@ namespace Noire.Graphics.Nodes {
     public sealed class MaterialNode : Node {
 
         public MaterialNode(SceneNode scene)
-            : base(scene, false) {
+            : base(scene) {
             _material = new Material();
         }
 

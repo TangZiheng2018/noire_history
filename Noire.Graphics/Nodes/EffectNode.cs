@@ -10,7 +10,7 @@ namespace Noire.Graphics.Nodes {
     public abstract class EffectNode : Node {
 
         public EffectNode(SceneNode scene)
-            : base(scene, false) {
+            : base(scene) {
         }
 
         public override void Dispose() {

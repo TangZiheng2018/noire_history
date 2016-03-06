@@ -12,6 +12,10 @@ using SharpDX.Direct3D9;
 namespace Noire.Graphics {
     public abstract class Node : INode {
 
+        public Node(SceneNode scene)
+            : this(scene, false) {
+        }
+
         public Node(SceneNode scene, bool isRoot) {
             _isRoot = isRoot;
             _children = new SafeList<INode>();

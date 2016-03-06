@@ -10,7 +10,7 @@ namespace Noire.Graphics.Nodes {
     public class TransformNode : Node {
 
         public TransformNode(SceneNode scene)
-            : base(scene, false) {
+            : base(scene) {
             Transform = new Matrix();
         }
 

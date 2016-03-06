@@ -11,7 +11,7 @@ namespace Noire.Graphics.Nodes {
     public class LightingNode : Node {
 
         public LightingNode(SceneNode scene)
-            : base(scene, false) {
+            : base(scene) {
             _lights = new List<DXLight>();
             _originalLights = new Queue<DXLight>();
         }
