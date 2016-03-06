@@ -119,11 +119,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Interop\Lights\DirectionalLight.cs" />
+    <Compile Include="Interop\Lights\DXLight.cs" />
+    <Compile Include="Interop\Lights\PointLight.cs" />
+    <Compile Include="Interop\Lights\SpotLight.cs" />
     <Compile Include="Interop\Vertices\CustomVertex2.cs" />
     <Compile Include="Direct3DRuntime.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="Nodes\CameraNode.cs" />
     <Compile Include="Nodes\LightingNode.cs" />
+    <Compile Include="Nodes\MaterialNode.cs" />
     <Compile Include="Nodes\PerspectiveProjectionNode.cs" />
     <Compile Include="Nodes\Tests\SimpleCubeNode.cs" />
     <Compile Include="Nodes\TransformNode.cs" />

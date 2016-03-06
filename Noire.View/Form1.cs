@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Noire.Graphics;
+using Noire.Graphics.Interop.Lights;
 using Noire.Graphics.Nodes;
 using SharpDX;
 using Noire.Graphics.Nodes.Tests;
@@ -87,9 +88,27 @@ namespace Noire.View {
                 var pers = new PerspectiveProjectionNode(rt);
                 var trans = new RotatingTransformNode(rt);
                 var lighting = new LightingNode(rt);
-                lighting.Lighting = false;
+                lighting.Lighting = true;
+                var mtl = new MaterialNode(rt);
+                mtl.Ambient = new SharpDX.Color(1f, 1f, 1f);
+                mtl.Diffuse = new SharpDX.Color(1f, 1f, 1f);
+                mtl.Specular = new SharpDX.Color(0.8f, 0.3f, 0.3f);
+                mtl.Emissive = new SharpDX.Color(0f, 0f, 0f);
                 var obj = new SimpleCubeNode(rt);
-                lighting.AddChild(obj);
+
+                var dxLight = new PointLight(0);
+                dxLight.Ambient = new SharpDX.Color(0.8f, 0.8f, 0.8f);
+                dxLight.Diffuse = new SharpDX.Color(1f, 1f, 1f);
+                dxLight.Specular = new SharpDX.Color(0.3f, 0.3f, 0.3f);
+                dxLight.Position = new Vector3(20, 0, 0);
+                dxLight.Attenuation0 = 1f;
+                dxLight.Attenuation1 = 0f;
+                dxLight.Attenuation2 = 0f;
+                dxLight.Range = 20f;
+                lighting.Lights.Add(dxLight);
+
+                mtl.AddChild(obj);
+                lighting.AddChild(mtl);
                 trans.AddChild(lighting);
                 pers.AddChild(trans);
                 camera.AddChild(pers);
