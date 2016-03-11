@@ -95,6 +95,7 @@ namespace Noire.View {
                 mtl.Specular = new SharpDX.Color(0.8f, 0.3f, 0.3f);
                 mtl.Emissive = new SharpDX.Color(0f, 0f, 0f);
                 var obj = new SimpleCubeNode(scene);
+                //var model = new ModelNode(scene);
 
                 var dxLight = new PointLight(0);
                 dxLight.Ambient = new SharpDX.Color(0.8f, 0.8f, 0.8f);

@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{C019352D-F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Noire.Misc", "Noire.Misc\Noire.Misc.csproj", "{A45FA6A8-E30E-4D2B-AE5C-5D9414920FBA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Noire.AssimpView", "Noire.AssimpView\Noire.AssimpView.csproj", "{FB5E7ACD-889C-4CD0-8D1D-858A046DFEFE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{A45FA6A8-E30E-4D2B-AE5C-5D9414920FBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A45FA6A8-E30E-4D2B-AE5C-5D9414920FBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A45FA6A8-E30E-4D2B-AE5C-5D9414920FBA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB5E7ACD-889C-4CD0-8D1D-858A046DFEFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB5E7ACD-889C-4CD0-8D1D-858A046DFEFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB5E7ACD-889C-4CD0-8D1D-858A046DFEFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB5E7ACD-889C-4CD0-8D1D-858A046DFEFE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

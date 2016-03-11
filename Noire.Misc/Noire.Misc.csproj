@@ -75,6 +75,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\Direct3DExtensions.cs" />
+    <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\EventExtensions.cs" />
     <Compile Include="NoireUtilities.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
