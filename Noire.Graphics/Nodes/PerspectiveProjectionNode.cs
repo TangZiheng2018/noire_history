@@ -19,7 +19,7 @@ namespace Noire.Graphics.Nodes {
             m.M22 = (float)(1 / Math.Tan(fov * 0.5));
             m.M33 = far / (far - near);
             m.M34 = 1;
-            m.M44 = far * near / (near - far);
+            m.M43 = far * near / (near - far);
             return m;
         }
 
@@ -41,7 +41,7 @@ namespace Noire.Graphics.Nodes {
 
         public float FieldOfViewDeg { get; set; } = 45;
 
-        public float NearPlane { get; set; } = 0;
+        public float NearPlane { get; set; } = 1;
 
         public float FarPlane { get; set; } = 1000;
 
