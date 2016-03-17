@@ -11,7 +11,6 @@ using Assimp;
 using SharpDX;
 using SharpDX.Direct3D9;
 using SharpDX.DirectInput;
-using SharpDX.Mathematics.Interop;
 using SharpDX.Windows;
 using Device = SharpDX.Direct3D9.Device;
 using DeviceType = SharpDX.Direct3D9.DeviceType;
@@ -198,7 +197,7 @@ namespace Noire.AssimpView {
             m.M22 = (float)(1 / Math.Tan(fov * 0.5));
             m.M33 = far / (far - near);
             m.M34 = 1;
-            m.M44 = far * near / (near - far);
+            m.M43 = far * near / (near - far);
             return m;
         }
 
