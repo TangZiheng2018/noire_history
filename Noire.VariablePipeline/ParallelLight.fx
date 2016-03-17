@@ -5,6 +5,7 @@ float4 vecEye;
 float4 vDiffuseColor;
 float4 vSpecularColor;
 float4 vAmbient;
+float fPower;
 
 struct VToP
 {
@@ -34,7 +35,7 @@ float4 PS(VToP vtop) : COLOR
     float Diff = saturate(dot(Normal, LightDir));
     
     float4 Reflect = normalize(reflect(-LightDir, Normal));
-    float Specular = pow(saturate(dot(Reflect, ViewDir)), 15);
+    float Specular = pow(saturate(dot(Reflect, ViewDir)), fPower);
 
     return vAmbient + vDiffuseColor * Diff + vSpecularColor * Specular;
 }

@@ -225,6 +225,12 @@ namespace Noire.VariablePipeline {
                 _effect = _pointLightEffect;
                 isEffectReset = true;
             }
+            if (state.IsPressed(Key.Add) || state.IsPressed(Key.Equals)) {
+                _specularPower += 0.5f;
+            }
+            if (state.IsPressed(Key.Subtract) || state.IsPressed(Key.Minus)) {
+                _specularPower = Math.Max(_specularPower -= 0.5f, 0f);
+            }
         }
 
         private static Matrix PerspectiveWorkaround(float fov, float aspect, float near, float far) {
@@ -291,6 +297,7 @@ namespace Noire.VariablePipeline {
             e.SetValue(e.GetParameter(null, "vDiffuseColor"), material.Diffuse);
             e.SetValue(e.GetParameter(null, "vSpecularColor"), material.Specular);
             e.SetValue(e.GetParameter(null, "vAmbient"), material.Ambient);
+            e.SetValue(e.GetParameter(null, "fPower"), _specularPower);
         }
 
         private void SetPointLightEffectParams(Size2 clientSize, Material material) {
@@ -311,6 +318,7 @@ namespace Noire.VariablePipeline {
             e.SetValue(e.GetParameter(null, "vDiffuseColor"), material.Diffuse);
             e.SetValue(e.GetParameter(null, "vSpecularColor"), material.Specular);
             e.SetValue(e.GetParameter(null, "vAmbient"), material.Ambient);
+            e.SetValue(e.GetParameter(null, "fPower"), _specularPower);
         }
 
         private Direct3D _direct3D;
@@ -326,6 +334,7 @@ namespace Noire.VariablePipeline {
         private List<MeshData> _meshes = new List<MeshData>();
         private Material _defaultMaterial;
         private float _rotationDegree;
+        private float _specularPower = 15f;
 
         private static readonly Vector3 OriginalLookingDirection = Vector3.UnitY;
         private static readonly Vector3 OriginalUpDirection = Vector3.UnitZ;
