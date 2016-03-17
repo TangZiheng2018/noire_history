@@ -116,7 +116,7 @@ namespace Noire.VariablePipeline {
             _pointLightEffect = Effect.FromFile(device, "PointLight.fx", ShaderFlags.None);
             var material = new Material();
             material.Ambient = new Color(15, 15, 15);
-            material.Diffuse = new Color(220, 220, 220);
+            material.Diffuse = new Color(44, 44, 44);
             material.Emissive = new Color(191, 191, 191);
             material.Specular = new Color(255, 255, 255);
             _defaultMaterial = material;
@@ -231,6 +231,15 @@ namespace Noire.VariablePipeline {
             if (state.IsPressed(Key.Subtract) || state.IsPressed(Key.Minus)) {
                 _specularPower = Math.Max(_specularPower -= 0.5f, 0f);
             }
+            bool isMaterialOverridden = false;
+            if (!isMaterialOverridden && state.IsPressed(Key.I)) {
+                _useDefaultMaterialOverride = false;
+                isMaterialOverridden = true;
+            }
+            if (!isMaterialOverridden && state.IsPressed(Key.O)) {
+                _useDefaultMaterialOverride = true;
+                isMaterialOverridden = true;
+            }
         }
 
         private static Matrix PerspectiveWorkaround(float fov, float aspect, float near, float far) {
@@ -252,13 +261,14 @@ namespace Noire.VariablePipeline {
             MeshData mesh;
             foreach (var index in meshIndices) {
                 mesh = _meshes[index];
+                Material material = _useDefaultMaterialOverride ? _defaultMaterial : mesh.Material;
                 device.SetStreamSource(0, mesh.VertexBuffer, 0, mesh.Stride);
                 device.Indices = mesh.IndexBuffer;
                 device.VertexDeclaration = mesh.VertexDeclaration;
                 if (effect == _parallelLightEffect) {
-                    SetParallelLightEffectParams(clientSize, mesh.Material);
+                    SetParallelLightEffectParams(clientSize, material);
                 } else if (effect == _pointLightEffect) {
-                    SetPointLightEffectParams(clientSize, mesh.Material);
+                    SetPointLightEffectParams(clientSize, material);
                 } else {
                     throw new ArgumentOutOfRangeException(nameof(effect));
                 }
@@ -335,6 +345,7 @@ namespace Noire.VariablePipeline {
         private Material _defaultMaterial;
         private float _rotationDegree;
         private float _specularPower = 15f;
+        private bool _useDefaultMaterialOverride = false;
 
         private static readonly Vector3 OriginalLookingDirection = Vector3.UnitY;
         private static readonly Vector3 OriginalUpDirection = Vector3.UnitZ;
