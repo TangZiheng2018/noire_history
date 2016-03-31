@@ -5,10 +5,47 @@ VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{C019352D-F802-4A71-B830-71510048831E}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Noire.Common", "Noire.Common\Noire.Common.csproj", "{9A6092E9-9F8F-4290-BCF8-1BB955309AF3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Noire.Common.D3D11", "Noire.Common.D3D11\Noire.Common.D3D11.csproj", "{73350776-E622-4100-8785-E4885DD0F0C8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Noire.Graphics", "Noire.Graphics\Noire.Graphics.csproj", "{48593776-007B-471A-8B99-1F75B2BF5832}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Noire.Graphics.D3D11", "Noire.Graphics.D3D11\Noire.Graphics.D3D11.csproj", "{72931A35-7E21-405C-8C89-A672BA7ECB63}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Noire.Demo.D3D11", "Noire.Demo.D3D11\Noire.Demo.D3D11.csproj", "{16DD3AA4-714E-4D50-85D2-3844AFAF03FD}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9A6092E9-9F8F-4290-BCF8-1BB955309AF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A6092E9-9F8F-4290-BCF8-1BB955309AF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A6092E9-9F8F-4290-BCF8-1BB955309AF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A6092E9-9F8F-4290-BCF8-1BB955309AF3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73350776-E622-4100-8785-E4885DD0F0C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73350776-E622-4100-8785-E4885DD0F0C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73350776-E622-4100-8785-E4885DD0F0C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73350776-E622-4100-8785-E4885DD0F0C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48593776-007B-471A-8B99-1F75B2BF5832}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48593776-007B-471A-8B99-1F75B2BF5832}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48593776-007B-471A-8B99-1F75B2BF5832}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48593776-007B-471A-8B99-1F75B2BF5832}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72931A35-7E21-405C-8C89-A672BA7ECB63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72931A35-7E21-405C-8C89-A672BA7ECB63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72931A35-7E21-405C-8C89-A672BA7ECB63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72931A35-7E21-405C-8C89-A672BA7ECB63}.Release|Any CPU.Build.0 = Release|Any CPU
+		{16DD3AA4-714E-4D50-85D2-3844AFAF03FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16DD3AA4-714E-4D50-85D2-3844AFAF03FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16DD3AA4-714E-4D50-85D2-3844AFAF03FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16DD3AA4-714E-4D50-85D2-3844AFAF03FD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
