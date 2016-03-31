@@ -13,5 +13,11 @@ namespace Noire.VariablePipeline {
             }
         }
 
+        public static IEnumerable<int> ReversedInt32(int end, int count) {
+            for (var i = end - 1; i >= 0; --i) {
+                yield return i;
+            }
+        }
+
     }
 }

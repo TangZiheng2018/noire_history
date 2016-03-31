@@ -6,6 +6,7 @@ float4 vDiffuseColor;
 float4 vSpecularColor;
 float4 vAmbient;
 float fPower;
+bool bShadowAmbient;
 
 struct VToP
 {
@@ -32,12 +33,20 @@ float4 PS(VToP vtop) : COLOR
     float4 LightDir = normalize(vtop.L);
     float4 ViewDir = normalize(vtop.V);
                                                                           
-    float Diff = saturate(dot(Normal, LightDir));
+    float Diff = dot(Normal, LightDir);
     
-    float4 Reflect = normalize(reflect(-LightDir, Normal));
-    float Specular = pow(saturate(dot(Reflect, ViewDir)), fPower);
+    if (!bShadowAmbient || Diff >= 0)
+    {
+        Diff = saturate(Diff);
+        float4 Reflect = normalize(reflect(-LightDir, Normal));
+        float Specular = pow(saturate(dot(Reflect, ViewDir)), fPower);
 
-    return vAmbient + vDiffuseColor * Diff + vSpecularColor * Specular;
+        return vAmbient + vDiffuseColor * Diff + vSpecularColor * Specular;
+    }
+    else
+    {
+        return float4(0, 0, 0, 0);
+    }
 }
 
 technique SpecularLight
