@@ -10,10 +10,10 @@ using Noire.Common;
 using SharpDX;
 using SharpDX.Windows;
 
-namespace Noire.Graphics.D3D11 {
+namespace Noire.Graphics {
     public abstract class D3DApp : DisposeBase {
 
-        public D3DApp(Control control) {
+        protected D3DApp(Control control) {
             IsPaused = false;
             Timer = new AccurateTimer();
             ControlWindow = control;
