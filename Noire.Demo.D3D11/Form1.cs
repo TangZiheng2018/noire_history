@@ -21,10 +21,10 @@ namespace Noire.Demo.D3D11 {
 
         private void InitializeEventHandlers() {
             Load += Form1_Load;
-            Closed += Form1_Closed;
+            FormClosed += Form1_FormClosed;
         }
 
-        private void Form1_Closed(object sender, EventArgs e) {
+        private void Form1_FormClosed(object sender, EventArgs e) {
             _app.Terminate();
             _app.Dispose();
         }
