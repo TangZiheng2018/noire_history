@@ -40,6 +40,7 @@ namespace Noire.Graphics {
             _hasRun = true;
             Timer.Reset();
             ControlWindow.Show();
+            ControlWindow.Focus();
             using (var renderLoop = new RenderLoop(ControlWindow)) {
                 while (renderLoop.NextFrame()) {
                     Render();

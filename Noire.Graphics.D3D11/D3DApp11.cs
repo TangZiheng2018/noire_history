@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Noire.Common;
+using Noire.Common.Camera;
 using SharpDX;
 using SharpDX.D3DCompiler;
 using SharpDX.Direct3D;
@@ -130,6 +131,11 @@ namespace Noire.Graphics.D3D11 {
             context.VertexShader.SetConstantBuffer(0, constantBuffer);
             context.VertexShader.Set(vertexShader);
             context.PixelShader.Set(pixelShader);
+
+            _camera = new FpsCamera(45, (float)ControlWindow.ClientSize.Width / ControlWindow.ClientSize.Height, 1, 1000);
+            //_camera = new OrthoCamera(ControlWindow.ClientSize.Width, ControlWindow.ClientSize.Height, 0.1f, 1000);
+            _camera.Position = new Vector3(0, -5, 0);
+            _camera.LookAt(Vector3.Zero);
         }
 
         public override void Terminate() {
@@ -183,13 +189,14 @@ namespace Noire.Graphics.D3D11 {
                 ImmediateContext.OutputMerger.SetTargets(depthView, renderView);
 
                 // Setup new projection matrix with correct aspect ratio
-                proj = Matrix.PerspectiveFovLH((float)Math.PI / 4.0f, ControlWindow.ClientSize.Width / (float)ControlWindow.ClientSize.Height, 0.1f, 100.0f);
+                //proj = Matrix.PerspectiveFovLH((float)Math.PI / 4.0f, ControlWindow.ClientSize.Width / (float)ControlWindow.ClientSize.Height, 0.1f, 100.0f);
 
                 // We are done resizing
                 userResized = false;
             }
 
-            var viewProj = Matrix.Multiply(view, proj);
+            //var viewProj = Matrix.Multiply(view, proj);
+            var viewProj = _camera.ViewProjectionMatrix;
 
             // Clear views
             ImmediateContext.ClearDepthStencilView(depthView, DepthStencilClearFlags.Depth, 1.0f, 0);
@@ -211,6 +218,7 @@ namespace Noire.Graphics.D3D11 {
 
         protected override void Update(GameTime gameTime) {
             _degree += 1f;
+            _camera.UpdateViewMatrix();
         }
 
         private float _degree = 0;
@@ -236,6 +244,8 @@ namespace Noire.Graphics.D3D11 {
         private Texture2D depthBuffer = null;
         private DepthStencilView depthView = null;
         private Matrix proj = Matrix.Identity;
+
+        private CameraBase _camera;
 
     }
 }

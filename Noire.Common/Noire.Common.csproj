@@ -55,7 +55,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccurateTimer.cs" />
+    <Compile Include="Camera\CameraBase.cs" />
+    <Compile Include="Camera\FpsCamera.cs" />
+    <Compile Include="Camera\HeightFunc.cs" />
+    <Compile Include="Camera\LookAtCamera.cs" />
+    <Compile Include="Camera\OrthoCamera.cs" />
+    <Compile Include="Frustum.cs" />
+    <Compile Include="FrustumPlane.cs" />
     <Compile Include="GameTime.cs" />
+    <Compile Include="IntersectionState.cs" />
+    <Compile Include="MathF.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
