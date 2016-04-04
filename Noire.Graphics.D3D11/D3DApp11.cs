@@ -65,6 +65,10 @@ namespace Noire.Graphics.D3D11 {
 
             IsInitialized = true;
 
+            NoireConfiguration.ResourceBase = "resources";
+            EffectManager.Initialize();
+            EffectManager.Instance?.InitializeAllEffects(_d3dDevice);
+
             vertexShaderByteCode = ShaderBytecode.CompileFromFile("Effects/MiniCube.fx", "VS", "vs_4_0");
             vertexShader = new VertexShader(_d3dDevice, vertexShaderByteCode);
             pixelShaderByteCode = ShaderBytecode.CompileFromFile("Effects/MiniCube.fx", "PS", "ps_4_0");
@@ -136,9 +140,12 @@ namespace Noire.Graphics.D3D11 {
             //_camera = new OrthoCamera(ControlWindow.ClientSize.Width, ControlWindow.ClientSize.Height, 0.1f, 1000);
             _camera.Position = new Vector3(0, -5, 0);
             _camera.LookAt(Vector3.Zero);
+
+            InvalidateSurface(this);
         }
 
         public override void Terminate() {
+            EffectManager.Instance?.Dispose();
             IsRunning = false;
         }
 
@@ -148,54 +155,47 @@ namespace Noire.Graphics.D3D11 {
 
         public Factory Factory => _factory;
 
+        protected override void OnInvalidateSurface(object sender, EventArgs e) {
+            // Dispose all previous allocated resources
+            Utilities.Dispose(ref backBuffer);
+            Utilities.Dispose(ref renderView);
+            Utilities.Dispose(ref depthBuffer);
+            Utilities.Dispose(ref depthView);
+
+            var clientSize = ControlWindow.ClientSize;
+            _camera.Aspect = (float)clientSize.Width / clientSize.Height;
+
+            // Resize the backbuffer
+            _swapChain.ResizeBuffers(_swapChainDescription.BufferCount, clientSize.Width, clientSize.Height, Format.Unknown, SwapChainFlags.None);
+            // Get the backbuffer from the swapchain
+            backBuffer = Texture2D.FromSwapChain<Texture2D>(_swapChain, 0);
+
+            // Renderview on the backbuffer
+            renderView = new RenderTargetView(_d3dDevice, backBuffer);
+
+            // Create the depth buffer
+            depthBuffer = new Texture2D(_d3dDevice, new Texture2DDescription() {
+                Format = Format.D32_Float_S8X24_UInt,
+                ArraySize = 1,
+                MipLevels = 1,
+                Width = ControlWindow.ClientSize.Width,
+                Height = ControlWindow.ClientSize.Height,
+                SampleDescription = new SampleDescription(1, 0),
+                Usage = ResourceUsage.Default,
+                BindFlags = BindFlags.DepthStencil,
+                CpuAccessFlags = CpuAccessFlags.None,
+                OptionFlags = ResourceOptionFlags.None
+            });
+
+            // Create the depth buffer view
+            depthView = new DepthStencilView(_d3dDevice, depthBuffer);
+
+            // Setup targets and viewport for rendering
+            ImmediateContext.Rasterizer.SetViewport(new Viewport(0, 0, ControlWindow.ClientSize.Width, ControlWindow.ClientSize.Height, 0.0f, 1.0f));
+            ImmediateContext.OutputMerger.SetTargets(depthView, renderView);
+        }
+
         protected override void Render(GameTime gameTime) {
-            // Prepare matrices
-            var view = Matrix.LookAtLH(new Vector3(0, 0, -5), new Vector3(0, 0, 0), Vector3.UnitY);
-
-            if (userResized) {
-                // Dispose all previous allocated resources
-                Utilities.Dispose(ref backBuffer);
-                Utilities.Dispose(ref renderView);
-                Utilities.Dispose(ref depthBuffer);
-                Utilities.Dispose(ref depthView);
-
-                // Resize the backbuffer
-                _swapChain.ResizeBuffers(_swapChainDescription.BufferCount, ControlWindow.ClientSize.Width, ControlWindow.ClientSize.Height, Format.Unknown, SwapChainFlags.None);
-                // Get the backbuffer from the swapchain
-                backBuffer = Texture2D.FromSwapChain<Texture2D>(_swapChain, 0);
-
-                // Renderview on the backbuffer
-                renderView = new RenderTargetView(_d3dDevice, backBuffer);
-
-                // Create the depth buffer
-                depthBuffer = new Texture2D(_d3dDevice, new Texture2DDescription() {
-                    Format = Format.D32_Float_S8X24_UInt,
-                    ArraySize = 1,
-                    MipLevels = 1,
-                    Width = ControlWindow.ClientSize.Width,
-                    Height = ControlWindow.ClientSize.Height,
-                    SampleDescription = new SampleDescription(1, 0),
-                    Usage = ResourceUsage.Default,
-                    BindFlags = BindFlags.DepthStencil,
-                    CpuAccessFlags = CpuAccessFlags.None,
-                    OptionFlags = ResourceOptionFlags.None
-                });
-
-                // Create the depth buffer view
-                depthView = new DepthStencilView(_d3dDevice, depthBuffer);
-
-                // Setup targets and viewport for rendering
-                ImmediateContext.Rasterizer.SetViewport(new Viewport(0, 0, ControlWindow.ClientSize.Width, ControlWindow.ClientSize.Height, 0.0f, 1.0f));
-                ImmediateContext.OutputMerger.SetTargets(depthView, renderView);
-
-                // Setup new projection matrix with correct aspect ratio
-                //proj = Matrix.PerspectiveFovLH((float)Math.PI / 4.0f, ControlWindow.ClientSize.Width / (float)ControlWindow.ClientSize.Height, 0.1f, 100.0f);
-
-                // We are done resizing
-                userResized = false;
-            }
-
-            //var viewProj = Matrix.Multiply(view, proj);
             var viewProj = _camera.ViewProjectionMatrix;
 
             // Clear views

@@ -55,6 +55,14 @@ namespace Noire.Common.Camera {
             SetLens(newFov, Aspect, NearZ, FarZ);
         }
 
+        public override float Aspect {
+            get { return _aspect; }
+            set {
+                _aspect = value;
+                ProjectionMatrix = Matrix.PerspectiveFovLH(FovY, Aspect, NearZ, FarZ);
+            }
+        }
+
         private void SetLens(float fovY, float aspect, float near, float far) {
             FovY = fovY;
             Aspect = aspect;

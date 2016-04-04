@@ -60,12 +60,18 @@
     <Compile Include="Camera\HeightFunc.cs" />
     <Compile Include="Camera\LookAtCamera.cs" />
     <Compile Include="Camera\OrthoCamera.cs" />
+    <Compile Include="DirectionalLight.cs" />
     <Compile Include="Frustum.cs" />
     <Compile Include="FrustumPlane.cs" />
     <Compile Include="GameTime.cs" />
     <Compile Include="IntersectionState.cs" />
+    <Compile Include="Material.cs" />
     <Compile Include="MathF.cs" />
+    <Compile Include="NoireConfiguration.cs" />
+    <Compile Include="NoireUtilities.cs" />
+    <Compile Include="PointLight.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SpotLight.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

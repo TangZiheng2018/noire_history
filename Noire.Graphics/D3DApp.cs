@@ -54,6 +54,14 @@ namespace Noire.Graphics {
 
         public bool ManualVSync { get; set; }
 
+        public void InvalidateSurface(object sender) {
+            _userResized = true;
+            OnInvalidateSurface(sender, EventArgs.Empty);
+            _userResized = false;
+        }
+
+        protected abstract void OnInvalidateSurface(object sender, EventArgs e);
+
         protected abstract void Update(GameTime gameTime);
 
         protected abstract void Render(GameTime gameTime);
@@ -95,6 +103,7 @@ namespace Noire.Graphics {
         private int _frameCount;
         private double _lastFpsSecond;
         private double _lastRenderSecond;
+        private bool _userResized;
 
     }
 }

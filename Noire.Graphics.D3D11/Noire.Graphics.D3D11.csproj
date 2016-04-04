@@ -75,6 +75,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="D3DApp11.cs" />
+    <Compile Include="EffectManager.cs" />
+    <Compile Include="EffectManager.Initializer.cs" />
+    <Compile Include="FX\BasicEffect.cs" />
+    <Compile Include="FX\EffectBase.cs" />
+    <Compile Include="NoireIncludeProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -86,6 +91,10 @@
     <Content Include="sharpdx_direct3d11_1_effects_x86.dll" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Noire.Common.D3D11\Noire.Common.D3D11.csproj">
+      <Project>{73350776-E622-4100-8785-E4885DD0F0C8}</Project>
+      <Name>Noire.Common.D3D11</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Noire.Common\Noire.Common.csproj">
       <Project>{9a6092e9-9f8f-4290-bcf8-1bb955309af3}</Project>
       <Name>Noire.Common</Name>

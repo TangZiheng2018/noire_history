@@ -7,15 +7,45 @@ using SharpDX;
 
 namespace Noire.Common.Camera {
     public abstract class CameraBase {
+        public Vector3 Position {
+            get { return _position; }
+            set { _position = value; }
+        }
 
-        public Vector3 Position { get; set; }
-        public Vector3 Right { get; protected set; }
-        public Vector3 Up { get; protected set; }
-        public Vector3 Look { get; protected set; }
-        public float NearZ { get; protected set; }
-        public float FarZ { get; protected set; }
-        public float Aspect { get; protected set; }
-        public float FovY { get; protected set; }
+        public Vector3 Right {
+            get { return _right; }
+            protected set { _right = value; }
+        }
+
+        public Vector3 Up {
+            get { return _up; }
+            protected set { _up = value; }
+        }
+
+        public Vector3 Look {
+            get { return _look; }
+            protected set { _look = value; }
+        }
+
+        public float NearZ {
+            get { return _nearZ; }
+            protected set { _nearZ = value; }
+        }
+
+        public float FarZ {
+            get { return _farZ; }
+            protected set { _farZ = value; }
+        }
+
+        public virtual float Aspect {
+            get { return _aspect; }
+            set { _aspect = value; }
+        }
+
+        public float FovY {
+            get { return _fovY; }
+            protected set { _fovY = value; }
+        }
 
         public float FovX {
             get {
@@ -70,7 +100,14 @@ namespace Noire.Common.Camera {
         }
 
         protected Frustum _frustum;
-
+        protected Vector3 _position;
+        protected Vector3 _right;
+        protected Vector3 _up;
+        protected Vector3 _look;
+        protected float _nearZ;
+        protected float _farZ;
+        protected float _aspect;
+        protected float _fovY;
     }
 
 }

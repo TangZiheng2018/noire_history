@@ -21,7 +21,12 @@ namespace Noire.Demo.D3D11 {
 
         private void InitializeEventHandlers() {
             Load += Form1_Load;
+            ResizeEnd += Form1_ResizeEnd;
             FormClosed += Form1_FormClosed;
+        }
+
+        private void Form1_ResizeEnd(object sender, EventArgs e) {
+            _app?.InvalidateSurface(this);
         }
 
         private void Form1_FormClosed(object sender, EventArgs e) {
