@@ -239,7 +239,7 @@ namespace Noire.Demo.D3D11 {
             var indices = new List<int>();
             var vcount = 0;
             var tcount = 0;
-            using (var reader = new StreamReader("Models/skull.txt")) {
+            using (var reader = new StreamReader(NoireConfiguration.GetFullResourcePath("models/skull.txt"))) {
                 var input = reader.ReadLine();
                 if (input != null)
                     // VertexCount: X

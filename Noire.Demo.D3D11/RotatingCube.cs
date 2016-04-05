@@ -18,9 +18,9 @@ namespace Noire.Demo.D3D11 {
             base.InitializeInternal();
             var device = D3DApp11.I.D3DDevice;
 
-            vertexShaderByteCode = ShaderBytecode.CompileFromFile("Effects/MiniCube.fx", "VS", "vs_4_0");
+            vertexShaderByteCode = ShaderBytecode.CompileFromFile(NoireConfiguration.GetFullResourcePath("fx/MiniCube.fx"), "VS", "vs_4_0");
             vertexShader = new VertexShader(device, vertexShaderByteCode);
-            pixelShaderByteCode = ShaderBytecode.CompileFromFile("Effects/MiniCube.fx", "PS", "ps_4_0");
+            pixelShaderByteCode = ShaderBytecode.CompileFromFile(NoireConfiguration.GetFullResourcePath("fx/MiniCube.fx"), "PS", "ps_4_0");
             pixelShader = new PixelShader(device, pixelShaderByteCode);
             var signature = ShaderSignature.GetInputSignature(vertexShaderByteCode);
             _layout = new InputLayout(device, signature, new[]

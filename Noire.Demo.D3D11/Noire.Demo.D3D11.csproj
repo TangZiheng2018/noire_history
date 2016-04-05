@@ -124,10 +124,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Effects\MiniCube.fx">
+    <Content Include="resources\fx\MiniCube.fx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Models\skull.txt">
+    <Content Include="resources\models\skull.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\fx\Basic.fx">
