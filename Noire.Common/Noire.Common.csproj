@@ -38,6 +38,10 @@
       <HintPath>..\packages\SharpDX.Desktop.3.0.2\lib\net45\SharpDX.Desktop.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="SharpDX.DirectInput, Version=3.0.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpDX.DirectInput.3.0.2\lib\net45\SharpDX.DirectInput.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="SharpDX.Mathematics, Version=3.0.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpDX.Mathematics.3.0.2\lib\net45\SharpDX.Mathematics.dll</HintPath>
       <Private>True</Private>
@@ -67,6 +71,7 @@
     <Compile Include="GameComponentCollectionEventArgs.cs" />
     <Compile Include="GameComponentContainer.cs" />
     <Compile Include="GameTime.cs" />
+    <Compile Include="GeometryGenerator.cs" />
     <Compile Include="IDrawable.cs" />
     <Compile Include="IGameComponent.cs" />
     <Compile Include="IGameComponentContainer.cs" />

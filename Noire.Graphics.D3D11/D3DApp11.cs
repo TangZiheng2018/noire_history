@@ -33,7 +33,6 @@ namespace Noire.Graphics.D3D11 {
         public static D3DApp11 I => _app;
 
         public override void Terminate() {
-            EffectManager11.Instance?.Dispose();
             IsRunning = false;
         }
 
@@ -63,11 +62,16 @@ namespace Noire.Graphics.D3D11 {
                 return;
             }
 
-            Utilities.Dispose(ref _factory);
-            Utilities.Dispose(ref _immediateContext);
-            Utilities.Dispose(ref _swapChain);
-            Utilities.Dispose(ref _d3dDevice);
-            Utilities.Dispose(ref _dxgiDevice);
+            if (disposing) {
+                EffectManager11.Instance?.Dispose();
+                InputLayouts.DisposeAll();
+                Utilities.Dispose(ref _factory);
+                Utilities.Dispose(ref _immediateContext);
+                Utilities.Dispose(ref _swapChain);
+                Utilities.Dispose(ref _d3dDevice);
+                Utilities.Dispose(ref _dxgiDevice);
+            }
+            base.Dispose(disposing);
         }
 
         protected override void InitializeInternal() {
@@ -90,13 +94,14 @@ namespace Noire.Graphics.D3D11 {
             NoireConfiguration.ResourceBase = "resources";
             EffectManager11.Initialize();
             EffectManager11.Instance?.InitializeAllEffects(_d3dDevice);
+            InputLayouts.InitializeAll(_d3dDevice);
 
             var camera = new FpsCamera(45, (float)clientSize.Width / clientSize.Height, 1, 1000);
             _renderTarget = new RenderTarget11(camera);
             _renderTarget.Initialize();
             ChildComponents.Add(_renderTarget);
 
-            InvalidateSurface(this);
+            ResetSurface(this);
         }
 
         private SharpDX.Direct3D11.Device _d3dDevice;

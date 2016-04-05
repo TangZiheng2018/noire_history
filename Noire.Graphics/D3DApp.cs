@@ -56,7 +56,7 @@ namespace Noire.Graphics {
 
         public bool ManualVSync { get; set; }
 
-        public void InvalidateSurface(object sender) {
+        public void ResetSurface(object sender) {
             _userResized = true;
             RaiseSurfaceInvalidated(sender, EventArgs.Empty);
             _userResized = false;
@@ -72,7 +72,7 @@ namespace Noire.Graphics {
             Timer.Tick();
             if (!IsPaused) {
                 if (!ManualVSync || (Timer.TotalTime - _lastRenderSecond > Timer.FrameTime)) {
-                    var gameTime = new GameTime(TimeSpan.FromSeconds(Timer.DeltaTime), TimeSpan.FromSeconds(Timer.TotalTime));
+                    var gameTime = new GameTime(TimeSpan.FromSeconds(Timer.FrameTime), TimeSpan.FromSeconds(Timer.TotalTime));
                     Update(gameTime);
                     Render(gameTime);
                     CalculateFps();

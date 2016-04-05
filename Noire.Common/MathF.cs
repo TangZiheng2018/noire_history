@@ -38,6 +38,12 @@ namespace Noire.Common {
             return value < min ? min : (value > max ? max : value);
         }
 
+        public static Matrix InverseTranspose(Matrix m) {
+            m.M41 = m.M42 = m.M43 = 0;
+            m.M44 = 1;
+            return Matrix.Transpose(Matrix.Invert(m));
+        }
+
         public static readonly Random Rand;
 
     }

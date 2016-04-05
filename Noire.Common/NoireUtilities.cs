@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using SharpDX;
@@ -23,6 +24,16 @@ namespace Noire.Common {
 
         public static void DisposeNonPublicFields<T>(T disposeBase) where T : DisposeBase {
             DisposeNonPublicFields(disposeBase, BindingFlags.NonPublic | BindingFlags.Instance);
+        }
+
+        public static byte[] StructureToBytes<T>(T obj) where T : struct {
+            var len = Marshal.SizeOf(obj);
+            var buf = new byte[len];
+            var ptr = Marshal.AllocHGlobal(len);
+            Marshal.StructureToPtr(obj, ptr, true);
+            Marshal.Copy(ptr, buf, 0, len);
+            Marshal.FreeHGlobal(ptr);
+            return buf;
         }
 
         private static void DisposeNonPublicFields<T>(T disposeBase, BindingFlags flags) where T : DisposeBase {

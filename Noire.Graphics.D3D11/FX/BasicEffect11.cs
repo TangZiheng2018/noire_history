@@ -194,6 +194,84 @@ namespace Noire.Graphics.D3D11.FX {
 
         public EffectTechnique Light3TexAlphaClipFogReflectSkinnedTech => _light3TexAlphaClipFogReflectSkinnedTech;
 
+        public void SetWorldViewProj(Matrix m) {
+            _worldViewProj.SetMatrix(m);
+        }
+
+        public void SetWorld(Matrix m) {
+            _world.SetMatrix(m);
+        }
+
+        public void SetWorldInvTranspose(Matrix m) {
+            _worldInvTranspose.SetMatrix(m);
+        }
+
+        public void SetEyePosW(Vector3 v) {
+            _eyePosW.Set(v);
+        }
+
+        public void SetDirLights(DirectionalLight[] lights) {
+            System.Diagnostics.Debug.Assert(lights.Length <= MaxLights, "BasicEffect only supports up to 3 lights");
+
+            for (int i = 0; i < lights.Length && i < MaxLights; i++) {
+                var light = lights[i];
+                var d = NoireUtilities.StructureToBytes(light);
+                Array.Copy(d, 0, _dirLightsArray, i * DirectionalLight.Stride, DirectionalLight.Stride);
+            }
+            _dirLights.SetRawValue(DataStream.Create(_dirLightsArray, false, false), _dirLightsArray.Length);
+        }
+
+        public void SetMaterial(Material m) {
+            var d = NoireUtilities.StructureToBytes(m);
+            _mat.SetRawValue(DataStream.Create(d, false, false), Material.Stride);
+        }
+
+        public void SetTexTransform(Matrix m) {
+            _texTransform.SetMatrix(m);
+        }
+
+        public void SetDiffuseMap(ShaderResourceView tex) {
+            _diffuseMap.SetResource(tex);
+        }
+
+        public void SetShadowMap(ShaderResourceView tex) {
+            _shadowMap.SetResource(tex);
+        }
+
+        public void SetCubeMap(ShaderResourceView tex) {
+            _cubeMap.SetResource(tex);
+        }
+
+        public void SetFogColor(Color4 c) {
+            _fogColor.Set(c);
+        }
+
+        public void SetFogStart(float f) {
+            _fogStart.Set(f);
+        }
+
+        public void SetFogRange(float f) {
+            _fogRange.Set(f);
+        }
+
+        public void SetBoneTransforms(List<Matrix> bones) {
+            for (int i = 0; i < bones.Count && i < MaxBones; i++) {
+                _boneTransformsArray[i] = bones[i];
+            }
+            _boneTransforms.SetMatrix(_boneTransformsArray);
+        }
+
+        public void SetShadowTransform(Matrix matrix) {
+            if (_shadowTransform != null)
+                _shadowTransform.SetMatrix(matrix);
+        }
+
+        public void SetSsaoMap(ShaderResourceView srv) { _ssaoMap.SetResource(srv); }
+
+        public void SetWorldViewProjTex(Matrix matrix) {
+            if (_worldViewProjTex != null) _worldViewProjTex.SetMatrix(matrix);
+        }
+
         protected override void Initialize() {
             var effect = DxEffect;
 
