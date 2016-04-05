@@ -66,8 +66,8 @@ namespace Noire.Graphics.D3D11 {
             IsInitialized = true;
 
             NoireConfiguration.ResourceBase = "resources";
-            EffectManager.Initialize();
-            EffectManager.Instance?.InitializeAllEffects(_d3dDevice);
+            EffectManager11.Initialize();
+            EffectManager11.Instance?.InitializeAllEffects(_d3dDevice);
 
             vertexShaderByteCode = ShaderBytecode.CompileFromFile("Effects/MiniCube.fx", "VS", "vs_4_0");
             vertexShader = new VertexShader(_d3dDevice, vertexShaderByteCode);
@@ -145,7 +145,7 @@ namespace Noire.Graphics.D3D11 {
         }
 
         public override void Terminate() {
-            EffectManager.Instance?.Dispose();
+            EffectManager11.Instance?.Dispose();
             IsRunning = false;
         }
 

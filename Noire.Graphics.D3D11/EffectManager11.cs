@@ -7,9 +7,9 @@ using Noire.Graphics.D3D11.FX;
 using SharpDX;
 
 namespace Noire.Graphics.D3D11 {
-    public sealed partial class EffectManager : DisposeBase {
+    public sealed partial class EffectManager11 : DisposeBase {
 
-        static EffectManager() {
+        static EffectManager11() {
             LockObject = new object();
             Rand = new Random();
         }
@@ -19,12 +19,12 @@ namespace Noire.Graphics.D3D11 {
                 if (_isInitialized) {
                     return;
                 }
-                _instance = new EffectManager();
+                _instance = new EffectManager11();
                 _isInitialized = true;
             }
         }
 
-        public static EffectManager Instance => _instance;
+        public static EffectManager11 Instance => _instance;
 
         public static bool IsInitialized {
             get {
@@ -45,7 +45,7 @@ namespace Noire.Graphics.D3D11 {
             return value;
         }
 
-        public void EndRegisterEffect(EffectBase effect) {
+        public void EndRegisterEffect(EffectBase11 effect) {
             if (effect == null) {
                 return;
             }
@@ -57,23 +57,23 @@ namespace Noire.Graphics.D3D11 {
             return _effectsByType.ContainsKey(type);
         }
 
-        public bool EffectExists<T>() where T : EffectBase {
+        public bool EffectExists<T>() where T : EffectBase11 {
             return EffectExists(typeof(T));
         }
 
-        public EffectBase GetEffect(Type type) {
+        public EffectBase11 GetEffect(Type type) {
             return _effectsByType[type];
         }
 
-        public T GetEffect<T>() where T : EffectBase {
+        public T GetEffect<T>() where T : EffectBase11 {
             return _effectsByType[typeof(T)] as T;
         }
 
-        public EffectBase GetEffect(int id) {
+        public EffectBase11 GetEffect(int id) {
             return _effectsByID[id];
         }
 
-        public T GetEffect<T>(int id) where T : EffectBase {
+        public T GetEffect<T>(int id) where T : EffectBase11 {
             return _effectsByID[id] as T;
         }
 
@@ -88,15 +88,15 @@ namespace Noire.Graphics.D3D11 {
             _effectsByType.Clear();
         }
 
-        private EffectManager() {
-            _effectsByID = new Dictionary<int, EffectBase>();
-            _effectsByType = new Dictionary<Type, EffectBase>();
+        private EffectManager11() {
+            _effectsByID = new Dictionary<int, EffectBase11>();
+            _effectsByType = new Dictionary<Type, EffectBase11>();
         }
 
-        private readonly Dictionary<int, EffectBase> _effectsByID;
-        private readonly Dictionary<Type, EffectBase> _effectsByType;
+        private readonly Dictionary<int, EffectBase11> _effectsByID;
+        private readonly Dictionary<Type, EffectBase11> _effectsByType;
 
-        private static EffectManager _instance;
+        private static EffectManager11 _instance;
         private static bool _isInitialized;
         private static readonly object LockObject;
         private static readonly Random Rand;

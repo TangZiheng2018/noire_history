@@ -75,11 +75,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="D3DApp11.cs" />
-    <Compile Include="EffectManager.cs" />
-    <Compile Include="EffectManager.Initializer.cs" />
-    <Compile Include="FX\BasicEffect.cs" />
-    <Compile Include="FX\EffectBase.cs" />
-    <Compile Include="NoireIncludeProcessor.cs" />
+    <Compile Include="EffectManager11.cs" />
+    <Compile Include="EffectManager11.Initializer.cs" />
+    <Compile Include="FX\BasicEffect11.cs" />
+    <Compile Include="FX\EffectBase11.cs" />
+    <Compile Include="IncludeProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

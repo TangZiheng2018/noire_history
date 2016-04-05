@@ -8,13 +8,13 @@ using SharpDX;
 using SharpDX.D3DCompiler;
 
 namespace Noire.Graphics.D3D11 {
-    public sealed class NoireIncludeProcessor : Include {
+    public sealed class IncludeProcessor : Include {
 
-        internal NoireIncludeProcessor()
+        internal IncludeProcessor()
             : this(string.Empty) {
         }
 
-        internal NoireIncludeProcessor(string baseDirectory) {
+        internal IncludeProcessor(string baseDirectory) {
             _baseDirectory = baseDirectory;
         }
 
