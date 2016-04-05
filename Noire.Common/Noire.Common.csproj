@@ -64,7 +64,7 @@
     <Compile Include="Camera\HeightFunc.cs" />
     <Compile Include="Camera\LookAtCamera.cs" />
     <Compile Include="Camera\OrthoCamera.cs" />
-    <Compile Include="DirectionalLight.cs" />
+    <Compile Include="Lighting\DirectionalLight.cs" />
     <Compile Include="Frustum.cs" />
     <Compile Include="FrustumPlane.cs" />
     <Compile Include="GameComponentCollection.cs" />
@@ -82,9 +82,9 @@
     <Compile Include="GameComponent.cs" />
     <Compile Include="NoireConfiguration.cs" />
     <Compile Include="NoireUtilities.cs" />
-    <Compile Include="PointLight.cs" />
+    <Compile Include="Lighting\PointLight.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SpotLight.cs" />
+    <Compile Include="Lighting\SpotLight.cs" />
     <Compile Include="Vertices\VertexPositionColor.cs" />
     <Compile Include="Vertices\VertexPositionNormal.cs" />
     <Compile Include="Vertices\VertexPositionNormalTC.cs" />

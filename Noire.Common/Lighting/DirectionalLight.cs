@@ -6,20 +6,17 @@ using System.Text;
 using System.Threading.Tasks;
 using SharpDX;
 
-namespace Noire.Common {
+namespace Noire.Common.Lighting {
     [StructLayout(LayoutKind.Sequential)]
-    public struct PointLight {
+    public struct DirectionalLight {
 
         public Color4 Ambient;
         public Color4 Diffuse;
         public Color4 Specular;
-        public Vector3 Position;
-        public float Range;
-        public Vector3 Attenuation;
+        public Vector3 Direction;
         private readonly float Pad;
 
-        public static readonly int Stride = Marshal.SizeOf(typeof(PointLight));
+        public static readonly int Stride = Marshal.SizeOf(typeof(DirectionalLight));
 
     }
-
 }

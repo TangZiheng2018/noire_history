@@ -27,9 +27,6 @@ namespace Noire.Graphics.D3D11 {
             immediateContext.ClearRenderTargetView(_renderView, Color.Black);
 
             base.DrawInternal(gameTime);
-
-            // Present!
-            D3DApp11.I.SwapChain.Present(0, PresentFlags.None);
         }
 
         protected override void InitializeInternal() {

@@ -84,12 +84,11 @@ namespace Noire.Demo.D3D11 {
         private void Form1_Load(object sender, EventArgs e) {
             _lastWindowState = WindowState;
             _app.Initialize();
-            _app.ManualVSync = true;
             _app.RunAsync();
 
             var camera = _app.RenderTarget.Camera;
-            camera.Position = new Vector3(0, -5, 0);
-            camera.LookAtZUp(Vector3.Zero);
+            camera.Position = new Vector3(0, 5, -15);
+            camera.LookAt(Vector3.Zero, Vector3.UnitY);
             var scene = new ShapesScene();
             scene.Initialize();
             _app.ChildComponents.Add(scene);

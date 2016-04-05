@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SharpDX;
 
-namespace Noire.Common {
+namespace Noire.Common.Lighting {
     [StructLayout(LayoutKind.Sequential)]
     public struct SpotLight {
 

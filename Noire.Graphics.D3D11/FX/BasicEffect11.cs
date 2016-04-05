@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Noire.Common;
 using SharpDX;
 using SharpDX.Direct3D11;
-using DirectionalLight = Noire.Common.DirectionalLight;
+using DirectionalLight = Noire.Common.Lighting.DirectionalLight;
 
 namespace Noire.Graphics.D3D11.FX {
     public sealed class BasicEffect11 : EffectBase11 {

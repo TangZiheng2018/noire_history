@@ -16,6 +16,7 @@ using SharpDX.DXGI;
 using Buffer = SharpDX.Direct3D11.Buffer;
 using Device = SharpDX.Direct3D11.Device;
 using System.IO;
+using Noire.Common.Lighting;
 
 namespace Noire.Demo.D3D11 {
     public sealed class ShapesScene : GameComponent {
@@ -90,6 +91,10 @@ namespace Noire.Demo.D3D11 {
 
         protected override void UpdateInternal(GameTime gameTime) {
             base.UpdateInternal(gameTime);
+            var factor = (float)(gameTime.TotalGameTime.TotalSeconds % 10) / 10;
+            var f = (float)Math.Floor(factor * 3);
+            var color = new Color(factor, factor * 3 - f, 0);
+            _dirLights[0].Diffuse = color;
         }
 
         protected override void DrawInternal(GameTime gameTime) {
