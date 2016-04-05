@@ -83,6 +83,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RenderOptions11.cs" />
     <Compile Include="RenderStates11.cs" />
+    <Compile Include="RenderTarget11.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

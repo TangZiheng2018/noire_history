@@ -55,6 +55,13 @@ namespace Noire.Common {
             base.Dispose(disposing);
         }
 
+        protected internal override void RaiseSurfaceInvalidated(object sender, EventArgs e) {
+            base.RaiseSurfaceInvalidated(sender, e);
+            foreach (var item in _childComponents) {
+                item.RaiseSurfaceInvalidated(sender, e);
+            }
+        }
+
         private void OnChildComponentsChanged(object sender, GameComponentCollectionEventArgs e) {
             _childrenChanged = true;
         }

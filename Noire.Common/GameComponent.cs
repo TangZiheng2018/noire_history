@@ -24,7 +24,14 @@ namespace Noire.Common {
             }
         }
 
-        public abstract void Initialize();
+        public bool IsInitialized => _isInitialized;
+
+        public void Initialize() {
+            if (!_isInitialized) {
+                InitializeInternal();
+                _isInitialized = true;
+            }
+        }
 
         public int UpdateOrder { get; set; }
         public int DrawOrder { get; set; }
@@ -42,6 +49,18 @@ namespace Noire.Common {
 
         protected virtual void DrawInternal(GameTime gameTime) {
         }
+
+        protected virtual void InitializeInternal() {
+        }
+
+        protected internal virtual void RaiseSurfaceInvalidated(object sender, EventArgs e) {
+            OnSurfaceInvalidated(sender, e);
+        }
+
+        protected virtual void OnSurfaceInvalidated(object sender, EventArgs e) {
+        }
+
+        private bool _isInitialized;
 
     }
 }

@@ -13,6 +13,7 @@ namespace Noire.Demo.D3D11 {
         internal static void Main() {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            Control.CheckForIllegalCrossThreadCalls = false;
             Application.Run(new Form1());
         }
     }

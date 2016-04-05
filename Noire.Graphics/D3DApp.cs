@@ -46,6 +46,10 @@ namespace Noire.Graphics {
             }
         }
 
+        public Task RunAsync() {
+            return Task.Run(new Action(Run));
+        }
+
         public abstract void Terminate();
 
         public double Fps => _fps;
@@ -54,11 +58,9 @@ namespace Noire.Graphics {
 
         public void InvalidateSurface(object sender) {
             _userResized = true;
-            OnInvalidateSurface(sender, EventArgs.Empty);
+            RaiseSurfaceInvalidated(sender, EventArgs.Empty);
             _userResized = false;
         }
-
-        protected abstract void OnInvalidateSurface(object sender, EventArgs e);
 
         protected abstract void Render(GameTime gameTime);
 
