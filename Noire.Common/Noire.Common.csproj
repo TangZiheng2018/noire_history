@@ -63,15 +63,26 @@
     <Compile Include="DirectionalLight.cs" />
     <Compile Include="Frustum.cs" />
     <Compile Include="FrustumPlane.cs" />
+    <Compile Include="GameComponentCollection.cs" />
+    <Compile Include="GameComponentCollectionEventArgs.cs" />
+    <Compile Include="GameComponentContainer.cs" />
     <Compile Include="GameTime.cs" />
+    <Compile Include="IDrawable.cs" />
+    <Compile Include="IGameComponent.cs" />
+    <Compile Include="IGameComponentContainer.cs" />
     <Compile Include="IntersectionState.cs" />
+    <Compile Include="IUpdateable.cs" />
     <Compile Include="Material.cs" />
     <Compile Include="MathF.cs" />
+    <Compile Include="GameComponent.cs" />
     <Compile Include="NoireConfiguration.cs" />
     <Compile Include="NoireUtilities.cs" />
     <Compile Include="PointLight.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SpotLight.cs" />
+    <Compile Include="Vertices\VertexPositionColor.cs" />
+    <Compile Include="Vertices\VertexPositionNormal.cs" />
+    <Compile Include="Vertices\VertexPositionNormalTC.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -11,7 +11,7 @@ using SharpDX;
 using SharpDX.Windows;
 
 namespace Noire.Graphics {
-    public abstract class D3DApp : DisposeBase {
+    public abstract class D3DApp : GameComponentContainer {
 
         protected D3DApp(Control control) {
             IsPaused = false;
@@ -23,8 +23,6 @@ namespace Noire.Graphics {
             _lastRenderSecond = 0;
             _hasRun = false;
         }
-
-        public abstract void Initialize();
 
         public Control ControlWindow { get; }
 
@@ -61,8 +59,6 @@ namespace Noire.Graphics {
         }
 
         protected abstract void OnInvalidateSurface(object sender, EventArgs e);
-
-        protected abstract void Update(GameTime gameTime);
 
         protected abstract void Render(GameTime gameTime);
 

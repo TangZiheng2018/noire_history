@@ -196,6 +196,12 @@ namespace Noire.Graphics.D3D11 {
         }
 
         protected override void Render(GameTime gameTime) {
+            Draw(gameTime);
+            // Present!
+            _swapChain.Present(0, PresentFlags.None);
+        }
+
+        protected override void DrawInternal(GameTime gameTime) {
             var viewProj = _camera.ViewProjectionMatrix;
 
             // Clear views
@@ -212,11 +218,10 @@ namespace Noire.Graphics.D3D11 {
             // Draw the cube
             ImmediateContext.Draw(36, 0);
 
-            // Present!
-            _swapChain.Present(0, PresentFlags.None);
+            base.DrawInternal(gameTime);
         }
 
-        protected override void Update(GameTime gameTime) {
+        protected override void UpdateInternal(GameTime gameTime) {
             _degree += 1f;
             _camera.UpdateViewMatrix();
         }
