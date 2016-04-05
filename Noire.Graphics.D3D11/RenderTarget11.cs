@@ -85,8 +85,6 @@ namespace Noire.Graphics.D3D11 {
             immediateContext.Rasterizer.SetViewport(new Viewport(0, 0, clientSize.Width, clientSize.Height, 0.0f, 1.0f));
             immediateContext.OutputMerger.SetTargets(_depthView, _renderView);
 
-            _camera.Aspect = (float)clientSize.Width / clientSize.Height;
-
             base.OnSurfaceInvalidated(sender, e);
         }
 

@@ -7,35 +7,18 @@ using SharpDX;
 
 namespace Noire.Common.Camera {
     public abstract class CameraBase {
-        public Vector3 Position {
-            get { return _position; }
-            set { _position = value; }
-        }
 
-        public Vector3 Right {
-            get { return _right; }
-            protected set { _right = value; }
-        }
+        public Vector3 Position { get; set; }
 
-        public Vector3 Up {
-            get { return _up; }
-            protected set { _up = value; }
-        }
+        public Vector3 Right { get; set; }
 
-        public Vector3 Look {
-            get { return _look; }
-            protected set { _look = value; }
-        }
+        public Vector3 Up { get; set; }
 
-        public float NearZ {
-            get { return _nearZ; }
-            protected set { _nearZ = value; }
-        }
+        public Vector3 Look { get; protected set; }
 
-        public float FarZ {
-            get { return _farZ; }
-            protected set { _farZ = value; }
-        }
+        public float NearZ { get; protected set; }
+
+        public float FarZ { get; protected set; }
 
         public virtual float Aspect {
             get { return _aspect; }
@@ -61,10 +44,28 @@ namespace Noire.Common.Camera {
         public float FarWindowWidth => Aspect * FarWindowHeight;
 
         public float FarWindowHeight { get; protected set; }
-        public Matrix ViewMatrix { get; protected set; }
-        public Matrix ProjectionMatrix { get; protected set; }
 
-        public Matrix ViewProjectionMatrix => ViewMatrix * ProjectionMatrix;
+        public Matrix ViewMatrix {
+            get {
+                return _viewMatrix;
+            }
+            protected set {
+                _viewMatrix = value;
+                _viewProjectionMatrix = _viewMatrix * _projectionMatrix;
+            }
+        }
+
+        public Matrix ProjectionMatrix {
+            get {
+                return _projectionMatrix;
+            }
+            protected set {
+                _projectionMatrix = value;
+                _viewProjectionMatrix = _viewMatrix * _projectionMatrix;
+            }
+        }
+
+        public Matrix ViewProjectionMatrix => _viewProjectionMatrix;
 
         public Plane[] FrustumPlanes => _frustum.Planes;
 
@@ -95,19 +96,18 @@ namespace Noire.Common.Camera {
             //Right = new Vector3(1, 0, 0);
             //Up = new Vector3(0, 1, 0);
             //Look = new Vector3(0, 0, 1);
-            ViewMatrix = Matrix.Identity;
-            ProjectionMatrix = Matrix.Identity;
+            _viewMatrix = Matrix.Identity;
+            _projectionMatrix = Matrix.Identity;
         }
 
         protected Frustum _frustum;
-        protected Vector3 _position;
-        protected Vector3 _right;
-        protected Vector3 _up;
-        protected Vector3 _look;
-        protected float _nearZ;
-        protected float _farZ;
         protected float _aspect;
         protected float _fovY;
+
+        private Matrix _viewMatrix;
+        private Matrix _projectionMatrix;
+        private Matrix _viewProjectionMatrix;
+
     }
 
 }

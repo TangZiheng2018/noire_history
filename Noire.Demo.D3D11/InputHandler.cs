@@ -26,34 +26,40 @@ namespace Noire.Demo.D3D11 {
 
             var camera = D3DApp11.I.RenderTarget.Camera;
             var state = _keyboard.GetCurrentState();
-            var d = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
-            const float factor = 0.01f;
+            var d = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            const float distanceFactor = 0.8f;
+            const float angleFactor = 0.1f;
+            const float zoomFactor = 0.01f;
 
             if (state.IsPressed(Key.W)) {
-                camera.Walk(d * factor);
+                camera.Walk(d * distanceFactor);
             }
             if (state.IsPressed(Key.S)) {
-                camera.Walk(-d * factor);
+                camera.Walk(-d * distanceFactor);
             }
             if (state.IsPressed(Key.A)) {
-                camera.Strafe(-d * factor);
+                camera.Strafe(-d * distanceFactor);
             }
             if (state.IsPressed(Key.D)) {
-                camera.Strafe(d * factor);
+                camera.Strafe(d * distanceFactor);
             }
             if (state.IsPressed(Key.Right)) {
-                camera.Yaw(d * factor);
+                camera.Yaw(d * angleFactor);
             }
             if (state.IsPressed(Key.Left)) {
-                camera.Yaw(-d * factor);
+                camera.Yaw(-d * angleFactor);
             }
-            if (state.IsPressed(Key.Equals)) {
-                _zoom *= 1.05f;
-                camera.Zoom(_zoom);
+            if (state.IsPressed(Key.Up)) {
+                camera.Pitch(-d * angleFactor);
             }
-            if (state.IsPressed(Key.Minus)) {
-                _zoom /= 1.05f;
-                camera.Zoom(_zoom);
+            if (state.IsPressed(Key.Down)) {
+                camera.Pitch(d * angleFactor);
+            }
+            if (state.IsPressed(Key.Equals) || state.IsPressed(Key.PageUp) || state.IsPressed(Key.Add)) {
+                camera.Zoom(-d * zoomFactor);
+            }
+            if (state.IsPressed(Key.Subtract) || state.IsPressed(Key.PageDown) || state.IsPressed(Key.Minus)) {
+                camera.Zoom(d * zoomFactor);
             }
         }
 
@@ -70,7 +76,6 @@ namespace Noire.Demo.D3D11 {
 
         private Keyboard _keyboard;
         private DirectInput _directInput;
-        private float _zoom = 1f;
 
     }
 }

@@ -34,9 +34,29 @@ namespace Noire.Common.Camera {
         }
 
         public override void UpdateViewMatrix() {
+            var r = Right;
             var l = Look;
             var p = Position;
-            ViewMatrix = Matrix.LookAtLH(p, l, Up);
+
+            l = Vector3.Normalize(l);
+            var u = Vector3.Normalize(Vector3.Cross(l, r));
+            r = Vector3.Cross(u, l);
+
+            var x = -Vector3.Dot(p, r);
+            var y = -Vector3.Dot(p, u);
+            var z = -Vector3.Dot(p, l);
+
+            Right = r;
+            Up = u;
+            Look = l;
+
+            ViewMatrix = new Matrix() {
+                Row1 = new Vector4(r.X, u.X, l.X, 0),
+                Row2 = new Vector4(r.Y, u.Y, l.Y, 0),
+                Row3 = new Vector4(r.Z, u.Z, l.Z, 0),
+                Row4 = new Vector4(x, y, z, 1)
+            };
+
             _frustum = Frustum.FromViewProjection(ViewProjectionMatrix);
         }
 

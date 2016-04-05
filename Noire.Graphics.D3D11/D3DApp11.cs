@@ -96,7 +96,7 @@ namespace Noire.Graphics.D3D11 {
             EffectManager11.Instance?.InitializeAllEffects(_d3dDevice);
             InputLayouts.InitializeAll(_d3dDevice);
 
-            var camera = new FpsCamera(45, (float)clientSize.Width / clientSize.Height, 1, 1000);
+            var camera = new FpsCamera(MathUtil.DegreesToRadians(45), (float)clientSize.Width / clientSize.Height, 1, 1000);
             _renderTarget = new RenderTarget11(camera);
             _renderTarget.Initialize();
             ChildComponents.Add(_renderTarget);
