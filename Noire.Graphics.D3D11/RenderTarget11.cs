@@ -13,11 +13,8 @@ using SharpDX.DXGI;
 namespace Noire.Graphics.D3D11 {
     public class RenderTarget11 : GameComponent {
 
-        public RenderTarget11(CameraBase camera) {
-            _camera = camera;
+        public RenderTarget11() {
         }
-
-        public CameraBase Camera => _camera;
 
         protected override void DrawInternal(GameTime gameTime) {
             var immediateContext = D3DApp11.I.ImmediateContext;
@@ -54,8 +51,6 @@ namespace Noire.Graphics.D3D11 {
             Utilities.Dispose(ref _depthBuffer);
             Utilities.Dispose(ref _depthView);
 
-            _camera.Aspect = (float)clientSize.Width / clientSize.Height;
-
             // Resize the backbuffer
             swapChain.ResizeBuffers(_swapChainDescription.BufferCount, clientSize.Width, clientSize.Height, Format.Unknown, SwapChainFlags.None);
             // Get the backbuffer from the swapchain
@@ -88,11 +83,6 @@ namespace Noire.Graphics.D3D11 {
             base.OnSurfaceInvalidated(sender, e);
         }
 
-        protected override void UpdateInternal(GameTime gameTime) {
-            base.UpdateInternal(gameTime);
-            _camera.UpdateViewMatrix();
-        }
-
         protected override void Dispose(bool disposing) {
             if (IsDisposed) {
                 return;
@@ -103,7 +93,6 @@ namespace Noire.Graphics.D3D11 {
             base.Dispose(disposing);
         }
 
-        private CameraBase _camera;
         private SwapChainDescription _swapChainDescription;
         private Texture2D _backBuffer;
         private RenderTargetView _renderView;

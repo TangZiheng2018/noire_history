@@ -143,15 +143,11 @@ namespace Noire.Demo.D3D11 {
             _ib = new Buffer(device, DataStream.Create(indices.ToArray(), false, false), ibd);
         }
 
-        protected override void UpdateInternal(GameTime gameTime) {
-            base.UpdateInternal(gameTime);
-        }
-
         protected override void DrawInternal(GameTime gameTime) {
             base.DrawInternal(gameTime);
 
             var context = D3DApp11.I.ImmediateContext;
-            var camera = D3DApp11.I.RenderTarget.Camera;
+            var camera = D3DApp11.I.Camera;
             var skybox = D3DApp11.I.Skybox;
             var basicFx = EffectManager11.Instance.GetEffect<BasicEffect11>();
 

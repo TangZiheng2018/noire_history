@@ -80,7 +80,7 @@ namespace Noire.Graphics.D3D11 {
         protected override void DrawInternal(GameTime gameTime) {
             base.DrawInternal(gameTime);
 
-            var camera = D3DApp11.I.RenderTarget.Camera;
+            var camera = D3DApp11.I.Camera;
             var eyePos = camera.Position;
             var t = Matrix.Translation(eyePos);
             var wvp = t * camera.ViewProjectionMatrix;

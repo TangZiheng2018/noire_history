@@ -56,7 +56,6 @@ namespace Noire.Graphics.D3D11 {
 
         private D3DApp11(Control control)
             : base(control) {
-            IsInitialized = false;
         }
 
         protected override void Dispose(bool disposing) {
@@ -65,6 +64,7 @@ namespace Noire.Graphics.D3D11 {
             }
 
             if (disposing) {
+                Utilities.Dispose(ref _renderTarget);
                 TextureLoader.Dispose();
                 EffectManager11.Instance?.Dispose();
                 InputLayouts.DisposeAll();
@@ -78,6 +78,8 @@ namespace Noire.Graphics.D3D11 {
         }
 
         protected override void InitializeInternal() {
+            base.InitializeInternal();
+
             var clientSize = ControlWindow.ClientSize;
             _swapChainDescription = new SwapChainDescription() {
                 BufferCount = 1,
@@ -92,16 +94,12 @@ namespace Noire.Graphics.D3D11 {
             _immediateContext = _d3dDevice.ImmediateContext;
             _factory = _swapChain.GetParent<Factory>();
 
-            IsInitialized = true;
-
-            NoireConfiguration.ResourceBase = "resources";
             EffectManager11.Initialize();
             EffectManager11.Instance?.InitializeAllEffects(_d3dDevice);
             TextureLoader.Initialize();
             InputLayouts.InitializeAll(_d3dDevice);
 
-            var camera = new FpsCamera(MathUtil.DegreesToRadians(45), (float)clientSize.Width / clientSize.Height, 0.1f, 1000);
-            _renderTarget = new RenderTarget11(camera);
+            _renderTarget = new RenderTarget11();
             _renderTarget.Initialize();
             ChildComponents.Add(_renderTarget);
             _skybox = new Skybox(NoireConfiguration.GetFullResourcePath("textures/cube.dds"), 5000);

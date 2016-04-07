@@ -50,7 +50,7 @@ namespace Noire.Demo.D3D11 {
 
         private void Form1_MouseMove(object sender, MouseEventArgs e) {
             if (e.Button == MouseButtons.Left) {
-                var camera = D3DApp11.I.RenderTarget.Camera;
+                var camera = D3DApp11.I.Camera;
                 var dx = MathUtil.DegreesToRadians(0.25f * (e.X - _lastMousePos.X));
                 var dy = MathUtil.DegreesToRadians(0.25f * (e.Y - _lastMousePos.Y));
 
@@ -120,7 +120,7 @@ namespace Noire.Demo.D3D11 {
             _app.Initialize();
             _app.RunAsync();
 
-            var camera = _app.RenderTarget.Camera;
+            var camera = _app.Camera;
             camera.Position = new Vector3(0, 5, -15);
             camera.LookAt(Vector3.Zero, Vector3.UnitY);
 

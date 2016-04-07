@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Noire.Common;
+using Noire.Common.Camera;
 using SharpDX;
 using SharpDX.Windows;
 
@@ -56,11 +57,32 @@ namespace Noire.Graphics {
 
         public bool ManualVSync { get; set; }
 
+        public CameraBase Camera => _camera;
+
         public void ResetSurface(object sender) {
             _userResized = true;
         }
 
         protected abstract void Render(GameTime gameTime);
+
+        protected override void OnSurfaceInvalidated(object sender, EventArgs e) {
+            var clientSize = ControlWindow.ClientSize;
+            _camera.Aspect = (float)clientSize.Width / clientSize.Height;
+            base.OnSurfaceInvalidated(sender, e);
+        }
+
+        protected override void UpdateInternal(GameTime gameTime) {
+            base.UpdateInternal(gameTime);
+            _camera.UpdateViewMatrix();
+        }
+
+        protected override void InitializeInternal() {
+            base.InitializeInternal();
+
+            var clientSize = ControlWindow.ClientSize;
+            _camera = new FpsCamera(MathUtil.DegreesToRadians(45), (float)clientSize.Width / clientSize.Height, 0.1f, 1000);
+            NoireConfiguration.ResourceBase = "resources";
+        }
 
         private void Render() {
             if (!IsRunning) {
@@ -97,7 +119,7 @@ namespace Noire.Graphics {
         }
 
         protected bool IsRunning;
-        protected bool IsInitialized;
+        private CameraBase _camera;
         private bool _hasRun;
         private double _fps;
         private int _frameCount;

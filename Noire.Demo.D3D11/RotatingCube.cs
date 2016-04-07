@@ -96,7 +96,7 @@ namespace Noire.Demo.D3D11 {
 
             // Update WorldViewProj Matrix
             var r = MathUtil.DegreesToRadians(_degree);
-            var worldViewProj = Matrix.RotationX(r) * Matrix.RotationY(r * 2) * Matrix.RotationZ(r * .7f) * D3DApp11.I.RenderTarget.Camera.ViewProjectionMatrix;
+            var worldViewProj = Matrix.RotationX(r) * Matrix.RotationY(r * 2) * Matrix.RotationZ(r * .7f) * D3DApp11.I.Camera.ViewProjectionMatrix;
             //var worldViewProj = Matrix.RotationZ(r) * viewProj;
             worldViewProj.Transpose();
             context.UpdateSubresource(ref worldViewProj, constantBuffer);

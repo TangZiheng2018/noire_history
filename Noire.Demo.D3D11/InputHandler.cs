@@ -24,7 +24,7 @@ namespace Noire.Demo.D3D11 {
         protected override void UpdateInternal(GameTime gameTime) {
             base.UpdateInternal(gameTime);
 
-            var camera = D3DApp11.I.RenderTarget.Camera;
+            var camera = D3DApp11.I.Camera;
             var state = _keyboard.GetCurrentState();
             var d = (float)gameTime.ElapsedGameTime.TotalSeconds;
             const float distanceFactor = 0.8f;
