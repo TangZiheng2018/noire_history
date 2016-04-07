@@ -58,8 +58,6 @@ namespace Noire.Graphics {
 
         public void ResetSurface(object sender) {
             _userResized = true;
-            RaiseSurfaceInvalidated(sender, EventArgs.Empty);
-            _userResized = false;
         }
 
         protected abstract void Render(GameTime gameTime);
@@ -72,6 +70,10 @@ namespace Noire.Graphics {
             Timer.Tick();
             if (!IsPaused) {
                 if (!ManualVSync || (Timer.TotalTime - _lastRenderSecond > Timer.FrameTime)) {
+                    if (_userResized) {
+                        RaiseSurfaceInvalidated(this, EventArgs.Empty);
+                        _userResized = false;
+                    }
                     var gameTime = new GameTime(TimeSpan.FromSeconds(Timer.FrameTime), TimeSpan.FromSeconds(Timer.TotalTime));
                     Update(gameTime);
                     Render(gameTime);

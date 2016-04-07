@@ -46,6 +46,8 @@ namespace Noire.Graphics.D3D11 {
 
         public RenderTarget11 RenderTarget => _renderTarget;
 
+        public Skybox Skybox => _skybox;
+
         protected override void Render(GameTime gameTime) {
             Draw(gameTime);
             // Present!
@@ -63,6 +65,7 @@ namespace Noire.Graphics.D3D11 {
             }
 
             if (disposing) {
+                TextureLoader.Dispose();
                 EffectManager11.Instance?.Dispose();
                 InputLayouts.DisposeAll();
                 Utilities.Dispose(ref _factory);
@@ -94,12 +97,16 @@ namespace Noire.Graphics.D3D11 {
             NoireConfiguration.ResourceBase = "resources";
             EffectManager11.Initialize();
             EffectManager11.Instance?.InitializeAllEffects(_d3dDevice);
+            TextureLoader.Initialize();
             InputLayouts.InitializeAll(_d3dDevice);
 
             var camera = new FpsCamera(MathUtil.DegreesToRadians(45), (float)clientSize.Width / clientSize.Height, 1, 1000);
             _renderTarget = new RenderTarget11(camera);
             _renderTarget.Initialize();
             ChildComponents.Add(_renderTarget);
+            _skybox = new Skybox(NoireConfiguration.GetFullResourcePath("textures/cube.dds"), 5000);
+            _skybox.Initialize();
+            ChildComponents.Add(_skybox);
 
             ResetSurface(this);
         }
@@ -111,6 +118,7 @@ namespace Noire.Graphics.D3D11 {
         private DeviceContext _immediateContext;
         private Factory _factory;
         private RenderTarget11 _renderTarget;
+        private Skybox _skybox;
 
         private static D3DApp11 _app;
         private static readonly object _syncObject;

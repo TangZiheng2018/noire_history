@@ -7,6 +7,27 @@ using System.Threading.Tasks;
 namespace Noire.Common {
     public abstract class GameComponentContainer : GameComponent, IGameComponentContainer {
 
+        public GameComponentCollection ChildComponents => _childComponents;
+
+        public GameComponent GetChildByName(string name) {
+            if (name == null) {
+                return null;
+            }
+            foreach (var component in _childComponents) {
+                if (component.Name == name) {
+                    return component;
+                }
+            }
+            GameComponent g = null;
+            foreach (var component in _childComponents) {
+                g = (component as GameComponentContainer)?.GetChildByName(name);
+                if (g != null) {
+                    break;
+                }
+            }
+            return g;
+        }
+
         protected GameComponentContainer() {
             _childComponents = new GameComponentCollection();
             _childComponents.ComponentAdded += OnChildComponentsChanged;
@@ -16,8 +37,6 @@ namespace Noire.Common {
             _updateList = new List<GameComponent>();
             _childrenChanged = false;
         }
-
-        public GameComponentCollection ChildComponents => _childComponents;
 
         protected override void UpdateInternal(GameTime gameTime) {
             if (_childrenChanged) {

@@ -8,6 +8,10 @@ using SharpDX;
 namespace Noire.Common {
     public abstract class GameComponent : DisposeBase, IGameComponent, IUpdateable, IDrawable {
 
+        protected GameComponent() {
+            Name = string.Empty;
+        }
+
         public virtual bool Enabled { get; set; } = true;
 
         public void Update(GameTime gameTime) {
@@ -35,6 +39,8 @@ namespace Noire.Common {
 
         public int UpdateOrder { get; set; }
         public int DrawOrder { get; set; }
+
+        public string Name { get; set; }
 
         public event EventHandler<EventArgs> DrawOrderChanged;
         public event EventHandler<EventArgs> VisibleChanged;

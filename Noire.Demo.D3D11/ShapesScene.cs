@@ -25,13 +25,19 @@ namespace Noire.Demo.D3D11 {
             _lightCount = 1;
         }
 
+        public int LightCount {
+            get { return _lightCount; }
+            set { _lightCount = value; }
+        }
+
         protected override void InitializeInternal() {
             base.InitializeInternal();
 
             _gridWorld = Matrix.Identity;
-            _boxWorld = Matrix.Scaling(3.0f, 1.0f, 3.0f) * Matrix.Translation(0, 0.5f, 0);
-            _skullWorld = Matrix.Scaling(0.5f, 0.5f, 0.5f) * Matrix.Translation(0, 1.0f, 0);
 
+            _boxWorld = Matrix.Scaling(3.0f, 1.0f, 3.0f) * Matrix.Translation(0, 0.5f, 0);
+
+            _skullWorld = Matrix.Scaling(0.5f, 0.5f, 0.5f) * Matrix.Translation(0, 1.0f, 0);
             for (var i = 0; i < 5; i++) {
                 _cylWorld[i * 2] = Matrix.Translation(-5.0f, 1.5f, -10.0f + i * 5.0f);
                 _cylWorld[i * 2 + 1] = Matrix.Translation(5.0f, 1.5f, -10.0f + i * 5.0f);
@@ -48,137 +54,183 @@ namespace Noire.Demo.D3D11 {
                 },
                 new DirectionalLight {
                     Ambient = new Color(0, 0, 0),
-                    Diffuse = new Color(1.0f, 0.2f, 0.2f, 0.2f),
-                    Specular = new Color(1.0f, 0.25f, 0.25f, 0.25f),
+                    Diffuse = new Color(0.2f, 0.2f, 0.2f),
+                    Specular = new Color(0.25f, 0.25f, 0.25f),
                     Direction = new Vector3(-0.57735f, -0.57735f, 0.57735f)
                 },
                 new DirectionalLight {
                     Ambient = new Color(0, 0, 0),
-                    Diffuse = new Color(1.0f, 0.2f, 0.2f, 0.2f),
+                    Diffuse = new Color(0.2f, 0.2f, 0.2f),
                     Specular = new Color(0, 0, 0),
                     Direction = new Vector3(0, -0.707f, -0.707f)
                 }
             };
             _gridMat = new Material {
-                Ambient = new Color(0.48f, 0.77f, 0.46f),
-                Diffuse = new Color(0.48f, 0.77f, 0.46f),
-                Specular = new Color(16.0f, 0.2f, 0.2f, 0.2f)
-            };
-            _cylinderMat = new Material {
-                Ambient = new Color(0.7f, 0.85f, 0.7f),
-                Diffuse = new Color(0.7f, 0.85f, 0.7f),
-                Specular = new Color(16.0f, 0.8f, 0.8f, 0.8f)
-            };
-            _sphereMat = new Material {
-                Ambient = new Color(0.1f, 0.2f, 0.3f),
-                Diffuse = new Color(0.2f, 0.4f, 0.6f),
-                Specular = new Color(16.0f, 0.9f, 0.9f, 0.9f)
-            };
-            _boxMat = new Material {
-                Ambient = new Color(0.651f, 0.5f, 0.392f),
-                Diffuse = new Color(0.651f, 0.5f, 0.392f),
-                Specular = new Color(16.0f, 0.2f, 0.2f, 0.2f)
-            };
-            _skullMat = new Material {
                 Ambient = new Color(0.8f, 0.8f, 0.8f),
                 Diffuse = new Color(0.8f, 0.8f, 0.8f),
-                Specular = new Color(16.0f, 0.8f, 0.8f, 0.8f)
+                Specular = new Color(0.8f, 0.8f, 0.8f, 16.0f),
+                Reflect = Color.Black
             };
+            _cylinderMat = new Material {
+                Ambient = Color.White,
+                Diffuse = Color.White,
+                Specular = new Color(0.8f, 0.8f, 0.8f, 16.0f),
+                Reflect = Color.Black
+            };
+            _sphereMat = new Material {
+                Ambient = new Color(0.6f, 0.8f, 0.9f),
+                Diffuse = new Color(0.6f, 0.8f, 0.9f),
+                Specular = new Color(0.9f, 0.9f, 0.9f, 16.0f),
+                Reflect = new Color(0.4f, 0.4f, 0.4f)
+            };
+            _boxMat = new Material {
+                Ambient = Color.White,
+                Diffuse = Color.White,
+                Specular = new Color(0.8f, 0.8f, 0.8f, 16.0f),
+                Reflect = Color.Black
+            };
+            _skullMat = new Material {
+                Ambient = new Color(0.4f, 0.4f, 0.4f),
+                Diffuse = new Color(0.8f, 0.8f, 0.8f),
+                Specular = new Color(0.8f, 0.8f, 0.8f, 16.0f),
+                Reflect = new Color(0.5f, 0.5f, 0.5f)
+            };
+
             var device = D3DApp11.I.D3DDevice;
+
+            _floorTexSRV = TextureLoader.BitmapFromFile(device, NoireConfiguration.GetFullResourcePath("textures/floor.dds")).AsShaderResourceView();
+            _stoneTexSRV = TextureLoader.BitmapFromFile(device, NoireConfiguration.GetFullResourcePath("textures/stone.dds")).AsShaderResourceView();
+            _brickTexSRV = TextureLoader.BitmapFromFile(device, NoireConfiguration.GetFullResourcePath("textures/bricks.dds")).AsShaderResourceView();
+
             BuildShapeGeometryBuffers(device);
             BuildSkullGeometryBuffers(device);
+
+            _shapesBufferBinding = new VertexBufferBinding(_shapesVB, VertexPositionNormalTC.Stride, 0);
         }
 
         protected override void UpdateInternal(GameTime gameTime) {
             base.UpdateInternal(gameTime);
-            var factor = (float)(gameTime.TotalGameTime.TotalSeconds % 10) / 10;
-            var f = (float)Math.Floor(factor * 3);
-            var color = new Color(factor, factor * 3 - f, 0);
-            _dirLights[0].Diffuse = color;
         }
 
         protected override void DrawInternal(GameTime gameTime) {
             base.DrawInternal(gameTime);
-            var camera = D3DApp11.I.RenderTarget.Camera;
             var context = D3DApp11.I.ImmediateContext;
-            var effect = EffectManager11.Instance.GetEffect<BasicEffect11>();
-            var viewProj = camera.ViewProjectionMatrix;
+            var camera = D3DApp11.I.RenderTarget.Camera;
+            var skybox = D3DApp11.I.Skybox;
+            var basicFx = EffectManager11.Instance.GetEffect<BasicEffect11>();
 
-            context.InputAssembler.InputLayout = InputLayouts.PositionNormal;
+            context.InputAssembler.InputLayout = InputLayouts.PositionNormalTC;
             context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
-            effect.SetDirLights(_dirLights);
-            effect.SetEyePosW(camera.Position);
-            var activeTech = effect.Light1Tech;
+
+            Matrix view = camera.ViewMatrix;
+            Matrix proj = camera.ProjectionMatrix;
+            Matrix viewProj = camera.ViewProjectionMatrix;
+            basicFx.SetEyePosW(camera.Position);
+            basicFx.SetDirLights(_dirLights);
+            basicFx.SetCubeMap(skybox.CubeMapSRV);
+
+            EffectTechnique activeTexTech = null;
+            EffectTechnique activeSkullTech = null;
+            EffectTechnique activeReflectTech = null;
             switch (_lightCount) {
                 case 1:
-                    activeTech = effect.Light1Tech;
+                    activeTexTech = basicFx.Light1TexTech;
+                    activeSkullTech = basicFx.Light1ReflectTech;
+                    activeReflectTech = basicFx.Light1TexReflectTech;
                     break;
                 case 2:
-                    activeTech = effect.Light2Tech;
+                    activeTexTech = basicFx.Light2TexTech;
+                    activeSkullTech = basicFx.Light2ReflectTech;
+                    activeReflectTech = basicFx.Light2TexReflectTech;
                     break;
                 case 3:
-                    activeTech = effect.Light3Tech;
+                    activeTexTech = basicFx.Light3TexTech;
+                    activeSkullTech = basicFx.Light3ReflectTech;
+                    activeReflectTech = basicFx.Light3TexReflectTech;
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
-            for (var p = 0; p < activeTech.Description.PassCount; p++) {
-                var pass = activeTech.GetPassByIndex(p);
-                context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(_shapesVB, VertexPositionNormal.Stride, 0));
-                context.InputAssembler.SetIndexBuffer(_shapesIB, Format.R32_UInt, 0);
+            // draw grid, box, cylinders without reflection
+            var world = _gridWorld;
+            var worldInvTranspose = MathF.InverseTranspose(world);
+            var wvp = world * view * proj;
+            var passCount = activeTexTech.Description.PassCount;
+            for (var p = 0; p < passCount; p++) {
+                using (var pass = activeTexTech.GetPassByIndex(p)) {
+                    context.InputAssembler.SetVertexBuffers(0, _shapesBufferBinding);
+                    context.InputAssembler.SetIndexBuffer(_shapesIB, Format.R32_UInt, 0);
 
-                var world = _gridWorld;
-                var worldInvTranspose = MathF.InverseTranspose(world);
-                var wvp = world * viewProj;
-                effect.SetWorld(world);
-                effect.SetWorldInvTranspose(worldInvTranspose);
-                effect.SetWorldViewProj(wvp);
-                effect.SetMaterial(_gridMat);
-                pass.Apply(context);
-                context.DrawIndexed(_gridIndexCount, _gridIndexOffset, _gridVertexOffset);
+                    basicFx.SetWorld(world);
+                    basicFx.SetWorldInvTranspose(worldInvTranspose);
+                    basicFx.SetWorldViewProj(wvp);
+                    basicFx.SetTexTransform(Matrix.Scaling(6, 8, 1));
+                    basicFx.SetMaterial(_gridMat);
+                    basicFx.SetDiffuseMap(_floorTexSRV);
+                    pass.Apply(context);
+                    context.DrawIndexed(_gridIndexCount, _gridIndexOffset, _gridVertexOffset);
 
-                world = _boxWorld;
-                worldInvTranspose = MathF.InverseTranspose(world);
-                wvp = world * viewProj;
-                effect.SetWorld(world);
-                effect.SetWorldInvTranspose(worldInvTranspose);
-                effect.SetWorldViewProj(wvp);
-                effect.SetMaterial(_boxMat);
-                pass.Apply(context);
-                context.DrawIndexed(_boxIndexCount, _boxIndexOffset, _boxVertexOffset);
-
-                foreach (var matrix in _cylWorld) {
-                    world = matrix;
+                    world = _boxWorld;
                     worldInvTranspose = MathF.InverseTranspose(world);
                     wvp = world * viewProj;
-                    effect.SetWorld(world);
-                    effect.SetWorldInvTranspose(worldInvTranspose);
-                    effect.SetWorldViewProj(wvp);
-                    effect.SetMaterial(_cylinderMat);
+                    basicFx.SetWorld(world);
+                    basicFx.SetWorldInvTranspose(worldInvTranspose);
+                    basicFx.SetWorldViewProj(wvp);
+                    basicFx.SetTexTransform(Matrix.Identity);
+                    basicFx.SetMaterial(_boxMat);
+                    basicFx.SetDiffuseMap(_stoneTexSRV);
                     pass.Apply(context);
-                    context.DrawIndexed(_cylinderIndexCount, _cylinderIndexOffset, _cylinderVertexOffset);
-                }
-                foreach (var matrix in _sphereWorld) {
-                    world = matrix;
-                    worldInvTranspose = MathF.InverseTranspose(world);
-                    wvp = world * viewProj;
-                    effect.SetWorld(world);
-                    effect.SetWorldInvTranspose(worldInvTranspose);
-                    effect.SetWorldViewProj(wvp);
-                    effect.SetMaterial(_sphereMat);
-                    pass.Apply(context);
-                    context.DrawIndexed(_sphereIndexCount, _sphereIndexOffset, _sphereVertexOffset);
-                }
-                context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(_skullVB, VertexPositionNormal.Stride, 0));
-                context.InputAssembler.SetIndexBuffer(_skullIB, Format.R32_UInt, 0);
+                    context.DrawIndexed(_boxIndexCount, _boxIndexOffset, _boxVertexOffset);
 
-                world = _skullWorld;
-                worldInvTranspose = MathF.InverseTranspose(world);
-                wvp = world * viewProj;
-                effect.SetWorld(world);
-                effect.SetWorldInvTranspose(worldInvTranspose);
-                effect.SetWorldViewProj(wvp);
-                effect.SetMaterial(_skullMat);
-                pass.Apply(context);
-                context.DrawIndexed(_skullIndexCount, 0, 0);
+                    foreach (var matrix in _cylWorld) {
+                        world = matrix;
+                        worldInvTranspose = MathF.InverseTranspose(world);
+                        wvp = world * viewProj;
+                        basicFx.SetWorld(world);
+                        basicFx.SetWorldInvTranspose(worldInvTranspose);
+                        basicFx.SetWorldViewProj(wvp);
+                        basicFx.SetTexTransform(Matrix.Identity);
+                        basicFx.SetMaterial(_cylinderMat);
+                        basicFx.SetDiffuseMap(_brickTexSRV);
+                        pass.Apply(context);
+                        context.DrawIndexed(_cylinderIndexCount, _cylinderIndexOffset, _cylinderVertexOffset);
+                    }
+                }
+            }
+            // draw spheres with reflection
+            passCount = activeReflectTech.Description.PassCount;
+            for (var p = 0; p < passCount; p++) {
+                using (var pass = activeReflectTech.GetPassByIndex(p)) {
+                    foreach (var matrix in _sphereWorld) {
+                        world = matrix;
+                        worldInvTranspose = MathF.InverseTranspose(world);
+                        wvp = world * viewProj;
+                        basicFx.SetWorld(world);
+                        basicFx.SetWorldInvTranspose(worldInvTranspose);
+                        basicFx.SetWorldViewProj(wvp);
+                        basicFx.SetTexTransform(Matrix.Identity);
+                        basicFx.SetMaterial(_sphereMat);
+                        basicFx.SetDiffuseMap(_stoneTexSRV);
+                        pass.Apply(context);
+                        context.DrawIndexed(_sphereIndexCount, _sphereIndexOffset, _sphereVertexOffset);
+                    }
+                }
+            }
+            world = _skullWorld;
+            worldInvTranspose = MathF.InverseTranspose(world);
+            wvp = world * viewProj;
+            passCount = activeSkullTech.Description.PassCount;
+            for (var p = 0; p < passCount; p++) {
+                using (var pass = activeSkullTech.GetPassByIndex(p)) {
+                    context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(_skullVB, VertexPositionNormalTC.Stride, 0));
+                    context.InputAssembler.SetIndexBuffer(_skullIB, Format.R32_UInt, 0);
+                    basicFx.SetWorld(world);
+                    basicFx.SetWorldInvTranspose(worldInvTranspose);
+                    basicFx.SetWorldViewProj(wvp);
+                    basicFx.SetMaterial(_skullMat);
+                    pass.Apply(context);
+                    context.DrawIndexed(_skullIndexCount, 0, 0);
+                }
             }
         }
 
@@ -216,12 +268,12 @@ namespace Noire.Demo.D3D11 {
             var totalVertexCount = box.Vertices.Count + grid.Vertices.Count + sphere.Vertices.Count + cylinder.Vertices.Count;
             var totalIndexCount = _boxIndexCount + _gridIndexCount + _sphereIndexCount + _cylinderIndexCount;
 
-            var vertices = box.Vertices.Select(v => new VertexPositionNormal(v.Position, v.Normal)).ToList();
-            vertices.AddRange(grid.Vertices.Select(v => new VertexPositionNormal(v.Position, v.Normal)));
-            vertices.AddRange(sphere.Vertices.Select(v => new VertexPositionNormal(v.Position, v.Normal)));
-            vertices.AddRange(cylinder.Vertices.Select(v => new VertexPositionNormal(v.Position, v.Normal)));
+            var vertices = box.Vertices.Select(v => new VertexPositionNormalTC(v.Position, v.Normal, v.TexCoords)).ToList();
+            vertices.AddRange(grid.Vertices.Select(v => new VertexPositionNormalTC(v.Position, v.Normal, v.TexCoords)));
+            vertices.AddRange(sphere.Vertices.Select(v => new VertexPositionNormalTC(v.Position, v.Normal, v.TexCoords)));
+            vertices.AddRange(cylinder.Vertices.Select(v => new VertexPositionNormalTC(v.Position, v.Normal, v.TexCoords)));
 
-            var vbd = new BufferDescription(VertexPositionNormal.Stride * totalVertexCount, ResourceUsage.Immutable, BindFlags.VertexBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
+            var vbd = new BufferDescription(VertexPositionNormalTC.Stride * totalVertexCount, ResourceUsage.Immutable, BindFlags.VertexBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
             _shapesVB = new Buffer(device, DataStream.Create(vertices.ToArray(), false, false), vbd);
 
             var indices = new List<int>();
@@ -235,11 +287,13 @@ namespace Noire.Demo.D3D11 {
         }
 
         private void BuildSkullGeometryBuffers(Device device) {
-            var vertices = new List<VertexPositionNormal>();
+            var vertices = new List<VertexPositionNormalTC>();
             var indices = new List<int>();
             var vcount = 0;
             var tcount = 0;
             using (var reader = new StreamReader(NoireConfiguration.GetFullResourcePath("models/skull.txt"))) {
+
+
                 var input = reader.ReadLine();
                 if (input != null)
                     // VertexCount: X
@@ -260,7 +314,7 @@ namespace Noire.Demo.D3D11 {
                     if (input != null) {
                         var vals = input.Split(new[] { ' ' });
                         vertices.Add(
-                            new VertexPositionNormal(
+                            new VertexPositionNormalTC(
                                 new Vector3(
                                     Convert.ToSingle(vals[0].Trim(), CultureInfo.InvariantCulture),
                                     Convert.ToSingle(vals[1].Trim(), CultureInfo.InvariantCulture),
@@ -268,7 +322,8 @@ namespace Noire.Demo.D3D11 {
                                 new Vector3(
                                     Convert.ToSingle(vals[3].Trim(), CultureInfo.InvariantCulture),
                                     Convert.ToSingle(vals[4].Trim(), CultureInfo.InvariantCulture),
-                                    Convert.ToSingle(vals[5].Trim(), CultureInfo.InvariantCulture))
+                                    Convert.ToSingle(vals[5].Trim(), CultureInfo.InvariantCulture)),
+                                    new Vector2()
                             )
                         );
                     }
@@ -306,6 +361,10 @@ namespace Noire.Demo.D3D11 {
         private Buffer _skullVB;
         private Buffer _skullIB;
 
+        private ShaderResourceView _floorTexSRV;
+        private ShaderResourceView _stoneTexSRV;
+        private ShaderResourceView _brickTexSRV;
+
         private DirectionalLight[] _dirLights;
         private Material _gridMat;
         private Material _boxMat;
@@ -334,6 +393,8 @@ namespace Noire.Demo.D3D11 {
         private int _sphereIndexCount;
         private int _cylinderIndexCount;
         private int _skullIndexCount;
+
+        private VertexBufferBinding _shapesBufferBinding;
 
         private int _lightCount;
 

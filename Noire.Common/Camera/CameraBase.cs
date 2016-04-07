@@ -98,6 +98,7 @@ namespace Noire.Common.Camera {
             //Look = new Vector3(0, 0, 1);
             _viewMatrix = Matrix.Identity;
             _projectionMatrix = Matrix.Identity;
+            _viewProjectionMatrix = Matrix.Identity;
         }
 
         protected Frustum _frustum;

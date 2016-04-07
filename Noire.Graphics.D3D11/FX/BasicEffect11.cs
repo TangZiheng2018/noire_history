@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -211,19 +212,23 @@ namespace Noire.Graphics.D3D11.FX {
         }
 
         public void SetDirLights(DirectionalLight[] lights) {
-            System.Diagnostics.Debug.Assert(lights.Length <= MaxLights, "BasicEffect only supports up to 3 lights");
-
-            for (int i = 0; i < lights.Length && i < MaxLights; i++) {
+            Debug.Assert(lights.Length <= MaxLights, "BasicEffect only supports up to 3 lights");
+            for (var i = 0; i < lights.Length && i < MaxLights; i++) {
                 var light = lights[i];
                 var d = NoireUtilities.StructureToBytes(light);
                 Array.Copy(d, 0, _dirLightsArray, i * DirectionalLight.Stride, DirectionalLight.Stride);
             }
-            _dirLights.SetRawValue(DataStream.Create(_dirLightsArray, false, false), _dirLightsArray.Length);
+            // 这里如果内存释放不当非常容易引发内存泄漏！
+            using (var dataStream = DataStream.Create(_dirLightsArray, false, false)) {
+                _dirLights.SetRawValue(dataStream, _dirLightsArray.Length);
+            }
         }
 
         public void SetMaterial(Material m) {
-            var d = NoireUtilities.StructureToBytes(m);
-            _mat.SetRawValue(DataStream.Create(d, false, false), Material.Stride);
+            // 这里如果内存释放不当非常容易引发内存泄漏！
+            using (var dataStream = DataStream.Create(NoireUtilities.StructureToBytes(m), false, false)) {
+                _mat.SetRawValue(dataStream, Material.Stride);
+            }
         }
 
         public void SetTexTransform(Matrix m) {
@@ -262,14 +267,13 @@ namespace Noire.Graphics.D3D11.FX {
         }
 
         public void SetShadowTransform(Matrix matrix) {
-            if (_shadowTransform != null)
-                _shadowTransform.SetMatrix(matrix);
+            _shadowTransform?.SetMatrix(matrix);
         }
 
         public void SetSsaoMap(ShaderResourceView srv) { _ssaoMap.SetResource(srv); }
 
         public void SetWorldViewProjTex(Matrix matrix) {
-            if (_worldViewProjTex != null) _worldViewProjTex.SetMatrix(matrix);
+            _worldViewProjTex?.SetMatrix(matrix);
         }
 
         protected override void Initialize() {

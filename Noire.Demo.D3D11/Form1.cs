@@ -8,7 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Noire.Common;
 using Noire.Graphics.D3D11;
+using Noire.Graphics.D3D11.FX;
 using SharpDX;
 
 namespace Noire.Demo.D3D11 {
@@ -17,8 +19,9 @@ namespace Noire.Demo.D3D11 {
         public Form1() {
             InitializeComponent();
             InitializeEventHandlers();
+            InitializeExtraControls();
 
-            _app = D3DApp11.Create(this);
+            _app = D3DApp11.Create(label1);
         }
 
         private void InitializeEventHandlers() {
@@ -28,18 +31,24 @@ namespace Noire.Demo.D3D11 {
             FormClosed += Form1_FormClosed;
             Activated += Form1_Activated;
             Deactivate += Form1_Deactivate;
+            label1.MouseDown += Form1_MouseDown;
+            label1.MouseUp += Form1_MouseUp;
+            label1.MouseMove += Form1_MouseMove;
         }
 
-        protected override void OnMouseDown(MouseEventArgs mouseEventArgs) {
-            _lastMousePos = mouseEventArgs.Location;
-            Capture = true;
+        private void InitializeExtraControls() {
+            var mnuLights = new ToolStripMenuItem("灯光(&L)");
+            menuStrip1.Items.Add(mnuLights);
+            for (var i = 0; i < BasicEffect11.MaxLights; ++i) {
+                var m = new ToolStripMenuItem($"灯光 #{i}");
+                m.Click += LightMenuItem_Click;
+                m.Tag = i + 1;
+                mnuLights.DropDownItems.Add(m);
+            }
+            (mnuLights.DropDownItems[0] as ToolStripMenuItem).Checked = true;
         }
 
-        protected override void OnMouseUp(MouseEventArgs e) {
-            Capture = false;
-        }
-
-        protected override void OnMouseMove(MouseEventArgs e) {
+        private void Form1_MouseMove(object sender, MouseEventArgs e) {
             if (e.Button == MouseButtons.Left) {
                 var camera = D3DApp11.I.RenderTarget.Camera;
                 var dx = MathUtil.DegreesToRadians(0.25f * (e.X - _lastMousePos.X));
@@ -49,6 +58,31 @@ namespace Noire.Demo.D3D11 {
                 camera.Yaw(dx);
             }
             _lastMousePos = e.Location;
+        }
+
+        private void Form1_MouseUp(object sender, MouseEventArgs e) {
+            var c = sender as Control;
+            if (c != null) {
+                c.Capture = false;
+            }
+        }
+
+        private void Form1_MouseDown(object sender, MouseEventArgs e) {
+            _lastMousePos = e.Location;
+            var c = sender as Control;
+            if (c != null) {
+                c.Capture = true;
+            }
+        }
+
+        private void LightMenuItem_Click(object sender, EventArgs e) {
+            var mnu = sender as ToolStripMenuItem;
+            var parent = mnu.OwnerItem as ToolStripMenuItem;
+            foreach (ToolStripMenuItem item in parent.DropDownItems) {
+                item.Checked = item == mnu;
+            }
+            var s = _app.GetChildByName("ShapesScene") as ShapesScene;
+            s.LightCount = (int)mnu.Tag;
         }
 
         private void Form1_SizeChanged(object sender, EventArgs e) {
@@ -89,8 +123,10 @@ namespace Noire.Demo.D3D11 {
             var camera = _app.RenderTarget.Camera;
             camera.Position = new Vector3(0, 5, -15);
             camera.LookAt(Vector3.Zero, Vector3.UnitY);
+
             var scene = new ShapesScene();
             scene.Initialize();
+            scene.Name = "ShapesScene";
             _app.ChildComponents.Add(scene);
             var inputHandler = new InputHandler();
             inputHandler.Initialize();

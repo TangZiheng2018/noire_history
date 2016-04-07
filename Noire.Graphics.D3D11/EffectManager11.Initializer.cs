@@ -15,6 +15,8 @@ namespace Noire.Graphics.D3D11 {
 
             effect = new BasicEffect11(device);
             SafeEffectRegister(ref effect);
+            effect = new SkyboxEffect11(device);
+            SafeEffectRegister(ref effect);
         }
 
         private static void SafeEffectRegister(ref EffectBase11 effect) {

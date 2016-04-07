@@ -11,25 +11,30 @@ namespace Noire.Common {
 
         [StructLayout(LayoutKind.Sequential)]
         public struct Vertex {
+
             public Vector3 Position { get; set; }
             public Vector3 Normal { get; set; }
             public Vector3 TangentU { get; set; }
-            public Vector2 TexC { get; set; }
-            public Vertex(Vector3 pos, Vector3 norm, Vector3 tan, Vector2 uv)
-                : this() {
+            public Vector2 TexCoords { get; set; }
+
+            public Vertex(Vector3 pos, Vector3 norm, Vector3 tan, Vector2 uv) {
                 Position = pos;
                 Normal = norm;
                 TangentU = tan;
-                TexC = uv;
+                TexCoords = uv;
             }
 
             public Vertex(float px, float py, float pz, float nx, float ny, float nz, float tx, float ty, float tz, float u, float v) :
                 this(new Vector3(px, py, pz), new Vector3(nx, ny, nz), new Vector3(tx, ty, tz), new Vector2(u, v)) {
             }
+
         }
+
         public class MeshData {
+
             public List<Vertex> Vertices = new List<Vertex>();
             public List<int> Indices = new List<int>();
+
         }
 
         public static MeshData CreateBox(float width, float height, float depth) {
@@ -38,6 +43,7 @@ namespace Noire.Common {
             var w2 = 0.5f * width;
             var h2 = 0.5f * height;
             var d2 = 0.5f * depth;
+
             // front
             ret.Vertices.Add(new Vertex(-w2, -h2, -d2, 0, 0, -1, 1, 0, 0, 0, 1));
             ret.Vertices.Add(new Vertex(-w2, +h2, -d2, 0, 0, -1, 1, 0, 0, 0, 0));
