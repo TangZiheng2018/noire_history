@@ -18,11 +18,11 @@ namespace Noire.Common {
             handler?.Invoke(sender, e);
         }
 
-        public static void DisposeNonPublicDeclaredFields<T>(T disposeBase) where T : DisposeBase {
+        public static void DisposeNonPublicDeclaredFields<T>(T disposeBase) where T : IDisposable {
             DisposeNonPublicFields(disposeBase, BindingFlags.DeclaredOnly | BindingFlags.NonPublic | BindingFlags.Instance);
         }
 
-        public static void DisposeNonPublicFields<T>(T disposeBase) where T : DisposeBase {
+        public static void DisposeNonPublicFields<T>(T disposeBase) where T : IDisposable {
             DisposeNonPublicFields(disposeBase, BindingFlags.NonPublic | BindingFlags.Instance);
         }
 
@@ -36,13 +36,13 @@ namespace Noire.Common {
             return buf;
         }
 
-        private static void DisposeNonPublicFields<T>(T disposeBase, BindingFlags flags) where T : DisposeBase {
+        private static void DisposeNonPublicFields<T>(T disposeBase, BindingFlags flags) where T : IDisposable {
             var type = typeof(T);
-            var disposeBaseType = typeof(DisposeBase);
+            var disposeBaseType = typeof(IDisposable);
             var fields = type.GetFields(flags);
             foreach (var field in fields) {
                 if (field.FieldType.IsSubclassOf(disposeBaseType)) {
-                    var value = field.GetValue(disposeBase) as DisposeBase;
+                    var value = field.GetValue(disposeBase) as IDisposable;
                     value?.Dispose();
                     field.SetValue(disposeBase, null);
                 }

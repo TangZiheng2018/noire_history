@@ -100,7 +100,7 @@ namespace Noire.Graphics.D3D11 {
             TextureLoader.Initialize();
             InputLayouts.InitializeAll(_d3dDevice);
 
-            var camera = new FpsCamera(MathUtil.DegreesToRadians(45), (float)clientSize.Width / clientSize.Height, 1, 1000);
+            var camera = new FpsCamera(MathUtil.DegreesToRadians(45), (float)clientSize.Width / clientSize.Height, 0.1f, 1000);
             _renderTarget = new RenderTarget11(camera);
             _renderTarget.Initialize();
             ChildComponents.Add(_renderTarget);

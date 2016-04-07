@@ -129,9 +129,9 @@ namespace Noire.Demo.D3D11 {
             basicFx.SetDirLights(_dirLights);
             basicFx.SetCubeMap(skybox.CubeMapSRV);
 
-            EffectTechnique activeTexTech = null;
-            EffectTechnique activeSkullTech = null;
-            EffectTechnique activeReflectTech = null;
+            EffectTechnique activeTexTech;
+            EffectTechnique activeSkullTech;
+            EffectTechnique activeReflectTech;
             switch (_lightCount) {
                 case 1:
                     activeTexTech = basicFx.Light1TexTech;
@@ -346,7 +346,7 @@ namespace Noire.Demo.D3D11 {
                 }
             }
 
-            var vbd = new BufferDescription(VertexPositionNormal.Stride * vcount, ResourceUsage.Immutable,
+            var vbd = new BufferDescription(VertexPositionNormalTC.Stride * vcount, ResourceUsage.Immutable,
                 BindFlags.VertexBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
             _skullVB = new Buffer(device, DataStream.Create(vertices.ToArray(), false, false), vbd);
 

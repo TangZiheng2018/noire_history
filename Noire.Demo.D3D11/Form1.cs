@@ -128,6 +128,12 @@ namespace Noire.Demo.D3D11 {
             scene.Initialize();
             scene.Name = "ShapesScene";
             _app.ChildComponents.Add(scene);
+            var model = new AssimpModel(NoireConfiguration.GetFullResourcePath("models/decelerator.3ds"));
+            model.Initialize();
+            model.Name = "AssimpModel";
+            model.Translation = new Vector3(0, 0, 1);
+            model.Scale = new Vector3(8);
+            _app.ChildComponents.Add(model);
             var inputHandler = new InputHandler();
             inputHandler.Initialize();
             _app.ChildComponents.Add(inputHandler);
