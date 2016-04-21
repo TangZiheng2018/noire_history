@@ -9,10 +9,11 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Noire.Graphics.D3D11</RootNamespace>
     <AssemblyName>Noire.Graphics.D3D11</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -105,6 +106,7 @@
     <Compile Include="TextureLoader.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Noire.Graphics.D3D11.cd" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
