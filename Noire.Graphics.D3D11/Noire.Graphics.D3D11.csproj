@@ -93,7 +93,9 @@
     <Compile Include="EffectManager11.cs" />
     <Compile Include="EffectManager11.Initializer.cs" />
     <Compile Include="FX\BasicEffect11.cs" />
+    <Compile Include="FX\DisplacementMapEffect11.cs" />
     <Compile Include="FX\EffectBase11.cs" />
+    <Compile Include="FX\NormalMapEffect11.cs" />
     <Compile Include="FX\SkyboxEffect11.cs" />
     <Compile Include="IncludeProcessor.cs" />
     <Compile Include="InputLayoutDescriptions.cs" />
@@ -106,7 +108,6 @@
     <Compile Include="TextureLoader.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Noire.Graphics.D3D11.cd" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

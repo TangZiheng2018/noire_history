@@ -92,13 +92,13 @@
     <Compile Include="Lighting\PointLight.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Lighting\SpotLight.cs" />
-    <Compile Include="Vertices\VertexPosition.cs" />
-    <Compile Include="Vertices\VertexPositionColor.cs" />
-    <Compile Include="Vertices\VertexPositionNormal.cs" />
-    <Compile Include="Vertices\VertexPositionNormalTC.cs" />
+    <Compile Include="Vertices\VertPos.cs" />
+    <Compile Include="Vertices\VertPosColor.cs" />
+    <Compile Include="Vertices\VertPosNorm.cs" />
+    <Compile Include="Vertices\VertPosNormTex.cs" />
+    <Compile Include="Vertices\VertPosNormTexTan.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Noire.Common.cd" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

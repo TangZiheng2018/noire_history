@@ -105,7 +105,7 @@ namespace Noire.Demo.D3D11 {
             BuildShapeGeometryBuffers(device);
             BuildSkullGeometryBuffers(device);
 
-            _shapesBufferBinding = new VertexBufferBinding(_shapesVB, VertexPositionNormalTC.Stride, 0);
+            _shapesBufferBinding = new VertexBufferBinding(_shapesVB, VertPosNormTex.Stride, 0);
         }
         
         protected override void DrawInternal(GameTime gameTime) {
@@ -218,7 +218,7 @@ namespace Noire.Demo.D3D11 {
             passCount = activeSkullTech.Description.PassCount;
             for (var p = 0; p < passCount; p++) {
                 using (var pass = activeSkullTech.GetPassByIndex(p)) {
-                    context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(_skullVB, VertexPositionNormalTC.Stride, 0));
+                    context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(_skullVB, VertPosNormTex.Stride, 0));
                     context.InputAssembler.SetIndexBuffer(_skullIB, Format.R32_UInt, 0);
                     basicFx.SetWorld(world);
                     basicFx.SetWorldInvTranspose(worldInvTranspose);
@@ -264,12 +264,12 @@ namespace Noire.Demo.D3D11 {
             var totalVertexCount = box.Vertices.Count + grid.Vertices.Count + sphere.Vertices.Count + cylinder.Vertices.Count;
             var totalIndexCount = _boxIndexCount + _gridIndexCount + _sphereIndexCount + _cylinderIndexCount;
 
-            var vertices = box.Vertices.Select(v => new VertexPositionNormalTC(v.Position, v.Normal, v.TexCoords)).ToList();
-            vertices.AddRange(grid.Vertices.Select(v => new VertexPositionNormalTC(v.Position, v.Normal, v.TexCoords)));
-            vertices.AddRange(sphere.Vertices.Select(v => new VertexPositionNormalTC(v.Position, v.Normal, v.TexCoords)));
-            vertices.AddRange(cylinder.Vertices.Select(v => new VertexPositionNormalTC(v.Position, v.Normal, v.TexCoords)));
+            var vertices = box.Vertices.Select(v => new VertPosNormTex(v.Position, v.Normal, v.TexCoords)).ToList();
+            vertices.AddRange(grid.Vertices.Select(v => new VertPosNormTex(v.Position, v.Normal, v.TexCoords)));
+            vertices.AddRange(sphere.Vertices.Select(v => new VertPosNormTex(v.Position, v.Normal, v.TexCoords)));
+            vertices.AddRange(cylinder.Vertices.Select(v => new VertPosNormTex(v.Position, v.Normal, v.TexCoords)));
 
-            var vbd = new BufferDescription(VertexPositionNormalTC.Stride * totalVertexCount, ResourceUsage.Immutable, BindFlags.VertexBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
+            var vbd = new BufferDescription(VertPosNormTex.Stride * totalVertexCount, ResourceUsage.Immutable, BindFlags.VertexBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
             _shapesVB = new Buffer(device, DataStream.Create(vertices.ToArray(), false, false), vbd);
 
             var indices = new List<int>();
@@ -283,7 +283,7 @@ namespace Noire.Demo.D3D11 {
         }
 
         private void BuildSkullGeometryBuffers(Device device) {
-            var vertices = new List<VertexPositionNormalTC>();
+            var vertices = new List<VertPosNormTex>();
             var indices = new List<int>();
             var vcount = 0;
             var tcount = 0;
@@ -310,7 +310,7 @@ namespace Noire.Demo.D3D11 {
                     if (input != null) {
                         var vals = input.Split(new[] { ' ' });
                         vertices.Add(
-                            new VertexPositionNormalTC(
+                            new VertPosNormTex(
                                 new Vector3(
                                     Convert.ToSingle(vals[0].Trim(), CultureInfo.InvariantCulture),
                                     Convert.ToSingle(vals[1].Trim(), CultureInfo.InvariantCulture),
@@ -342,7 +342,7 @@ namespace Noire.Demo.D3D11 {
                 }
             }
 
-            var vbd = new BufferDescription(VertexPositionNormalTC.Stride * vcount, ResourceUsage.Immutable,
+            var vbd = new BufferDescription(VertPosNormTex.Stride * vcount, ResourceUsage.Immutable,
                 BindFlags.VertexBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
             _skullVB = new Buffer(device, DataStream.Create(vertices.ToArray(), false, false), vbd);
 

@@ -7,3 +7,4 @@ _Resharper*
 
 *.dll
 *.csproj.user
+*.DotSettings.user

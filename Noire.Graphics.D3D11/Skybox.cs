@@ -56,7 +56,7 @@ namespace Noire.Graphics.D3D11 {
             var sphere = GeometryGenerator.CreateSphere(_skySphereRadius, 30, 30);
             var vertices = sphere.Vertices.Select(v => v.Position).ToArray();
             var vbd = new BufferDescription(
-                VertexPosition.Stride * vertices.Length,
+                VertPos.Stride * vertices.Length,
                 ResourceUsage.Immutable,
                 BindFlags.VertexBuffer,
                 CpuAccessFlags.None,
@@ -89,7 +89,7 @@ namespace Noire.Graphics.D3D11 {
             skyFx.SetWorldViewProj(wvp);
             skyFx.SetCubeMap(_cubeMapSrv);
 
-            var stride = VertexPosition.Stride;
+            var stride = VertPos.Stride;
             const int offset = 0;
             var context = D3DApp11.I.ImmediateContext;
             context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(_vb, stride, offset));

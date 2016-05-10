@@ -115,14 +115,14 @@ namespace Noire.Demo.D3D11 {
             _assimpContext = new AssimpContext();
             _scene = _assimpContext.ImportFile(_filename);
             var scene = _scene;
-            var vertices = new List<VertexPositionNormalTC>();
+            var vertices = new List<VertPosNormTex>();
             var indices = new List<int>();
             var c = 0;
             foreach (var mesh in scene.Meshes) {
                 foreach (var face in mesh.Faces) {
                     var faceIndices = face.Indices;
                     for (var i = 0; i < 3; ++i) {
-                        vertices.Add(new VertexPositionNormalTC() {
+                        vertices.Add(new VertPosNormTex() {
                             Position = mesh.Vertices[faceIndices[i]].ToVector3(),
                             Normal = mesh.Normals[faceIndices[i]].ToVector3(),
                             TextureCoords = Vector2.Zero
@@ -135,7 +135,7 @@ namespace Noire.Demo.D3D11 {
             _indexCount = indices.Count;
 
             var device = D3DApp11.I.D3DDevice;
-            var vbd = new BufferDescription(VertexPositionNormalTC.Stride * vertices.Count, ResourceUsage.Immutable,
+            var vbd = new BufferDescription(VertPosNormTex.Stride * vertices.Count, ResourceUsage.Immutable,
                BindFlags.VertexBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
             _vb = new Buffer(device, DataStream.Create(vertices.ToArray(), false, false), vbd);
             var ibd = new BufferDescription(sizeof(int) * indices.Count, ResourceUsage.Immutable,
@@ -190,7 +190,7 @@ namespace Noire.Demo.D3D11 {
             var passCount = activeSkullTech.Description.PassCount;
             for (var p = 0; p < passCount; p++) {
                 using (var pass = activeSkullTech.GetPassByIndex(p)) {
-                    context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(_vb, VertexPositionNormalTC.Stride, 0));
+                    context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(_vb, VertPosNormTex.Stride, 0));
                     context.InputAssembler.SetIndexBuffer(_ib, Format.R32_UInt, 0);
                     basicFx.SetWorld(world);
                     basicFx.SetWorldInvTranspose(worldInvTranspose);

@@ -10,8 +10,8 @@ using SharpDX.Direct3D11;
 namespace Noire.Graphics.D3D11.FX {
     public sealed class SkyboxEffect11 : EffectBase11 {
 
-        public SkyboxEffect11(Device device)
-            : base(device, NoireConfiguration.GetFullResourcePath(FxFilename)) {
+        public SkyboxEffect11(Device device, string fileName)
+            : base(device, fileName) {
         }
 
         public EffectTechnique SkyTech => _skyTech;
@@ -35,7 +35,7 @@ namespace Noire.Graphics.D3D11.FX {
         private EffectShaderResourceVariable _cubeMap;
         private EffectTechnique _skyTech;
 
-        private static readonly string FxFilename = "fx/Skybox.fx";
+        private static readonly string FxFileName = "fx/Skybox.fx";
 
     }
 }

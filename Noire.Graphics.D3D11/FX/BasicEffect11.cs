@@ -10,10 +10,10 @@ using SharpDX.Direct3D11;
 using DirectionalLight = Noire.Common.Lighting.DirectionalLight;
 
 namespace Noire.Graphics.D3D11.FX {
-    public sealed class BasicEffect11 : EffectBase11 {
+    public class BasicEffect11 : EffectBase11 {
 
-        public BasicEffect11(Device device)
-            : base(device, NoireConfiguration.GetFullResourcePath(FxFileName)) {
+        public BasicEffect11(Device device, string fileName)
+            : base(device, fileName) {
         }
 
         public const int MaxLights = 3;
