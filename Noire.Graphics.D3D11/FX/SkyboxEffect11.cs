@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Noire.Common;
-using SharpDX;
+﻿using SharpDX;
 using SharpDX.Direct3D11;
 
 namespace Noire.Graphics.D3D11.FX {

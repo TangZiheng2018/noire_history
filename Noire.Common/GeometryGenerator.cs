@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using SharpDX;
 
 namespace Noire.Common {
@@ -188,6 +185,89 @@ namespace Noire.Common {
             return ret;
         }
 
+        public static MeshData CreateGeosphere(float radius, SubdivisionCount numSubdivisions) {
+            var tempMesh = new MeshData {
+                Vertices = IcosahedronVertices.Select(p => new Vertex {Position = p}).ToList(),
+                Indices = IcosahedronIndices
+            };
+
+            var mh = new Subdivider();
+
+            for (var i = 0; i < (int)numSubdivisions; i++) {
+                mh.Subdivide4(tempMesh);
+            }
+
+            // Project vertices onto sphere and scale.
+            for (var i = 0; i < tempMesh.Vertices.Count; i++) {
+                // Project onto unit sphere.
+                var n = Vector3.Normalize(tempMesh.Vertices[i].Position);
+                // Project onto sphere.
+                var p = radius * n;
+
+                // Derive texture coordinates from spherical coordinates.
+                var theta = MathF.AngleFromXY(tempMesh.Vertices[i].Position.X, tempMesh.Vertices[i].Position.Z);
+                var phi = MathF.Acos(tempMesh.Vertices[i].Position.Y / radius);
+                var texC = new Vector2(theta / (2 * MathF.PI), phi / MathF.PI);
+
+                // Partial derivative of P with respect to theta
+                var tangent = new Vector3(
+                    -radius * MathF.Sin(phi) * MathF.Sin(theta),
+                    0,
+                    radius * MathF.Sin(phi) * MathF.Cos(theta)
+                );
+                tangent.Normalize();
+
+                tempMesh.Vertices[i] = new Vertex(p, n, tangent, texC);
+            }
+            return tempMesh;
+        }
+
+        public static MeshData CreateGrid(float width, float depth, int m, int n) {
+            var ret = new MeshData();
+
+            var halfWidth = width * 0.5f;
+            var halfDepth = depth * 0.5f;
+
+            var dx = width / (n - 1);
+            var dz = depth / (m - 1);
+
+            var du = 1.0f / (n - 1);
+            var dv = 1.0f / (m - 1);
+
+            for (var i = 0; i < m; i++) {
+                var z = halfDepth - i * dz;
+                for (var j = 0; j < n; j++) {
+                    var x = -halfWidth + j * dx;
+                    ret.Vertices.Add(new Vertex(new Vector3(x, 0, z), new Vector3(0, 1, 0), new Vector3(1, 0, 0), new Vector2(j * du, i * dv)));
+                }
+            }
+            for (var i = 0; i < m - 1; i++) {
+                for (var j = 0; j < n - 1; j++) {
+                    ret.Indices.Add(i * n + j);
+                    ret.Indices.Add(i * n + j + 1);
+                    ret.Indices.Add((i + 1) * n + j);
+
+                    ret.Indices.Add((i + 1) * n + j);
+                    ret.Indices.Add(i * n + j + 1);
+                    ret.Indices.Add((i + 1) * n + j + 1);
+                }
+            }
+            return ret;
+        }
+
+        public static MeshData CreateFullScreenQuad() {
+            var ret = new MeshData();
+
+            ret.Vertices.Add(new Vertex(-1, -1, 0, 0, 0, -1, 1, 0, 0, 0, 1));
+            ret.Vertices.Add(new Vertex(-1, 1, 0, 0, 0, -1, 1, 0, 0, 0, 0));
+            ret.Vertices.Add(new Vertex(1, 1, 0, 0, 0, -1, 1, 0, 0, 1, 0));
+            ret.Vertices.Add(new Vertex(1, -1, 0, 0, 0, -1, 1, 0, 0, 1, 1));
+
+            ret.Indices.AddRange(new[] { 0, 1, 2, 0, 2, 3 });
+            
+            return ret;
+        }
+
         private static void BuildCylinderTopCap(float topRadius, float height, int sliceCount, ref MeshData ret) {
             var baseIndex = ret.Vertices.Count;
 
@@ -234,38 +314,21 @@ namespace Noire.Common {
             }
         }
 
-        public static MeshData CreateGrid(float width, float depth, int m, int n) {
-            var ret = new MeshData();
+        private static readonly List<Vector3> IcosahedronVertices = new List<Vector3> {
+            new Vector3(-0.525731f, 0, 0.850651f), new Vector3(0.525731f, 0, 0.850651f),
+            new Vector3(-0.525731f, 0, -0.850651f), new Vector3(0.525731f, 0, -0.850651f),
+            new Vector3(0, 0.850651f, 0.525731f), new Vector3(0, 0.850651f, -0.525731f),
+            new Vector3(0, -0.850651f, 0.525731f), new Vector3(0, -0.850651f, -0.525731f),
+            new Vector3(0.850651f, 0.525731f, 0), new Vector3(-0.850651f, 0.525731f, 0),
+            new Vector3(0.850651f, -0.525731f, 0), new Vector3(-0.850651f, -0.525731f, 0)
+        };
 
-            var halfWidth = width * 0.5f;
-            var halfDepth = depth * 0.5f;
-
-            var dx = width / (n - 1);
-            var dz = depth / (m - 1);
-
-            var du = 1.0f / (n - 1);
-            var dv = 1.0f / (m - 1);
-
-            for (var i = 0; i < m; i++) {
-                var z = halfDepth - i * dz;
-                for (var j = 0; j < n; j++) {
-                    var x = -halfWidth + j * dx;
-                    ret.Vertices.Add(new Vertex(new Vector3(x, 0, z), new Vector3(0, 1, 0), new Vector3(1, 0, 0), new Vector2(j * du, i * dv)));
-                }
-            }
-            for (var i = 0; i < m - 1; i++) {
-                for (var j = 0; j < n - 1; j++) {
-                    ret.Indices.Add(i * n + j);
-                    ret.Indices.Add(i * n + j + 1);
-                    ret.Indices.Add((i + 1) * n + j);
-
-                    ret.Indices.Add((i + 1) * n + j);
-                    ret.Indices.Add(i * n + j + 1);
-                    ret.Indices.Add((i + 1) * n + j + 1);
-                }
-            }
-            return ret;
-        }
+        private static readonly List<int> IcosahedronIndices = new List<int> {
+            1,4,0,  4,9,0,  4,5,9,  8,5,4,  1,8,4,
+            1,10,8, 10,3,8, 8,3,5,  3,2,5,  3,7,2,
+            3,10,7, 10,6,7, 6,11,7, 6,0,11, 6,1,0,
+            10,1,6, 11,0,9, 2,11,9, 5,2,9,  11,2,7
+        };
 
     }
 }

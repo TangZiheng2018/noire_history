@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Noire.Common;
+using Noire.Common.Lighting;
 using SharpDX;
 using SharpDX.Direct3D11;
-using DirectionalLight = Noire.Common.Lighting.DirectionalLight;
 
 namespace Noire.Graphics.D3D11.FX {
     public class BasicEffect11 : EffectBase11 {

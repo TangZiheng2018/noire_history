@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
+using System.IO;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Noire.Common;
 using Noire.Graphics.D3D11.FX;
 using SharpDX;
@@ -23,6 +21,12 @@ namespace Noire.Graphics.D3D11 {
             SafeEffectRegister(ref effect);
             effect = CreateEffect<DisplacementMapEffect11>(device);
             SafeEffectRegister(ref effect);
+            effect = CreateEffect<BuildShadowMapEffect11>(device);
+            SafeEffectRegister(ref effect);
+            effect = CreateEffect<SsaoNormalDepthEffect11>(device);
+            SafeEffectRegister(ref effect);
+            effect = CreateEffect<DebugTextureEffect11>(device);
+            SafeEffectRegister(ref effect);
         }
 
         private static void SafeEffectRegister(ref EffectBase11 effect) {
@@ -39,8 +43,15 @@ namespace Noire.Graphics.D3D11 {
             var fileName = (string)fxFieldInfo.GetValue(null);
             fileName = NoireConfiguration.GetFullResourcePath(fileName);
             var constructor = t.GetConstructor(new[] { typeof(Device), typeof(string) });
-            var r = constructor.Invoke(new object[] { device, fileName });
-            return r as T;
+            try {
+                var r = constructor.Invoke(new object[] { device, fileName });
+                var effect = r as T;
+                effect?.Compile();
+                return effect;
+            } catch (FileNotFoundException ex) {
+                Debug.WriteLine(ex.Message);
+                return null;
+            }
         }
 
     }

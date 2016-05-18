@@ -1,12 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Noire.Common;
 using Noire.Graphics.D3D11;
@@ -81,8 +73,8 @@ namespace Noire.Demo.D3D11 {
             foreach (ToolStripMenuItem item in parent.DropDownItems) {
                 item.Checked = item == mnu;
             }
-            var s = _app.GetChildByName("ShapesScene") as NormalMapScene;
-            s.LightCount = (int)mnu.Tag;
+            var s = _app.GetChildByName("ShapesScene") as ShadowScene;
+            //s.LightCount = (int)mnu.Tag;
         }
 
         private void Form1_SizeChanged(object sender, EventArgs e) {
@@ -124,16 +116,10 @@ namespace Noire.Demo.D3D11 {
             camera.Position = new Vector3(0, 5, -15);
             camera.LookAt(Vector3.Zero, Vector3.UnitY);
 
-            var scene = new NormalMapScene();
+            var scene = new ShadowScene();
             scene.Initialize();
             scene.Name = "ShapesScene";
             _app.ChildComponents.Add(scene);
-            var model = new AssimpModel(NoireConfiguration.GetFullResourcePath("models/decelerator.3ds"));
-            model.Initialize();
-            model.Name = "AssimpModel";
-            model.Translation = new Vector3(0, 0, 1);
-            model.Scale = new Vector3(8);
-            _app.ChildComponents.Add(model);
             var inputHandler = new InputHandler();
             inputHandler.Initialize();
             _app.ChildComponents.Add(inputHandler);

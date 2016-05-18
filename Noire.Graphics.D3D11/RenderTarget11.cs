@@ -1,20 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Noire.Common;
-using Noire.Common.Camera;
 using SharpDX;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
+using Resource = SharpDX.Direct3D11.Resource;
 
 namespace Noire.Graphics.D3D11 {
     public class RenderTarget11 : GameComponent {
 
         public RenderTarget11() {
         }
+
+        public DepthStencilView DepthStencilView => _depthView;
+
+        public RenderTargetView RenderTargetView => _renderView;
+
+        public Viewport Viewport => _viewport;
 
         protected override void DrawInternal(GameTime gameTime) {
             var immediateContext = D3DApp11.I.ImmediateContext;
@@ -54,7 +55,7 @@ namespace Noire.Graphics.D3D11 {
             // Resize the backbuffer
             swapChain.ResizeBuffers(_swapChainDescription.BufferCount, clientSize.Width, clientSize.Height, Format.Unknown, SwapChainFlags.None);
             // Get the backbuffer from the swapchain
-            _backBuffer = Texture2D.FromSwapChain<Texture2D>(swapChain, 0);
+            _backBuffer = Resource.FromSwapChain<Texture2D>(swapChain, 0);
 
             // Renderview on the backbuffer
             _renderView = new RenderTargetView(device, _backBuffer);
@@ -77,7 +78,8 @@ namespace Noire.Graphics.D3D11 {
             _depthView = new DepthStencilView(device, _depthBuffer);
 
             // Setup targets and viewport for rendering
-            immediateContext.Rasterizer.SetViewport(new Viewport(0, 0, clientSize.Width, clientSize.Height, 0.0f, 1.0f));
+            _viewport = new Viewport(0, 0, clientSize.Width, clientSize.Height, 0.0f, 1.0f);
+            immediateContext.Rasterizer.SetViewport(_viewport);
             immediateContext.OutputMerger.SetTargets(_depthView, _renderView);
 
             base.OnSurfaceInvalidated(sender, e);
@@ -93,6 +95,7 @@ namespace Noire.Graphics.D3D11 {
             base.Dispose(disposing);
         }
 
+        private Viewport _viewport;
         private SwapChainDescription _swapChainDescription;
         private Texture2D _backBuffer;
         private RenderTargetView _renderView;

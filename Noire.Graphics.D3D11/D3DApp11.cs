@@ -1,14 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Noire.Common;
-using Noire.Common.Camera;
 using SharpDX;
-using SharpDX.D3DCompiler;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
@@ -67,6 +60,7 @@ namespace Noire.Graphics.D3D11 {
                 Utilities.Dispose(ref _renderTarget);
                 TextureLoader.Dispose();
                 EffectManager11.Instance?.Dispose();
+                TextureManager11.Instance?.Dispose();
                 InputLayouts.DisposeAll();
                 Utilities.Dispose(ref _factory);
                 Utilities.Dispose(ref _immediateContext);
@@ -98,6 +92,7 @@ namespace Noire.Graphics.D3D11 {
             EffectManager11.Instance?.InitializeAllEffects(_d3dDevice);
             TextureLoader.Initialize();
             InputLayouts.InitializeAll(_d3dDevice);
+            TextureManager11.Initialize(_d3dDevice);
 
             _renderTarget = new RenderTarget11();
             _renderTarget.Initialize();

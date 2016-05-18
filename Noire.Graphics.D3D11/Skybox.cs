@@ -1,19 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using Noire.Common;
-using Noire.Common.Camera;
 using Noire.Common.Vertices;
 using Noire.Graphics.D3D11.FX;
 using SharpDX;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
-using Buffer = SharpDX.Direct3D11.Buffer;
-using Device = SharpDX.Direct3D11.Device;
 using SharpDX.DXGI;
 
 namespace Noire.Graphics.D3D11 {
@@ -30,25 +21,7 @@ namespace Noire.Graphics.D3D11 {
             base.InitializeInternal();
             var device = D3DApp11.I.D3DDevice;
 
-            var faces = new[] {
-                "front", "back", "top", "bottom", "left", "right"
-            };
-
-            var baseTextureInfo = new FileInfo(_filename);
-            var dirName = baseTextureInfo.DirectoryName;
-            var baseName = baseTextureInfo.Name.Substring(0, baseTextureInfo.Name.Length - baseTextureInfo.Extension.Length);
-            var extName = baseTextureInfo.Extension;
-            var faceFileNames = new string[6];
-            for (var i = 0; i < faceFileNames.Length; ++i) {
-                faceFileNames[i] = Path.Combine(dirName, baseName + "-" + faces[i] + extName);
-            }
-            var textures = new Texture2D[6];
-            for (var i = 0; i < textures.Length; ++i) {
-                textures[i] = TextureLoader.BitmapFromFile(device, faceFileNames[i]);
-            }
-
-            //_cubeMapSrv = TextureLoader.BitmapFromFile(device, _filename).AsShaderResourceView();
-            _cubeMapSrv = TextureLoader.CubeMapFrom6Textures(device, textures);
+            _cubeMapSrv = TextureManager11.Instance.CreateCubemap(_filename);
             using (var r = CubeMapSRV.Resource) {
                 r.DebugName = "sky cubemap";
             }
