@@ -33,5 +33,9 @@ namespace Noire.Graphics.D3D11.Model {
             };
         }
 
+        public static Color ToColor(this Color4 color) {
+            return new Color(color.Red, color.Green, color.Blue, color.Alpha);
+        }
+
     }
 }

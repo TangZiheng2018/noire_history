@@ -287,7 +287,7 @@ namespace Noire.Graphics.D3D11.Model {
                 if (!string.IsNullOrEmpty(diffusePath)) {
                     DiffuseMapSRV.Add(textureManager.CreateTexture(Path.Combine(texturePath, diffusePath)));
                 } else {
-                    DiffuseMapSRV.Add(textureManager[TextureManager11.TexDefault]);
+                    DiffuseMapSRV.Add(textureManager.CreateColor1By1(material.Diffuse.ToColor()));
                 }
                 TextureSlot normalSlot;
                 mat.GetMaterialTexture(TextureType.Normals, 0, out normalSlot);
