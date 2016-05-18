@@ -94,7 +94,7 @@ namespace Noire.Graphics.D3D11 {
             var context = D3DApp11.I.ImmediateContext;
             context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(_vb, stride, offset));
             context.InputAssembler.SetIndexBuffer(_ib, Format.R32_UInt, 0);
-            context.InputAssembler.InputLayout = InputLayouts.Position;
+            context.InputAssembler.InputLayout = InputLayouts.Pos;
             context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
             var tech = skyFx.SkyTech;
             for (var p = 0; p < tech.Description.PassCount; p++) {

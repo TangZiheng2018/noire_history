@@ -151,7 +151,7 @@ namespace Noire.Demo.D3D11 {
             var skybox = D3DApp11.I.Skybox;
             var basicFx = EffectManager11.Instance.GetEffect<BasicEffect11>();
 
-            context.InputAssembler.InputLayout = InputLayouts.PositionNormalTC;
+            context.InputAssembler.InputLayout = InputLayouts.PosNormTex;
             context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
 
             Matrix view = camera.ViewMatrix;

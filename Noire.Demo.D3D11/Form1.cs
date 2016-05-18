@@ -81,7 +81,7 @@ namespace Noire.Demo.D3D11 {
             foreach (ToolStripMenuItem item in parent.DropDownItems) {
                 item.Checked = item == mnu;
             }
-            var s = _app.GetChildByName("ShapesScene") as ShapesScene;
+            var s = _app.GetChildByName("ShapesScene") as NormalMapScene;
             s.LightCount = (int)mnu.Tag;
         }
 
@@ -124,7 +124,7 @@ namespace Noire.Demo.D3D11 {
             camera.Position = new Vector3(0, 5, -15);
             camera.LookAt(Vector3.Zero, Vector3.UnitY);
 
-            var scene = new ShapesScene();
+            var scene = new NormalMapScene();
             scene.Initialize();
             scene.Name = "ShapesScene";
             _app.ChildComponents.Add(scene);

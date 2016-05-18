@@ -17,14 +17,14 @@ namespace Noire.Graphics.D3D11 {
             passDesc = e1?.Light1Tech?.GetPassByIndex(0)?.Description;
             try {
                 if (passDesc?.Signature != null) {
-                    _positionNormal = new InputLayout(device, passDesc.Value.Signature, InputLayoutDescriptions.PositionNormal);
+                    _posNorm = new InputLayout(device, passDesc.Value.Signature, InputLayoutDescriptions.PosNorm);
                 }
             } catch (SharpDXException ex) {
                 Debug.Print(ex.Message);
             }
             try {
                 if (passDesc?.Signature != null) {
-                    _positionNormalTC = new InputLayout(device, passDesc.Value.Signature, InputLayoutDescriptions.PositionNormalTC);
+                    _posNormTex = new InputLayout(device, passDesc.Value.Signature, InputLayoutDescriptions.PosNormTex);
                 }
             } catch (SharpDXException ex) {
                 Debug.Print(ex.Message);
@@ -32,25 +32,35 @@ namespace Noire.Graphics.D3D11 {
             var e2 = EffectManager11.Instance.GetEffect<SkyboxEffect11>();
             passDesc = e2?.SkyTech?.GetPassByIndex(0)?.Description;
             if (passDesc?.Signature != null) {
-                _position = new InputLayout(device, passDesc.Value.Signature, InputLayoutDescriptions.Position);
+                _pos = new InputLayout(device, passDesc.Value.Signature, InputLayoutDescriptions.Pos);
+            }
+            var e3 = EffectManager11.Instance.GetEffect<NormalMapEffect11>();
+            passDesc = e3?.Light1Tech?.GetPassByIndex(0)?.Description;
+            if (passDesc?.Signature != null) {
+                _posNormTexTan = new InputLayout(device, passDesc.Value.Signature, InputLayoutDescriptions.PosNormTexTan);
             }
         }
 
         public static void DisposeAll() {
-            Utilities.Dispose(ref _positionNormal);
-            Utilities.Dispose(ref _position);
-            Utilities.Dispose(ref _positionNormalTC);
+            Utilities.Dispose(ref _pos);
+            Utilities.Dispose(ref _posNorm);
+            Utilities.Dispose(ref _posNormTex);
+            Utilities.Dispose(ref _posNormTexTan);
         }
 
-        public static InputLayout PositionNormal => _positionNormal;
 
-        public static InputLayout Position => _position;
+        public static InputLayout Pos => _pos;
 
-        public static InputLayout PositionNormalTC => _positionNormalTC;
+        public static InputLayout PosNorm => _posNorm;
 
-        private static InputLayout _positionNormal;
-        private static InputLayout _position;
-        private static InputLayout _positionNormalTC;
+        public static InputLayout PosNormTex => _posNormTex;
+
+        public static InputLayout PosNormTexTan => _posNormTexTan;
+
+        private static InputLayout _posNorm;
+        private static InputLayout _pos;
+        private static InputLayout _posNormTex;
+        private static InputLayout _posNormTexTan;
 
     }
 }

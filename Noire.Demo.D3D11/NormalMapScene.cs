@@ -19,9 +19,9 @@ using System.IO;
 using Noire.Common.Lighting;
 
 namespace Noire.Demo.D3D11 {
-    public sealed class ShapesScene : GameComponent {
+    public sealed class NormalMapScene : GameComponent {
 
-        public ShapesScene() {
+        public NormalMapScene() {
             _lightCount = 1;
         }
 
@@ -36,8 +36,8 @@ namespace Noire.Demo.D3D11 {
             _gridWorld = Matrix.Identity;
 
             _boxWorld = Matrix.Scaling(3.0f, 1.0f, 3.0f) * Matrix.Translation(0, 0.5f, 0);
-
             _skullWorld = Matrix.Scaling(0.5f, 0.5f, 0.5f) * Matrix.Translation(0, 1.0f, 0);
+
             for (var i = 0; i < 5; i++) {
                 _cylWorld[i * 2] = Matrix.Translation(-5.0f, 1.5f, -10.0f + i * 5.0f);
                 _cylWorld[i * 2 + 1] = Matrix.Translation(5.0f, 1.5f, -10.0f + i * 5.0f);
@@ -98,135 +98,222 @@ namespace Noire.Demo.D3D11 {
 
             var device = D3DApp11.I.D3DDevice;
 
-            _floorTexSRV = TextureLoader.BitmapFromFile(device, NoireConfiguration.GetFullResourcePath("textures/floor.dds")).AsShaderResourceView();
-            _stoneTexSRV = TextureLoader.BitmapFromFile(device, NoireConfiguration.GetFullResourcePath("textures/stone.dds")).AsShaderResourceView();
-            _brickTexSRV = TextureLoader.BitmapFromFile(device, NoireConfiguration.GetFullResourcePath("textures/bricks.dds")).AsShaderResourceView();
+            _stoneTexSRV = TextureLoader.BitmapFromFile(device, NoireConfiguration.GetFullResourcePath("textures/floor.dds")).AsShaderResourceView();
+            _brickTexSRV = TextureLoader.BitmapFromFile(device, NoireConfiguration.GetFullResourcePath("Textures/bricks.dds")).AsShaderResourceView();
+            _stoneNormalTexSRV = TextureLoader.BitmapFromFile(device, NoireConfiguration.GetFullResourcePath("textures/floor_nmap.png")).AsShaderResourceView();
+            _brickNormalTexSRV = TextureLoader.BitmapFromFile(device, NoireConfiguration.GetFullResourcePath("textures/bricks_nmap.png")).AsShaderResourceView();
 
             BuildShapeGeometryBuffers(device);
             BuildSkullGeometryBuffers(device);
-
-            _shapesBufferBinding = new VertexBufferBinding(_shapesVB, VertPosNormTex.Stride, 0);
         }
-        
+
         protected override void DrawInternal(GameTime gameTime) {
             base.DrawInternal(gameTime);
             var context = D3DApp11.I.ImmediateContext;
             var camera = D3DApp11.I.Camera;
             var skybox = D3DApp11.I.Skybox;
             var basicFx = EffectManager11.Instance.GetEffect<BasicEffect11>();
+            var normalMapFx = EffectManager11.Instance.GetEffect<NormalMapEffect11>();
+            var displacementMapFx = EffectManager11.Instance.GetEffect<DisplacementMapEffect11>();
+            var viewProj = camera.ViewProjectionMatrix;
 
-            context.InputAssembler.InputLayout = InputLayouts.PosNormTex;
-            context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
-
-            Matrix view = camera.ViewMatrix;
-            Matrix proj = camera.ProjectionMatrix;
-            Matrix viewProj = camera.ViewProjectionMatrix;
-            basicFx.SetEyePosW(camera.Position);
             basicFx.SetDirLights(_dirLights);
+            basicFx.SetEyePosW(camera.Position);
             basicFx.SetCubeMap(skybox.CubeMapSRV);
 
-            EffectTechnique activeTexTech;
-            EffectTechnique activeSkullTech;
-            EffectTechnique activeReflectTech;
-            switch (_lightCount) {
-                case 1:
-                    activeTexTech = basicFx.Light1TexTech;
-                    activeSkullTech = basicFx.Light1ReflectTech;
-                    activeReflectTech = basicFx.Light1TexReflectTech;
+            normalMapFx.SetDirLights(_dirLights);
+            normalMapFx.SetEyePosW(camera.Position);
+            normalMapFx.SetCubeMap(skybox.CubeMapSRV);
+
+            displacementMapFx.SetDirLights(_dirLights);
+            displacementMapFx.SetEyePosW(camera.Position);
+            displacementMapFx.SetCubeMap(skybox.CubeMapSRV);
+
+            displacementMapFx.SetHeightScale(0.05f);
+            displacementMapFx.SetMaxTessDistance(1.0f);
+            displacementMapFx.SetMinTessDistance(25.0f);
+            displacementMapFx.SetMinTessFactor(1.0f);
+            displacementMapFx.SetMaxTessFactor(5.0f);
+
+            var activeTech = displacementMapFx.Light3Tech;
+            var activeSphereTech = basicFx.Light3ReflectTech;
+            var activeSkullTech = basicFx.Light3ReflectTech;
+
+            switch (_renderOptions) {
+                case RenderOptions.Basic:
+                    activeTech = basicFx.Light3TexTech;
+                    context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
                     break;
-                case 2:
-                    activeTexTech = basicFx.Light2TexTech;
-                    activeSkullTech = basicFx.Light2ReflectTech;
-                    activeReflectTech = basicFx.Light2TexReflectTech;
+                case RenderOptions.NormalMap:
+                    activeTech = normalMapFx.Light3TexTech;
+                    context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
                     break;
-                case 3:
-                    activeTexTech = basicFx.Light3TexTech;
-                    activeSkullTech = basicFx.Light3ReflectTech;
-                    activeReflectTech = basicFx.Light3TexReflectTech;
+                case RenderOptions.DisplacementMap:
+                    activeTech = displacementMapFx.Light3TexTech;
+                    context.InputAssembler.PrimitiveTopology = PrimitiveTopology.PatchListWith3ControlPoints;
                     break;
-                default:
-                    throw new ArgumentOutOfRangeException();
             }
-            // draw grid, box, cylinders without reflection
-            var world = _gridWorld;
-            var worldInvTranspose = MathF.InverseTranspose(world);
-            var wvp = world * view * proj;
-            var passCount = activeTexTech.Description.PassCount;
-            for (var p = 0; p < passCount; p++) {
-                using (var pass = activeTexTech.GetPassByIndex(p)) {
-                    context.InputAssembler.SetVertexBuffers(0, _shapesBufferBinding);
-                    context.InputAssembler.SetIndexBuffer(_shapesIB, Format.R32_UInt, 0);
+            var stride = VertPosNormTexTan.Stride;
+            var offset = 0;
 
-                    basicFx.SetWorld(world);
-                    basicFx.SetWorldInvTranspose(worldInvTranspose);
-                    basicFx.SetWorldViewProj(wvp);
-                    basicFx.SetTexTransform(Matrix.Scaling(6, 8, 1));
-                    basicFx.SetMaterial(_gridMat);
-                    basicFx.SetDiffuseMap(_floorTexSRV);
-                    pass.Apply(context);
-                    context.DrawIndexed(_gridIndexCount, _gridIndexOffset, _gridVertexOffset);
+            context.InputAssembler.InputLayout = InputLayouts.PosNormTexTan;
+            context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(_shapesVB, stride, offset));
+            context.InputAssembler.SetIndexBuffer(_shapesIB, Format.R32_UInt, 0);
 
-                    world = _boxWorld;
-                    worldInvTranspose = MathF.InverseTranspose(world);
+            for (var p = 0; p < activeTech.Description.PassCount; p++) {
+                var world = _gridWorld;
+                var wit = MathF.InverseTranspose(world);
+                var wvp = world * viewProj;
+
+                switch (_renderOptions) {
+                    case RenderOptions.Basic:
+                        basicFx.SetWorld(world);
+                        basicFx.SetWorldInvTranspose(wit);
+                        basicFx.SetWorldViewProj(wvp);
+                        basicFx.SetTexTransform(Matrix.Scaling(8, 10, 1));
+                        basicFx.SetMaterial(_gridMat);
+                        basicFx.SetDiffuseMap(_stoneTexSRV);
+                        break;
+                    case RenderOptions.NormalMap:
+                        normalMapFx.SetWorld(world);
+                        normalMapFx.SetWorldInvTranspose(wit);
+                        normalMapFx.SetWorldViewProj(wvp);
+                        normalMapFx.SetTexTransform(Matrix.Scaling(8, 10, 1));
+                        normalMapFx.SetMaterial(_gridMat);
+                        normalMapFx.SetDiffuseMap(_stoneTexSRV);
+                        normalMapFx.SetNormalMap(_stoneNormalTexSRV);
+                        break;
+                    case RenderOptions.DisplacementMap:
+                        displacementMapFx.SetWorld(world);
+                        displacementMapFx.SetWorldInvTranspose(wit);
+                        displacementMapFx.SetViewProj(viewProj);
+                        displacementMapFx.SetWorldViewProj(wvp);
+                        displacementMapFx.SetTexTransform(Matrix.Scaling(8, 10, 1));
+                        displacementMapFx.SetMaterial(_gridMat);
+                        displacementMapFx.SetDiffuseMap(_stoneTexSRV);
+                        displacementMapFx.SetNormalMap(_stoneNormalTexSRV);
+                        break;
+                }
+                var pass = activeTech.GetPassByIndex(p);
+                pass.Apply(context);
+                context.DrawIndexed(_gridIndexCount, _gridIndexOffset, _gridVertexOffset);
+
+                world = _boxWorld;
+                wit = MathF.InverseTranspose(world);
+                wvp = world * viewProj;
+
+                switch (_renderOptions) {
+                    case RenderOptions.Basic:
+                        basicFx.SetWorld(world);
+                        basicFx.SetWorldInvTranspose(wit);
+                        basicFx.SetWorldViewProj(wvp);
+                        basicFx.SetTexTransform(Matrix.Scaling(2, 1, 1));
+                        basicFx.SetMaterial(_boxMat);
+                        basicFx.SetDiffuseMap(_brickTexSRV);
+                        break;
+                    case RenderOptions.NormalMap:
+                        normalMapFx.SetWorld(world);
+                        normalMapFx.SetWorldInvTranspose(wit);
+                        normalMapFx.SetWorldViewProj(wvp);
+                        normalMapFx.SetTexTransform(Matrix.Scaling(2, 1, 1));
+                        normalMapFx.SetMaterial(_boxMat);
+                        normalMapFx.SetDiffuseMap(_brickTexSRV);
+                        normalMapFx.SetNormalMap(_brickNormalTexSRV);
+                        break;
+                    case RenderOptions.DisplacementMap:
+                        displacementMapFx.SetWorld(world);
+                        displacementMapFx.SetWorldInvTranspose(wit);
+                        displacementMapFx.SetViewProj(viewProj);
+                        displacementMapFx.SetWorldViewProj(wvp);
+                        displacementMapFx.SetTexTransform(Matrix.Scaling(2, 1, 1));
+                        displacementMapFx.SetMaterial(_boxMat);
+                        displacementMapFx.SetDiffuseMap(_brickTexSRV);
+                        displacementMapFx.SetNormalMap(_brickNormalTexSRV);
+                        break;
+                }
+                pass.Apply(context);
+                context.DrawIndexed(_boxIndexCount, _boxIndexOffset, _boxVertexOffset);
+
+                foreach (var matrix in _cylWorld) {
+                    world = matrix;
+                    wit = MathF.InverseTranspose(world);
                     wvp = world * viewProj;
+
+                    switch (_renderOptions) {
+                        case RenderOptions.Basic:
+                            basicFx.SetWorld(world);
+                            basicFx.SetWorldInvTranspose(wit);
+                            basicFx.SetWorldViewProj(wvp);
+                            basicFx.SetTexTransform(Matrix.Scaling(1, 2, 1));
+                            basicFx.SetMaterial(_cylinderMat);
+                            basicFx.SetDiffuseMap(_brickTexSRV);
+                            break;
+                        case RenderOptions.NormalMap:
+                            normalMapFx.SetWorld(world);
+                            normalMapFx.SetWorldInvTranspose(wit);
+                            normalMapFx.SetWorldViewProj(wvp);
+                            normalMapFx.SetTexTransform(Matrix.Scaling(1, 2, 1));
+                            normalMapFx.SetMaterial(_cylinderMat);
+                            normalMapFx.SetDiffuseMap(_brickTexSRV);
+                            normalMapFx.SetNormalMap(_brickNormalTexSRV);
+                            break;
+                        case RenderOptions.DisplacementMap:
+                            displacementMapFx.SetWorld(world);
+                            displacementMapFx.SetWorldInvTranspose(wit);
+                            displacementMapFx.SetViewProj(viewProj);
+                            displacementMapFx.SetWorldViewProj(wvp);
+                            displacementMapFx.SetTexTransform(Matrix.Scaling(1, 2, 1));
+                            displacementMapFx.SetMaterial(_cylinderMat);
+                            displacementMapFx.SetDiffuseMap(_brickTexSRV);
+                            displacementMapFx.SetNormalMap(_brickNormalTexSRV);
+                            break;
+                    }
+                    pass.Apply(context);
+                    context.DrawIndexed(_cylinderIndexCount, _cylinderIndexOffset, _cylinderVertexOffset);
+                }
+
+            }
+            context.HullShader.Set(null);
+            context.DomainShader.Set(null);
+            context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
+
+            for (var p = 0; p < activeSphereTech.Description.PassCount; p++) {
+                foreach (var matrix in _sphereWorld) {
+                    var world = matrix;
+                    var wit = MathF.InverseTranspose(world);
+                    var wvp = world * viewProj;
+
                     basicFx.SetWorld(world);
-                    basicFx.SetWorldInvTranspose(worldInvTranspose);
+                    basicFx.SetWorldInvTranspose(wit);
                     basicFx.SetWorldViewProj(wvp);
                     basicFx.SetTexTransform(Matrix.Identity);
-                    basicFx.SetMaterial(_boxMat);
-                    basicFx.SetDiffuseMap(_stoneTexSRV);
-                    pass.Apply(context);
-                    context.DrawIndexed(_boxIndexCount, _boxIndexOffset, _boxVertexOffset);
+                    basicFx.SetMaterial(_sphereMat);
 
-                    foreach (var matrix in _cylWorld) {
-                        world = matrix;
-                        worldInvTranspose = MathF.InverseTranspose(world);
-                        wvp = world * viewProj;
-                        basicFx.SetWorld(world);
-                        basicFx.SetWorldInvTranspose(worldInvTranspose);
-                        basicFx.SetWorldViewProj(wvp);
-                        basicFx.SetTexTransform(Matrix.Identity);
-                        basicFx.SetMaterial(_cylinderMat);
-                        basicFx.SetDiffuseMap(_brickTexSRV);
-                        pass.Apply(context);
-                        context.DrawIndexed(_cylinderIndexCount, _cylinderIndexOffset, _cylinderVertexOffset);
-                    }
+                    activeSphereTech.GetPassByIndex(p).Apply(context);
+                    context.DrawIndexed(_sphereIndexCount, _sphereIndexOffset, _sphereVertexOffset);
                 }
             }
-            // draw spheres with reflection
-            passCount = activeReflectTech.Description.PassCount;
-            for (var p = 0; p < passCount; p++) {
-                using (var pass = activeReflectTech.GetPassByIndex(p)) {
-                    foreach (var matrix in _sphereWorld) {
-                        world = matrix;
-                        worldInvTranspose = MathF.InverseTranspose(world);
-                        wvp = world * viewProj;
-                        basicFx.SetWorld(world);
-                        basicFx.SetWorldInvTranspose(worldInvTranspose);
-                        basicFx.SetWorldViewProj(wvp);
-                        basicFx.SetTexTransform(Matrix.Identity);
-                        basicFx.SetMaterial(_sphereMat);
-                        basicFx.SetDiffuseMap(_stoneTexSRV);
-                        pass.Apply(context);
-                        context.DrawIndexed(_sphereIndexCount, _sphereIndexOffset, _sphereVertexOffset);
-                    }
-                }
-            }
-            world = _skullWorld;
-            worldInvTranspose = MathF.InverseTranspose(world);
-            wvp = world * viewProj;
-            passCount = activeSkullTech.Description.PassCount;
-            for (var p = 0; p < passCount; p++) {
-                using (var pass = activeSkullTech.GetPassByIndex(p)) {
-                    context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(_skullVB, VertPosNormTex.Stride, 0));
-                    context.InputAssembler.SetIndexBuffer(_skullIB, Format.R32_UInt, 0);
-                    basicFx.SetWorld(world);
-                    basicFx.SetWorldInvTranspose(worldInvTranspose);
-                    basicFx.SetWorldViewProj(wvp);
-                    basicFx.SetMaterial(_skullMat);
-                    pass.Apply(context);
-                    context.DrawIndexed(_skullIndexCount, 0, 0);
-                }
+            stride = VertPosNormTex.Stride;
+            offset = 0;
+
+            context.Rasterizer.State = null;
+
+            context.InputAssembler.InputLayout = InputLayouts.PosNormTex;
+            context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(_skullVB, stride, offset));
+            context.InputAssembler.SetIndexBuffer(_skullIB, Format.R32_UInt, 0);
+
+            for (var p = 0; p < activeSkullTech.Description.PassCount; p++) {
+                var world = _skullWorld;
+                var wit = MathF.InverseTranspose(world);
+                var wvp = world * viewProj;
+
+                basicFx.SetWorld(world);
+                basicFx.SetWorldInvTranspose(wit);
+                basicFx.SetWorldViewProj(wvp);
+                basicFx.SetMaterial(_skullMat);
+
+                activeSkullTech.GetPassByIndex(p).Apply(context);
+                context.DrawIndexed(_skullIndexCount, 0, 0);
             }
         }
 
@@ -264,12 +351,12 @@ namespace Noire.Demo.D3D11 {
             var totalVertexCount = box.Vertices.Count + grid.Vertices.Count + sphere.Vertices.Count + cylinder.Vertices.Count;
             var totalIndexCount = _boxIndexCount + _gridIndexCount + _sphereIndexCount + _cylinderIndexCount;
 
-            var vertices = box.Vertices.Select(v => new VertPosNormTex(v.Position, v.Normal, v.TexCoords)).ToList();
-            vertices.AddRange(grid.Vertices.Select(v => new VertPosNormTex(v.Position, v.Normal, v.TexCoords)));
-            vertices.AddRange(sphere.Vertices.Select(v => new VertPosNormTex(v.Position, v.Normal, v.TexCoords)));
-            vertices.AddRange(cylinder.Vertices.Select(v => new VertPosNormTex(v.Position, v.Normal, v.TexCoords)));
+            var vertices = box.Vertices.Select(v => new VertPosNormTexTan(v.Position, v.Normal, v.TexCoords, v.TangentU)).ToList();
+            vertices.AddRange(grid.Vertices.Select(v => new VertPosNormTexTan(v.Position, v.Normal, v.TexCoords, v.TangentU)));
+            vertices.AddRange(sphere.Vertices.Select(v => new VertPosNormTexTan(v.Position, v.Normal, v.TexCoords, v.TangentU)));
+            vertices.AddRange(cylinder.Vertices.Select(v => new VertPosNormTexTan(v.Position, v.Normal, v.TexCoords, v.TangentU)));
 
-            var vbd = new BufferDescription(VertPosNormTex.Stride * totalVertexCount, ResourceUsage.Immutable, BindFlags.VertexBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
+            var vbd = new BufferDescription(VertPosNormTexTan.Stride * totalVertexCount, ResourceUsage.Immutable, BindFlags.VertexBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
             _shapesVB = new Buffer(device, DataStream.Create(vertices.ToArray(), false, false), vbd);
 
             var indices = new List<int>();
@@ -357,9 +444,11 @@ namespace Noire.Demo.D3D11 {
         private Buffer _skullVB;
         private Buffer _skullIB;
 
-        private ShaderResourceView _floorTexSRV;
         private ShaderResourceView _stoneTexSRV;
         private ShaderResourceView _brickTexSRV;
+
+        private ShaderResourceView _stoneNormalTexSRV;
+        private ShaderResourceView _brickNormalTexSRV;
 
         private DirectionalLight[] _dirLights;
         private Material _gridMat;
@@ -390,9 +479,15 @@ namespace Noire.Demo.D3D11 {
         private int _cylinderIndexCount;
         private int _skullIndexCount;
 
-        private VertexBufferBinding _shapesBufferBinding;
-
         private int _lightCount;
+
+        private RenderOptions _renderOptions = RenderOptions.DisplacementMap;
+
+        private enum RenderOptions {
+            Basic,
+            NormalMap,
+            DisplacementMap
+        }
 
     }
 }
