@@ -13,46 +13,26 @@ using SharpDX.Direct3D11;
 namespace Noire.Graphics.D3D11.Model {
     public class BasicModel : ModelBase<VertPosNormTexTan> {
 
-        public BasicModel() {
+        public static BasicModel Create(Device device, TextureManager11 textureManager, string filePath, string texturePath, bool autoLoadTextures = true, bool flipUv = false, bool tex1By1 = true) {
+            return new BasicModel(device, textureManager, filePath, texturePath, autoLoadTextures, flipUv, tex1By1);
         }
 
-        public static BasicModel Create(Device device, TextureManager11 textureManager, string filePath, string texturePath, bool flipUv = false, bool tex1By1 = true) {
-            return new BasicModel(device, textureManager, filePath, texturePath, flipUv, tex1By1);
+        public void ReplaceWithSingleDiffuseTexture(ShaderResourceView texture) {
+            DiffuseMapSRV.Clear();
+            DiffuseMapSRV.AddRange(texture.Repeat(_meshCount));
         }
 
-        public override void CreateBox(Device device, float width, float height, float depth) {
-            var box = GeometryGenerator.CreateBox(width, height, depth);
-            InitFromMeshData(device, box);
-        }
-
-        public override void CreateSphere(Device device, float radius, int slices, int stacks) {
-            var sphere = GeometryGenerator.CreateSphere(radius, slices, stacks);
-            InitFromMeshData(device, sphere);
-        }
-
-        public override void CreateCylinder(Device device, float bottomRadius, float topRadius, float height, int sliceCount, int stackCount) {
-            var cylinder = GeometryGenerator.CreateCylinder(bottomRadius, topRadius, height, sliceCount, stackCount);
-            InitFromMeshData(device, cylinder);
-        }
-
-        public override void CreateGrid(Device device, float width, float depth, int xVerts, int zVerts) {
-            var grid = GeometryGenerator.CreateGrid(width, depth, xVerts, zVerts);
-            InitFromMeshData(device, grid);
-        }
-
-        public override void CreateGeosphere(Device device, float radius, SubdivisionCount numSubdivisions) {
-            var geosphere = GeometryGenerator.CreateGeosphere(radius, numSubdivisions);
-            InitFromMeshData(device, geosphere);
+        public void ReplaceWithSingleNormalTexture(ShaderResourceView texture) {
+            NormalMapSRV.Clear();
+            NormalMapSRV.AddRange(texture.Repeat(_meshCount));
         }
 
         public static BasicModel LoadFromTxtFile(Device device, string filename) {
-
             var vertices = new List<VertPosNormTex>();
             var indices = new List<int>();
             var vcount = 0;
             var tcount = 0;
             using (var reader = new StreamReader(filename)) {
-
 
                 var input = reader.ReadLine();
                 if (input != null)
@@ -133,8 +113,9 @@ namespace Noire.Graphics.D3D11.Model {
             ret.ModelMesh.SetVertices(device, ret.Vertices);
             ret.ModelMesh.SetIndices(device, ret.Indices);
 
-            return ret;
+            ret._meshCount = 1;
 
+            return ret;
         }
 
         public static BasicModel LoadSdkMesh(Device device, TextureManager11 texMgr, string filename, string texturePath) {
@@ -156,6 +137,8 @@ namespace Noire.Graphics.D3D11.Model {
                 vertexStart = subset.VertexStart + subset.VertexCount;
                 ret.Subsets.Add(subset);
             }
+            ret._meshCount = ret.SubsetCount;
+
             var max = new Vector3(float.MinValue);
             var min = new Vector3(float.MaxValue);
             foreach (var vb in sdkMesh.VertexBuffers) {
@@ -197,6 +180,66 @@ namespace Noire.Graphics.D3D11.Model {
             return ret;
         }
 
+        public static BasicModel CreateBox(Device device, float width, float height, float depth) {
+            var model = new BasicModel();
+            model.CreateBoxInternal(device, width, height, depth);
+            return model;
+        }
+
+        public static BasicModel CreateSphere(Device device, float radius, int slices, int stacks) {
+            var model = new BasicModel();
+            model.CreateSphereInternal(device, radius, slices, stacks);
+            return model;
+        }
+
+        public static BasicModel CreateCylinder(Device device, float bottomRadius, float topRadius, float height, int sliceCount, int stackCount) {
+            var model = new BasicModel();
+            model.CreateCylinderInternal(device, bottomRadius, topRadius, height, sliceCount, stackCount);
+            return model;
+        }
+
+        public static BasicModel CreateGrid(Device device, float width, float depth, int xVerts, int yVerts) {
+            var model = new BasicModel();
+            model.CreateGridInternal(device, width, depth, xVerts, yVerts);
+            return model;
+        }
+
+        public static BasicModel CreateGeosphere(Device device, float radius, SubdivisionCount numSubdivisions) {
+            var model = new BasicModel();
+            model.CreateGeosphereInternal(device, radius, numSubdivisions);
+            return model;
+        }
+
+        protected override void CreateBoxInternal(Device device, float width, float height, float depth) {
+            var box = GeometryGenerator.CreateBox(width, height, depth);
+            InitFromMeshData(device, box);
+            _meshCount = 1;
+        }
+
+        protected override void CreateSphereInternal(Device device, float radius, int slices, int stacks) {
+            var sphere = GeometryGenerator.CreateSphere(radius, slices, stacks);
+            InitFromMeshData(device, sphere);
+            _meshCount = 1;
+        }
+
+        protected override void CreateCylinderInternal(Device device, float bottomRadius, float topRadius, float height, int sliceCount, int stackCount) {
+            var cylinder = GeometryGenerator.CreateCylinder(bottomRadius, topRadius, height, sliceCount, stackCount);
+            InitFromMeshData(device, cylinder);
+            _meshCount = 1;
+        }
+
+        protected override void CreateGridInternal(Device device, float width, float depth, int xVerts, int zVerts) {
+            var grid = GeometryGenerator.CreateGrid(width, depth, xVerts, zVerts);
+            InitFromMeshData(device, grid);
+            _meshCount = 1;
+        }
+
+        protected override void CreateGeosphereInternal(Device device, float radius, SubdivisionCount numSubdivisions) {
+            var geosphere = GeometryGenerator.CreateGeosphere(radius, numSubdivisions);
+            InitFromMeshData(device, geosphere);
+            _meshCount = 1;
+        }
+
         protected override void InitFromMeshData(Device device, GeometryGenerator.MeshData mesh) {
             var subset = new MeshSubset() {
                 FaceCount = mesh.Indices.Count / 3,
@@ -227,7 +270,11 @@ namespace Noire.Graphics.D3D11.Model {
             ModelMesh.SetIndices(device, Indices);
         }
 
-        private BasicModel(Device device, TextureManager11 textureManager, string filename, string texturePath, bool flipUv, bool tex1By1) {
+        private BasicModel() {
+            _meshCount = 0;
+        }
+
+        private BasicModel(Device device, TextureManager11 textureManager, string filename, string texturePath, bool autoLoadTextures, bool flipUv, bool tex1By1) {
             var importer = new AssimpContext();
             if (!importer.IsImportFormatSupported(Path.GetExtension(filename))) {
                 throw new ArgumentException($"Model format {Path.GetExtension(filename)} is not supported. Cannot load {filename}.", nameof(filename));
@@ -244,6 +291,8 @@ namespace Noire.Graphics.D3D11.Model {
 
             var min = new Vector3(float.MaxValue);
             var max = new Vector3(float.MinValue);
+
+            _meshCount = model.Meshes.Count;
 
             foreach (var mesh in model.Meshes) {
                 var verts = new List<VertPosNormTexTan>();
@@ -277,38 +326,44 @@ namespace Noire.Graphics.D3D11.Model {
                 var material = mat.ToMaterial();
 
                 Materials.Add(material);
-                TextureSlot diffuseSlot;
-                mat.GetMaterialTexture(TextureType.Diffuse, 0, out diffuseSlot);
-                var diffusePath = diffuseSlot.FilePath;
-                if (Path.GetExtension(diffusePath) == ".tga") {
-                    // DirectX doesn't like to load tgas, so you will need to convert them to pngs yourself with an image editor
-                    diffusePath = diffusePath.Replace(".tga", ".png");
-                }
-                if (!string.IsNullOrEmpty(diffusePath)) {
-                    DiffuseMapSRV.Add(textureManager.CreateTexture(Path.Combine(texturePath, diffusePath)));
-                } else {
-                    DiffuseMapSRV.Add(textureManager.CreateColor1By1(material.Diffuse.ToColor()));
-                }
-                TextureSlot normalSlot;
-                mat.GetMaterialTexture(TextureType.Normals, 0, out normalSlot);
-                var normalPath = normalSlot.FilePath;
-                if (!string.IsNullOrEmpty(normalPath)) {
-                    NormalMapSRV.Add(textureManager.CreateTexture(Path.Combine(texturePath, normalPath)));
-                } else {
-                    if (diffusePath != null) {
-                        var normalExt = Path.GetExtension(diffusePath);
-                        normalPath = Path.GetFileNameWithoutExtension(diffusePath) + "_nmap" + normalExt;
+
+                if (autoLoadTextures) {
+                    TextureSlot diffuseSlot;
+                    mat.GetMaterialTexture(TextureType.Diffuse, 0, out diffuseSlot);
+                    var diffusePath = diffuseSlot.FilePath;
+                    if (Path.GetExtension(diffusePath) == ".tga") {
+                        // DirectX doesn't like to load tgas, so you will need to convert them to pngs yourself with an image editor
+                        diffusePath = diffusePath.Replace(".tga", ".png");
+                    }
+                    if (!string.IsNullOrEmpty(diffusePath)) {
+                        DiffuseMapSRV.Add(textureManager.CreateTexture(Path.Combine(texturePath, diffusePath)));
+                    } else {
+                        DiffuseMapSRV.Add(textureManager.CreateColor1By1(material.Diffuse.ToColor()));
+                    }
+                    TextureSlot normalSlot;
+                    mat.GetMaterialTexture(TextureType.Normals, 0, out normalSlot);
+                    var normalPath = normalSlot.FilePath;
+                    if (!string.IsNullOrEmpty(normalPath)) {
                         NormalMapSRV.Add(textureManager.CreateTexture(Path.Combine(texturePath, normalPath)));
                     } else {
-                        NormalMapSRV.Add(textureManager[TextureManager11.TexDefaultNorm]);
+                        if (diffusePath != null) {
+                            var normalExt = Path.GetExtension(diffusePath);
+                            normalPath = Path.GetFileNameWithoutExtension(diffusePath) + "_nmap" + normalExt;
+                            NormalMapSRV.Add(textureManager.CreateTexture(Path.Combine(texturePath, normalPath)));
+                        } else {
+                            NormalMapSRV.Add(textureManager[TextureManager11.TexDefaultNorm]);
+                        }
                     }
                 }
             }
+
             BoundingBox = new BoundingBox(min, max);
             ModelMesh.SetSubsetTable(Subsets);
             ModelMesh.SetVertices(device, Vertices);
             ModelMesh.SetIndices(device, Indices);
         }
+
+        private int _meshCount;
 
     }
 }

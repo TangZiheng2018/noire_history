@@ -44,5 +44,13 @@ namespace Noire.Common {
             }
         }
 
+        public static T[] Repeat<T>(this T obj, int times) {
+            var t = new T[times];
+            for (var i = 0; i < times; ++i) {
+                t[i] = obj;
+            }
+            return t;
+        }
+
     }
 }

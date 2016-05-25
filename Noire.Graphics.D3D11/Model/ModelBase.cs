@@ -7,28 +7,31 @@ namespace Noire.Graphics.D3D11.Model {
     public abstract class ModelBase<TVertex> : DisposeBase {
 
         public MeshGeometry ModelMesh { get; protected set; }
-        public int SubsetCount { get { return Subsets.Count; } }
+
+        public int SubsetCount => Subsets.Count;
+
         public List<Material> Materials { get; protected set; }
         public List<ShaderResourceView> DiffuseMapSRV { get; protected set; }
         public List<ShaderResourceView> NormalMapSRV { get; protected set; }
         public BoundingBox BoundingBox { get; protected set; }
 
-        public abstract void CreateBox(Device device, float width, float height, float depth);
-        public abstract void CreateSphere(Device device, float radius, int slices, int stacks);
-        public abstract void CreateCylinder(Device device, float bottomRadius, float topRadius, float height, int sliceCount, int stackCount);
-        public abstract void CreateGrid(Device device, float width, float depth, int xVerts, int zVerts);
-        public abstract void CreateGeosphere(Device device, float radius, SubdivisionCount subdivisionCount);
+        protected abstract void CreateBoxInternal(Device device, float width, float height, float depth);
+        protected abstract void CreateSphereInternal(Device device, float radius, int slices, int stacks);
+        protected abstract void CreateCylinderInternal(Device device, float bottomRadius, float topRadius, float height, int sliceCount, int stackCount);
+        protected abstract void CreateGridInternal(Device device, float width, float depth, int xVerts, int zVerts);
+        protected abstract void CreateGeosphereInternal(Device device, float radius, SubdivisionCount subdivisionCount);
 
         protected override void Dispose(bool disposing) {
-            if (!IsDisposed) {
-                if (disposing) {
-                    var meshGeometry = ModelMesh;
-                    Utilities.Dispose(ref meshGeometry);
-                    Indices.Clear();
-                    Vertices.Clear();
-                    Indices = null;
-                    Vertices = null;
-                }
+            if (IsDisposed) {
+                return;
+            }
+            if (disposing) {
+                var meshGeometry = ModelMesh;
+                Utilities.Dispose(ref meshGeometry);
+                Indices.Clear();
+                Vertices.Clear();
+                Indices = null;
+                Vertices = null;
             }
         }
 

@@ -350,8 +350,7 @@ namespace Noire.Demo.D3D11 {
         private void BuildShapeGeometryBuffers(Device device) {
             var textureManager = TextureManager11.Instance;
 
-            _boxModel = new BasicModel();
-            _boxModel.CreateBox(device, 1, 1, 1);
+            _boxModel = BasicModel.CreateBox(device, 1, 1, 1);
             _boxModel.Materials[0] = new Material {
                 Ambient = Color.White,
                 Diffuse = Color.White,
@@ -362,8 +361,7 @@ namespace Noire.Demo.D3D11 {
             //_boxModel.DiffuseMapSRV[0] = textureManager.CreateTexture(NoireConfiguration.GetFullResourcePath("textures/metal.jpg"));
             _boxModel.NormalMapSRV[0] = textureManager.CreateTexture(NoireConfiguration.GetFullResourcePath("textures/bricks_nmap.png"));
 
-            _gridModel = new BasicModel();
-            _gridModel.CreateGrid(device, 20, 30, 40, 60);
+            _gridModel = BasicModel.CreateGrid(device, 20, 30, 40, 60);
             _gridModel.Materials[0] = new Material {
                 Ambient = new Color(0.8f, 0.8f, 0.8f),
                 Diffuse = new Color(0.8f, 0.8f, 0.8f),
@@ -373,26 +371,24 @@ namespace Noire.Demo.D3D11 {
             _gridModel.DiffuseMapSRV[0] = textureManager.CreateTexture(NoireConfiguration.GetFullResourcePath("textures/floor.dds"));
             _gridModel.NormalMapSRV[0] = textureManager.CreateTexture(NoireConfiguration.GetFullResourcePath("textures/floor_nmap.png"));
 
-            _sphereModel = new BasicModel();
-            _sphereModel.CreateSphere(device, 0.5f, 20, 20);
+            _sphereModel = BasicModel.CreateSphere(device, 0.5f, 20, 20);
             _sphereModel.Materials[0] = new Material {
                 Ambient = new Color(0.6f, 0.8f, 0.9f),
                 Diffuse = new Color(0.6f, 0.8f, 0.9f),
                 Specular = new Color(0.9f, 0.9f, 0.9f, 16.0f),
                 Reflect = new Color(0.4f, 0.4f, 0.4f)
             };
-            _cylinderModel = new BasicModel();
-            _cylinderModel.CreateCylinder(device, 0.5f, 0.3f, 3.0f, 20, 20);
+            _cylinderModel = BasicModel.CreateCylinder(device, 0.5f, 0.3f, 3.0f, 20, 20);
             _cylinderModel.Materials[0] = new Material {
                 Ambient = Color.White,
                 Diffuse = Color.White,
-                Specular = new Color(0.8f, 0.8f, 0.8f, 16.0f),
+                //Specular = new Color(0.3f, 0.3f, 0.3f, 16.0f), // plywood
+                //Specular = new Color(0.8f, 0.8f, 0.8f, 16.0f), // metal, stone
+                Specular = new Color(0.6f, 0.6f, 0.6f, 16.0f), // leather
                 Reflect = Color.Black
             };
-            //_cylinderModel.DiffuseMapSRV[0] = textureManager.CreateTexture(NoireConfiguration.GetFullResourcePath("textures/bricks.dds"));
-            _cylinderModel.DiffuseMapSRV[0] = textureManager.CreateTexture(NoireConfiguration.GetFullResourcePath("textures/metal.jpg"));
-            //_cylinderModel.NormalMapSRV[0] = textureManager.CreateTexture(NoireConfiguration.GetFullResourcePath("textures/bricks_nmap.png"));
-            _cylinderModel.NormalMapSRV[0] = textureManager.CreateTexture(NoireConfiguration.GetFullResourcePath("textures/metal_nmap.png"));
+            _cylinderModel.DiffuseMapSRV[0] = textureManager.CreateTexture(NoireConfiguration.GetFullResourcePath("textures/material/leather_Base_Color.png"));
+            _cylinderModel.NormalMapSRV[0] = textureManager.CreateTexture(NoireConfiguration.GetFullResourcePath("textures/material/leather_Normal.png"));
 
             for (var i = 0; i < 5; i++) {
                 _cylinders[i * 2] = new BasicModelInstance(_cylinderModel) {
@@ -423,7 +419,8 @@ namespace Noire.Demo.D3D11 {
             };
 
             // MIC
-            _deceleratorModel = BasicModel.Create(device, TextureManager11.Instance, NoireConfiguration.GetFullResourcePath("models/decelerator.3ds"), NoireConfiguration.GetFullResourcePath("models"));
+            _deceleratorModel = BasicModel.Create(device, TextureManager11.Instance,
+                NoireConfiguration.GetFullResourcePath("models/decelerator.3ds"), NoireConfiguration.GetFullResourcePath("models"));
             _deceleratorWorld = Matrix.Scaling(8) * Matrix.Translation(0, 0, 5);
             _decelerator = new BasicModelInstance(_deceleratorModel) {
                 TexTransform = Matrix.Identity,
