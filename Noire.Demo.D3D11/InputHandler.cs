@@ -5,7 +5,8 @@ using SharpDX.DirectInput;
 namespace Noire.Demo.D3D11 {
     public sealed class InputHandler : GameComponent {
 
-        public InputHandler() {
+        public InputHandler(IGameComponentRoot root, IGameComponentContainer parent)
+            : base(root, parent) {
             _directInput = new DirectInput();
             _keyboard = new Keyboard(_directInput);
         }

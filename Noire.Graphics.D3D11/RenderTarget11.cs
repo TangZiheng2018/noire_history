@@ -8,7 +8,8 @@ using Resource = SharpDX.Direct3D11.Resource;
 namespace Noire.Graphics.D3D11 {
     public class RenderTarget11 : GameComponent {
 
-        public RenderTarget11() {
+        public RenderTarget11(IGameComponentRoot root, IGameComponentContainer parent)
+            : base(root, parent) {
         }
 
         public DepthStencilView DepthStencilView => _depthView;

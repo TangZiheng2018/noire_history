@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Windows.Forms;
-using Noire.Common;
 using Noire.Graphics.D3D11;
 using Noire.Graphics.D3D11.FX;
 using SharpDX;
@@ -30,12 +29,14 @@ namespace Noire.Demo.D3D11 {
         }
 
         private void timer1_Tick(object sender, EventArgs e) {
-            Text = $"{_app.Fps.ToString("##.00")} fps on {_app.DriverName}";
+            Text = $"{_app.Fps.ToString("0.00")} fps on {_app.DriverName}";
         }
 
         private void InitializeExtraControls() {
+            var mnuMain = new ToolStripMenuItem("调整(&A)");
+            menuStrip1.Items.Add(mnuMain);
             var mnuLights = new ToolStripMenuItem("灯光(&L)");
-            menuStrip1.Items.Add(mnuLights);
+            mnuMain.DropDownItems.Add(mnuLights);
             for (var i = 0; i < BasicEffect11.MaxLights; ++i) {
                 var m = new ToolStripMenuItem($"灯光 #{i}");
                 m.Click += LightMenuItem_Click;
@@ -44,6 +45,11 @@ namespace Noire.Demo.D3D11 {
             }
             (mnuLights.DropDownItems[0] as ToolStripMenuItem).Checked = true;
             timer1.Enabled = true;
+            mnuMain.DropDownItems.Add(new ToolStripSeparator());
+            var mnuToggleWireframe = new ToolStripMenuItem("线框模式(&W)");
+            mnuMain.DropDownItems.Add(mnuToggleWireframe);
+            mnuToggleWireframe.Click += ToggleWireframeRenderMode_Click;
+            mnuToggleWireframe.CheckOnClick = true;
         }
 
         private void Form1_MouseMove(object sender, MouseEventArgs e) {
@@ -79,8 +85,16 @@ namespace Noire.Demo.D3D11 {
             foreach (ToolStripMenuItem item in parent.DropDownItems) {
                 item.Checked = item == mnu;
             }
-            var s = _app.GetChildByName("ShapesScene") as ShadowScene;
+            var s = _app.GetChildByType<ShadowScene>();
             //s.LightCount = (int)mnu.Tag;
+        }
+
+        private void ToggleWireframeRenderMode_Click(object sender, EventArgs e) {
+            var item = sender as ToolStripMenuItem;
+            var scene = _app.GetChildByType<ShadowScene>();
+            if (scene != null) {
+                scene.RenderInWireframe = item.Checked;
+            }
         }
 
         private void Form1_SizeChanged(object sender, EventArgs e) {
@@ -122,11 +136,11 @@ namespace Noire.Demo.D3D11 {
             camera.Position = new Vector3(0, 5, -15);
             camera.LookAt(Vector3.Zero, Vector3.UnitY);
 
-            var scene = new ShadowScene();
+            var scene = new ShadowScene(_app, _app);
             scene.Initialize();
             scene.Name = "ShapesScene";
             _app.ChildComponents.Add(scene);
-            var inputHandler = new InputHandler();
+            var inputHandler = new InputHandler(_app, _app);
             inputHandler.Initialize();
             _app.ChildComponents.Add(inputHandler);
         }

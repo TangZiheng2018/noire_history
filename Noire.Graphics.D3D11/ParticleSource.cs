@@ -1,5 +1,4 @@
 ﻿using Noire.Common;
-using Noire.Common.Camera;
 using Noire.Graphics.D3D11.FX;
 using SharpDX;
 using SharpDX.Direct3D;
@@ -8,7 +7,8 @@ using SharpDX.Direct3D11;
 namespace Noire.Graphics.D3D11 {
     public class ParticleSource : GameComponent {
 
-        public ParticleSource(Device device, ParticleEffectBase11 effect, ShaderResourceView texArraySRV, ShaderResourceView randomTexSRV, int maxParticles) {
+        public ParticleSource(IGameComponentRoot root, IGameComponentContainer parent, Device device, ParticleEffectBase11 effect, ShaderResourceView texArraySRV, ShaderResourceView randomTexSRV, int maxParticles)
+            : base(root, parent) {
             _firstRun = true;
             EmitDirW = new Vector3(0, 1, 0);
             _maxParticles = maxParticles;

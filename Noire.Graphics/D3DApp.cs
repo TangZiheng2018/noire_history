@@ -8,7 +8,7 @@ using SharpDX;
 using SharpDX.Windows;
 
 namespace Noire.Graphics {
-    public abstract class D3DApp : GameComponentContainer {
+    public abstract class D3DApp : GameComponentRoot {
 
         protected D3DApp(Control control) {
             IsPaused = false;

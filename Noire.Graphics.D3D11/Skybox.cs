@@ -10,7 +10,8 @@ using SharpDX.DXGI;
 namespace Noire.Graphics.D3D11 {
     public sealed class Skybox : GameComponent {
 
-        public Skybox(string filename, float skySphereRadius) {
+        public Skybox(IGameComponentRoot root, IGameComponentContainer parent, string filename, float skySphereRadius)
+            : base(root, parent) {
             _filename = filename;
             _skySphereRadius = skySphereRadius;
         }

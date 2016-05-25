@@ -73,6 +73,7 @@ namespace Noire.Graphics.D3D11 {
                 EffectManager11.Instance?.Dispose();
                 TextureManager11.Instance?.Dispose();
                 InputLayouts.DisposeAll();
+                RenderStates11.Destroy();
                 Utilities.Dispose(ref _factory);
                 Utilities.Dispose(ref _immediateContext);
                 Utilities.Dispose(ref _swapChain);
@@ -99,16 +100,17 @@ namespace Noire.Graphics.D3D11 {
             _immediateContext = _d3dDevice.ImmediateContext;
             _factory = _swapChain.GetParent<Factory>();
 
+            RenderStates11.Initialize(_d3dDevice);
             EffectManager11.Initialize();
             EffectManager11.Instance?.InitializeAllEffects(_d3dDevice);
             TextureLoader.Initialize();
             InputLayouts.InitializeAll(_d3dDevice);
             TextureManager11.Initialize(_d3dDevice);
 
-            _renderTarget = new RenderTarget11();
+            _renderTarget = new RenderTarget11(this, this);
             _renderTarget.Initialize();
             ChildComponents.Add(_renderTarget);
-            _skybox = new Skybox(NoireConfiguration.GetFullResourcePath("textures/cube.dds"), 5000);
+            _skybox = new Skybox(this, this, NoireConfiguration.GetFullResourcePath("textures/cube.dds"), 5000);
             _skybox.Initialize();
             ChildComponents.Add(_skybox);
 

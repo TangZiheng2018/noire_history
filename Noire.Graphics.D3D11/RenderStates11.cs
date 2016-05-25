@@ -5,11 +5,37 @@ using SharpDX.Direct3D11;
 namespace Noire.Graphics.D3D11 {
     public sealed class RenderStates11 : DisposeBase {
 
-        public RenderStates11(Device device) {
-            _device = device;
+        static RenderStates11() {
+            SyncObject = new object();
+            _isInitialized = false;
         }
 
-        public Device Device => _device;
+        public static void Initialize(Device device) {
+            if (IsInitialized) {
+                return;
+            }
+            _instance = new RenderStates11();
+            _instance.InitializeInternal(device);
+            _isInitialized = true;
+        }
+
+        public static void Destroy() {
+            if (!IsInitialized) {
+                return;
+            }
+            _instance.Dispose();
+            _instance = null;
+        }
+
+        public static bool IsInitialized {
+            get {
+                lock (SyncObject) {
+                    return _isInitialized;
+                }
+            }
+        }
+
+        public static RenderStates11 Instance => _instance;
 
         public RasterizerState WireframeRS => _wireframeRs;
 
@@ -35,9 +61,30 @@ namespace Noire.Graphics.D3D11 {
 
         public DepthStencilState NoDepthDSS => _noDepthDss;
 
-        public void InitializeAll() {
-            var device = _device;
+        protected override void Dispose(bool disposing) {
+            if (IsDisposed) {
+                return;
+            }
+            if (disposing) {
+                Utilities.Dispose(ref _wireframeRs);
+                Utilities.Dispose(ref _noCullRs);
+                Utilities.Dispose(ref _alphaToCoverageBs);
+                Utilities.Dispose(ref _cullClockwiseRs);
+                Utilities.Dispose(ref _transparentBs);
+                Utilities.Dispose(ref _noRenderTargetWritesBs);
+                Utilities.Dispose(ref _markMirrorDss);
+                Utilities.Dispose(ref _drawReflectionDss);
+                Utilities.Dispose(ref _noDoubleBlendDss);
+                Utilities.Dispose(ref _lessEqualDss);
+                Utilities.Dispose(ref _equalsDss);
+                Utilities.Dispose(ref _noDepthDss);
+            }
+        }
 
+        private RenderStates11() {
+        }
+
+        private void InitializeInternal(Device device) {
             Debug.Assert(device != null);
 
             var wfDesc = new RasterizerStateDescription {
@@ -193,28 +240,6 @@ namespace Noire.Graphics.D3D11 {
             _noDepthDss = new DepthStencilState(device, noDepthDesc);
         }
 
-        protected override void Dispose(bool disposing) {
-            if (IsDisposed) {
-                return;
-            }
-            if (disposing) {
-                Utilities.Dispose(ref _wireframeRs);
-                Utilities.Dispose(ref _noCullRs);
-                Utilities.Dispose(ref _alphaToCoverageBs);
-                Utilities.Dispose(ref _cullClockwiseRs);
-                Utilities.Dispose(ref _transparentBs);
-                Utilities.Dispose(ref _noRenderTargetWritesBs);
-                Utilities.Dispose(ref _markMirrorDss);
-                Utilities.Dispose(ref _drawReflectionDss);
-                Utilities.Dispose(ref _noDoubleBlendDss);
-                Utilities.Dispose(ref _lessEqualDss);
-                Utilities.Dispose(ref _equalsDss);
-                Utilities.Dispose(ref _noDepthDss);
-                _device = null;
-            }
-        }
-
-        private Device _device;
         private RasterizerState _wireframeRs;
         private RasterizerState _noCullRs;
         private BlendState _alphaToCoverageBs;
@@ -227,6 +252,10 @@ namespace Noire.Graphics.D3D11 {
         private DepthStencilState _lessEqualDss;
         private DepthStencilState _equalsDss;
         private DepthStencilState _noDepthDss;
+
+        private static readonly object SyncObject;
+        private static RenderStates11 _instance;
+        private static bool _isInitialized;
 
     }
 }

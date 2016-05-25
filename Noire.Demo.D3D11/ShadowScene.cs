@@ -4,10 +4,8 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using Noire.Common;
-using Noire.Common.Camera;
 using Noire.Common.Lighting;
 using Noire.Common.Vertices;
-using Noire.Graphics;
 using Noire.Graphics.D3D11;
 using Noire.Graphics.D3D11.FX;
 using Noire.Graphics.D3D11.Model;
@@ -21,6 +19,12 @@ using Device = SharpDX.Direct3D11.Device;
 
 namespace Noire.Demo.D3D11 {
     public sealed class ShadowScene : GameComponentContainer {
+
+        public ShadowScene(IGameComponentRoot root, IGameComponentContainer parent)
+            : base(root, parent) {
+        }
+
+        public bool RenderInWireframe { get; set; }
 
         protected override void InitializeInternal() {
             base.InitializeInternal();
@@ -73,12 +77,12 @@ namespace Noire.Demo.D3D11 {
             _randomTex = TextureLoader.CreateRandomTexture1D(device);
 
             _flareTexSRV = TextureLoader.CreateTexture2DArray(device, context, new[] { NoireConfiguration.GetFullResourcePath("textures/flare0.png") });
-            _fire = new ParticleSource(device, EffectManager11.Instance.GetEffect<FireParticleEffect11>(), _flareTexSRV, _randomTex, 500);
+            _fire = new ParticleSource(RootContainer, this, device, EffectManager11.Instance.GetEffect<FireParticleEffect11>(), _flareTexSRV, _randomTex, 500);
             _fire.Initialize();
             ChildComponents.Add(_fire);
 
             _rainTexSRV = TextureLoader.CreateTexture2DArray(device, context, new[] { NoireConfiguration.GetFullResourcePath("textures/raindrop.png") });
-            _rain = new ParticleSource(device, EffectManager11.Instance.GetEffect<RainParticleEffect11>(), _rainTexSRV, _randomTex, 10000);
+            _rain = new ParticleSource(RootContainer, this, device, EffectManager11.Instance.GetEffect<RainParticleEffect11>(), _rainTexSRV, _randomTex, 10000);
             _rain.Initialize();
             ChildComponents.Add(_rain);
         }
@@ -124,6 +128,9 @@ namespace Noire.Demo.D3D11 {
             // 必须复原，避免加入法向贴图和粒子时错误渲染
             context.Rasterizer.State = null;
             context.OutputMerger.BlendState = null;
+            if (RenderInWireframe) {
+                context.Rasterizer.State = RenderStates11.Instance.WireframeRS;
+            }
 
             context.OutputMerger.SetTargets(depthStencilView, renderTargetView);
             context.Rasterizer.SetViewports(new RawViewportF[] { viewport });
@@ -180,6 +187,9 @@ namespace Noire.Demo.D3D11 {
             const int offset = 0;
 
             context.Rasterizer.State = null;
+            if (RenderInWireframe) {
+                context.Rasterizer.State = RenderStates11.Instance.WireframeRS;
+            }
 
             context.InputAssembler.InputLayout = InputLayouts.PosNormTex;
             context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(_skullVB, stride, offset));

@@ -6,7 +6,7 @@ namespace Noire.Common {
 
         public GameComponentCollection ChildComponents => _childComponents;
 
-        public GameComponent GetChildByName(string name) {
+        public IGameComponent GetChildByName(string name) {
             if (name == null) {
                 return null;
             }
@@ -15,9 +15,9 @@ namespace Noire.Common {
                     return component;
                 }
             }
-            GameComponent g = null;
+            IGameComponent g = null;
             foreach (var component in _childComponents) {
-                g = (component as GameComponentContainer)?.GetChildByName(name);
+                g = (component as IGameComponentContainer)?.GetChildByName(name);
                 if (g != null) {
                     break;
                 }
@@ -25,7 +25,43 @@ namespace Noire.Common {
             return g;
         }
 
-        protected GameComponentContainer() {
+        public IGameComponent GetChildByType(Type type) {
+            if (type == null || !type.IsSubclassOf(typeof(IGameComponent))) {
+                return null;
+            }
+            foreach (var component in _childComponents) {
+                if (component.GetType() == type) {
+                    return component;
+                }
+            }
+            IGameComponent g = null;
+            foreach (var component in _childComponents) {
+                g = (component as IGameComponentContainer)?.GetChildByType(type);
+                if (g != null) {
+                    break;
+                }
+            }
+            return g;
+        }
+
+        public T GetChildByType<T>() where T : class, IGameComponent {
+            foreach (var component in _childComponents) {
+                if (component is T) {
+                    return component as T;
+                }
+            }
+            T g = null;
+            foreach (var component in _childComponents) {
+                g = (component as IGameComponentContainer)?.GetChildByType<T>();
+                if (g != null) {
+                    break;
+                }
+            }
+            return g;
+        }
+
+        protected GameComponentContainer(IGameComponentRoot root, IGameComponentContainer parent)
+            : base(root, parent) {
             _childComponents = new GameComponentCollection();
             _childComponents.ComponentAdded += OnChildComponentsChanged;
             _childComponents.ComponentRemoved += OnChildComponentsChanged;

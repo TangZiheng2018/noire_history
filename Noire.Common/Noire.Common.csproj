@@ -63,6 +63,8 @@
     <Compile Include="Camera\HeightFunc.cs" />
     <Compile Include="Camera\LookAtCamera.cs" />
     <Compile Include="Camera\OrthoCamera.cs" />
+    <Compile Include="GameComponentRoot.cs" />
+    <Compile Include="IGameComponentRoot.cs" />
     <Compile Include="Lighting\DirectionalLight.cs" />
     <Compile Include="Frustum.cs" />
     <Compile Include="FrustumPlane.cs" />

@@ -4,8 +4,10 @@ using SharpDX;
 namespace Noire.Common {
     public abstract class GameComponent : DisposeBase, IGameComponent, IUpdateable, IDrawable {
 
-        protected GameComponent() {
+        protected GameComponent(IGameComponentRoot root, IGameComponentContainer parent) {
             Name = string.Empty;
+            _parentContainer = parent;
+            _rootContainer = root;
         }
 
         public virtual bool Enabled { get; set; } = true;
@@ -41,6 +43,10 @@ namespace Noire.Common {
 
         public string Name { get; set; }
 
+        public IGameComponentContainer ParentContainer => _parentContainer;
+
+        public IGameComponentRoot RootContainer => _rootContainer;
+
         public event EventHandler<EventArgs> DrawOrderChanged;
         public event EventHandler<EventArgs> VisibleChanged;
         public event EventHandler<EventArgs> UpdateOrderChanged;
@@ -64,6 +70,9 @@ namespace Noire.Common {
 
         protected virtual void OnSurfaceInvalidated(object sender, EventArgs e) {
         }
+
+        protected IGameComponentContainer _parentContainer;
+        protected IGameComponentRoot _rootContainer;
 
         private bool _isInitialized;
 
