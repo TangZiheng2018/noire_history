@@ -55,6 +55,8 @@ namespace Noire.Graphics {
 
         public CameraBase Camera => _camera;
 
+        public abstract string DriverName { get; }
+
         public void ResetSurface(object sender) {
             _userResized = true;
         }

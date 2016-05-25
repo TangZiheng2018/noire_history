@@ -20,9 +20,11 @@ using Buffer = SharpDX.Direct3D11.Buffer;
 using Device = SharpDX.Direct3D11.Device;
 
 namespace Noire.Demo.D3D11 {
-    public sealed class ShadowScene : GameComponent {
+    public sealed class ShadowScene : GameComponentContainer {
 
         protected override void InitializeInternal() {
+            base.InitializeInternal();
+
             _lightRotationAngle = 0;
 
             _sceneBounds = new BoundingSphere(new Vector3(), MathF.Sqrt(10 * 10 + 15 * 15));
@@ -65,9 +67,25 @@ namespace Noire.Demo.D3D11 {
             BuildShapeGeometryBuffers(device);
             BuildSkullGeometryBuffers(device);
             BuildScreenQuadGeometryBuffers(device);
+
+            var context = D3DApp11.I.ImmediateContext;
+
+            _randomTex = TextureLoader.CreateRandomTexture1D(device);
+
+            _flareTexSRV = TextureLoader.CreateTexture2DArray(device, context, new[] { NoireConfiguration.GetFullResourcePath("textures/flare0.png") });
+            _fire = new ParticleSource(device, EffectManager11.Instance.GetEffect<FireParticleEffect11>(), _flareTexSRV, _randomTex, 500);
+            _fire.Initialize();
+            ChildComponents.Add(_fire);
+
+            _rainTexSRV = TextureLoader.CreateTexture2DArray(device, context, new[] { NoireConfiguration.GetFullResourcePath("textures/raindrop.png") });
+            _rain = new ParticleSource(device, EffectManager11.Instance.GetEffect<RainParticleEffect11>(), _rainTexSRV, _randomTex, 10000);
+            _rain.Initialize();
+            ChildComponents.Add(_rain);
         }
 
         protected override void UpdateInternal(GameTime gameTime) {
+            base.UpdateInternal(gameTime);
+
             _lightRotationAngle = 0.1f * (float)gameTime.TotalGameTime.TotalSeconds;
             var r = Matrix.RotationY(_lightRotationAngle);
             for (var i = 0; i < 3; i++) {
@@ -75,6 +93,12 @@ namespace Noire.Demo.D3D11 {
                 lightDir = Vector3.TransformNormal(lightDir, r);
                 _dirLights[i].Direction = lightDir;
             }
+
+            var camera = D3DApp11.I.Camera;
+            _fire.EyePosW = camera.Position;
+
+            _rain.EyePosW = camera.Position;
+            _rain.EmitPosW = camera.Position;
 
             BuildShadowTransform();
         }
@@ -97,7 +121,9 @@ namespace Noire.Demo.D3D11 {
 
             DrawSceneToShadowMap(device);
 
+            // 必须复原，避免加入法向贴图和粒子时错误渲染
             context.Rasterizer.State = null;
+            context.OutputMerger.BlendState = null;
 
             context.OutputMerger.SetTargets(depthStencilView, renderTargetView);
             context.Rasterizer.SetViewports(new RawViewportF[] { viewport });
@@ -180,11 +206,9 @@ namespace Noire.Demo.D3D11 {
                 _decelerator.Draw(context, activeSkullTech.GetPassByIndex(p), view, proj, RenderMode.Basic);
             }
 
-            DrawScreenQuad(device);
+            //DrawScreenQuad(device);
 
-            context.Rasterizer.State = null;
-            context.OutputMerger.DepthStencilState = null;
-            context.OutputMerger.DepthStencilReference = 0;
+            base.DrawInternal(gameTime);
         }
 
         protected override void Dispose(bool disposing) {
@@ -335,6 +359,7 @@ namespace Noire.Demo.D3D11 {
                 Reflect = Color.Black
             };
             _boxModel.DiffuseMapSRV[0] = textureManager.CreateTexture(NoireConfiguration.GetFullResourcePath("textures/bricks.dds"));
+            //_boxModel.DiffuseMapSRV[0] = textureManager.CreateTexture(NoireConfiguration.GetFullResourcePath("textures/metal.jpg"));
             _boxModel.NormalMapSRV[0] = textureManager.CreateTexture(NoireConfiguration.GetFullResourcePath("textures/bricks_nmap.png"));
 
             _gridModel = new BasicModel();
@@ -364,8 +389,10 @@ namespace Noire.Demo.D3D11 {
                 Specular = new Color(0.8f, 0.8f, 0.8f, 16.0f),
                 Reflect = Color.Black
             };
-            _cylinderModel.DiffuseMapSRV[0] = textureManager.CreateTexture(NoireConfiguration.GetFullResourcePath("textures/bricks.dds"));
-            _cylinderModel.NormalMapSRV[0] = textureManager.CreateTexture(NoireConfiguration.GetFullResourcePath("textures/bricks_nmap.png"));
+            //_cylinderModel.DiffuseMapSRV[0] = textureManager.CreateTexture(NoireConfiguration.GetFullResourcePath("textures/bricks.dds"));
+            _cylinderModel.DiffuseMapSRV[0] = textureManager.CreateTexture(NoireConfiguration.GetFullResourcePath("textures/metal.jpg"));
+            //_cylinderModel.NormalMapSRV[0] = textureManager.CreateTexture(NoireConfiguration.GetFullResourcePath("textures/bricks_nmap.png"));
+            _cylinderModel.NormalMapSRV[0] = textureManager.CreateTexture(NoireConfiguration.GetFullResourcePath("textures/metal_nmap.png"));
 
             for (var i = 0; i < 5; i++) {
                 _cylinders[i * 2] = new BasicModelInstance(_cylinderModel) {
@@ -516,6 +543,13 @@ namespace Noire.Demo.D3D11 {
         private Matrix _deceleratorWorld;
         private BasicModel _deceleratorModel;
         private BasicModelInstance _decelerator;
+
+        private ShaderResourceView _flareTexSRV;
+        private ShaderResourceView _rainTexSRV;
+        private ShaderResourceView _randomTex;
+
+        private ParticleSource _fire;
+        private ParticleSource _rain;
 
     }
 }

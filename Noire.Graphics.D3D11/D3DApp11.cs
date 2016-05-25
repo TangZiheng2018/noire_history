@@ -10,11 +10,11 @@ namespace Noire.Graphics.D3D11 {
     public sealed class D3DApp11 : D3DApp {
 
         static D3DApp11() {
-            _syncObject = new object();
+            SyncObject = new object();
         }
 
         public static D3DApp11 Create(Control control) {
-            lock (_syncObject) {
+            lock (SyncObject) {
                 if (_app != null) {
                     throw new Exception("App is already created.");
                 }
@@ -40,6 +40,17 @@ namespace Noire.Graphics.D3D11 {
         public RenderTarget11 RenderTarget => _renderTarget;
 
         public Skybox Skybox => _skybox;
+
+        public override string DriverName {
+            get {
+                if (_factory == null) {
+                    return string.Empty;
+                } else {
+                    var desc = _factory.GetAdapter(0).Description;
+                    return desc.Description;
+                }
+            }
+        }
 
         protected override void Render(GameTime gameTime) {
             Draw(gameTime);
@@ -114,7 +125,7 @@ namespace Noire.Graphics.D3D11 {
         private Skybox _skybox;
 
         private static D3DApp11 _app;
-        private static readonly object _syncObject;
+        private static readonly object SyncObject;
 
     }
 }

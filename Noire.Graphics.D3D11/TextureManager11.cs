@@ -50,7 +50,7 @@ namespace Noire.Graphics.D3D11 {
             if (_textureSRVs.ContainsKey(filePath)) {
                 return _textureSRVs[filePath];
             } else {
-                var view = TextureLoader.BitmapFromFile(_device, filePath).AsShaderResourceView();
+                var view = TextureLoader.CreateTextureFromFile(_device, filePath).AsShaderResourceView();
                 _textureSRVs.Add(filePath, view);
                 return view;
             }
@@ -73,9 +73,9 @@ namespace Noire.Graphics.D3D11 {
                 }
                 var textures = new Texture2D[6];
                 for (var i = 0; i < textures.Length; ++i) {
-                    textures[i] = TextureLoader.BitmapFromFile(_device, faceFileNames[i]);
+                    textures[i] = TextureLoader.CreateTextureFromFile(_device, faceFileNames[i]);
                 }
-                var view = TextureLoader.CubeMapFrom6Textures(_device, textures);
+                var view = TextureLoader.CreateCubeMapFrom6Textures(_device, textures);
                 _textureSRVs.Add(filePath, view);
                 return view;
             }

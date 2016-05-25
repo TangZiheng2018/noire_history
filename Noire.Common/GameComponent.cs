@@ -11,6 +11,9 @@ namespace Noire.Common {
         public virtual bool Enabled { get; set; } = true;
 
         public void Update(GameTime gameTime) {
+            if (!IsInitialized) {
+                Initialize();
+            }
             if (Enabled) {
                 UpdateInternal(gameTime);
             }

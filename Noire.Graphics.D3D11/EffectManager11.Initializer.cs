@@ -27,6 +27,10 @@ namespace Noire.Graphics.D3D11 {
             SafeEffectRegister(ref effect);
             effect = CreateEffect<DebugTextureEffect11>(device);
             SafeEffectRegister(ref effect);
+            effect = CreateEffect<FireParticleEffect11>(device);
+            SafeEffectRegister(ref effect);
+            effect = CreateEffect<RainParticleEffect11>(device);
+            SafeEffectRegister(ref effect);
         }
 
         private static void SafeEffectRegister(ref EffectBase11 effect) {

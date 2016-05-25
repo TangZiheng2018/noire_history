@@ -34,6 +34,11 @@ namespace Noire.Graphics.D3D11 {
             if (passDesc?.Signature != null) {
                 _posNormTexTan = new InputLayout(device, passDesc.Value.Signature, InputLayoutDescriptions.PosNormTexTan);
             }
+            var e4 = EffectManager11.Instance.GetEffect<FireParticleEffect11>();
+            passDesc = e4?.StreamOutTech?.GetPassByIndex(0)?.Description;
+            if (passDesc?.Signature != null) {
+                _particle = new InputLayout(device, passDesc.Value.Signature, InputLayoutDescriptions.Particle);
+            }
         }
 
         public static void DisposeAll() {
@@ -41,8 +46,8 @@ namespace Noire.Graphics.D3D11 {
             Utilities.Dispose(ref _posNorm);
             Utilities.Dispose(ref _posNormTex);
             Utilities.Dispose(ref _posNormTexTan);
+            Utilities.Dispose(ref _particle);
         }
-
 
         public static InputLayout Pos => _pos;
 
@@ -52,10 +57,13 @@ namespace Noire.Graphics.D3D11 {
 
         public static InputLayout PosNormTexTan => _posNormTexTan;
 
+        public static InputLayout Particle => _particle;
+
         private static InputLayout _posNorm;
         private static InputLayout _pos;
         private static InputLayout _posNormTex;
         private static InputLayout _posNormTexTan;
+        private static InputLayout _particle;
 
     }
 }

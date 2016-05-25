@@ -26,6 +26,11 @@ namespace Noire.Demo.D3D11 {
             label1.MouseDown += Form1_MouseDown;
             label1.MouseUp += Form1_MouseUp;
             label1.MouseMove += Form1_MouseMove;
+            timer1.Tick += timer1_Tick;
+        }
+
+        private void timer1_Tick(object sender, EventArgs e) {
+            Text = $"{_app.Fps.ToString("##.00")} fps on {_app.DriverName}";
         }
 
         private void InitializeExtraControls() {
@@ -38,6 +43,7 @@ namespace Noire.Demo.D3D11 {
                 mnuLights.DropDownItems.Add(m);
             }
             (mnuLights.DropDownItems[0] as ToolStripMenuItem).Checked = true;
+            timer1.Enabled = true;
         }
 
         private void Form1_MouseMove(object sender, MouseEventArgs e) {

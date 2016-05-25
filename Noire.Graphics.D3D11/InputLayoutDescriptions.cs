@@ -31,5 +31,13 @@ namespace Noire.Graphics.D3D11 {
             new InputElement("TANGENT", 0, Format.R32G32B32_Float, InputElement.AppendAligned, 0, InputClassification.PerVertexData,0 )
         };
 
+        public static readonly InputElement[] Particle = {
+            new InputElement("POSITION", 0, Format.R32G32B32_Float, 0, 0, InputClassification.PerVertexData, 0),
+            new InputElement("VELOCITY", 0, Format.R32G32B32_Float, InputElement.AppendAligned, 0, InputClassification.PerVertexData, 0),
+            new InputElement("SIZE", 0, Format.R32G32_Float, InputElement.AppendAligned, 0, InputClassification.PerVertexData, 0),
+            new InputElement("AGE", 0, Format.R32_Float, InputElement.AppendAligned, 0, InputClassification.PerVertexData, 0),
+            new InputElement("TYPE", 0, Format.R32_UInt, InputElement.AppendAligned, 0, InputClassification.PerVertexData, 0),
+        };
+
     }
 }
