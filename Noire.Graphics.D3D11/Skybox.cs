@@ -10,19 +10,16 @@ using SharpDX.DXGI;
 namespace Noire.Graphics.D3D11 {
     public sealed class Skybox : GameComponent {
 
-        public Skybox(IGameComponentRoot root, IGameComponentContainer parent, string filename, float skySphereRadius)
+        public Skybox(IGameComponentRoot root, IGameComponentContainer parent, float skySphereRadius)
             : base(root, parent) {
-            _filename = filename;
             _skySphereRadius = skySphereRadius;
         }
 
-        public ShaderResourceView CubeMapSRV => _cubeMapSrv;
+        public ShaderResourceView CubeMapSRV { get; set; }
 
         protected override void InitializeInternal() {
             base.InitializeInternal();
             var device = D3DApp11.I.D3DDevice;
-
-            _cubeMapSrv = TextureManager11.Instance.CreateCubemap(_filename);
             using (var r = CubeMapSRV.Resource) {
                 r.DebugName = "sky cubemap";
             }
@@ -61,7 +58,7 @@ namespace Noire.Graphics.D3D11 {
 
             var skyFx = EffectManager11.Instance.GetEffect<SkyboxEffect11>();
             skyFx.SetWorldViewProj(wvp);
-            skyFx.SetCubeMap(_cubeMapSrv);
+            skyFx.SetCubeMap(CubeMapSRV);
 
             var stride = VertPos.Stride;
             const int offset = 0;
@@ -91,7 +88,6 @@ namespace Noire.Graphics.D3D11 {
 
         private Buffer _vb;
         private Buffer _ib;
-        private ShaderResourceView _cubeMapSrv;
         private int _indexCount;
         private string _filename;
         private float _skySphereRadius;

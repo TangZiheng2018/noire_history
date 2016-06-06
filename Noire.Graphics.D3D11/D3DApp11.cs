@@ -110,7 +110,8 @@ namespace Noire.Graphics.D3D11 {
             _renderTarget = new RenderTarget11(this, this);
             _renderTarget.Initialize();
             ChildComponents.Add(_renderTarget);
-            _skybox = new Skybox(this, this, NoireConfiguration.GetFullResourcePath("textures/cube.dds"), 5000);
+            _skybox = new Skybox(this, this, 5000);
+            _skybox.CubeMapSRV = TextureManager11.Instance.QuickCreateCubeMap("snowfield");
             _skybox.Initialize();
             ChildComponents.Add(_skybox);
 

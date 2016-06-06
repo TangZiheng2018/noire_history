@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Windows.Forms;
+using Noire.Demo.D3D11.DemoFinal;
 using Noire.Graphics.D3D11;
 using Noire.Graphics.D3D11.FX;
 using SharpDX;
+using DrawMode = Noire.Demo.D3D11.DemoFinal.DrawMode;
 
 namespace Noire.Demo.D3D11 {
     public partial class Form1 : Form {
@@ -29,27 +31,11 @@ namespace Noire.Demo.D3D11 {
         }
 
         private void timer1_Tick(object sender, EventArgs e) {
-            Text = $"{_app.Fps.ToString("0.00")} fps on {_app.DriverName}";
+            Text = $"Noire Demo 06-06 ({_app.Fps.ToString("0.00")} fps on {_app.DriverName})";
         }
 
         private void InitializeExtraControls() {
-            var mnuMain = new ToolStripMenuItem("调整(&A)");
-            menuStrip1.Items.Add(mnuMain);
-            var mnuLights = new ToolStripMenuItem("灯光(&L)");
-            mnuMain.DropDownItems.Add(mnuLights);
-            for (var i = 0; i < BasicEffect11.MaxLights; ++i) {
-                var m = new ToolStripMenuItem($"灯光 #{i}");
-                m.Click += LightMenuItem_Click;
-                m.Tag = i + 1;
-                mnuLights.DropDownItems.Add(m);
-            }
-            (mnuLights.DropDownItems[0] as ToolStripMenuItem).Checked = true;
             timer1.Enabled = true;
-            mnuMain.DropDownItems.Add(new ToolStripSeparator());
-            var mnuToggleWireframe = new ToolStripMenuItem("线框模式(&W)");
-            mnuMain.DropDownItems.Add(mnuToggleWireframe);
-            mnuToggleWireframe.Click += ToggleWireframeRenderMode_Click;
-            mnuToggleWireframe.CheckOnClick = true;
         }
 
         private void Form1_MouseMove(object sender, MouseEventArgs e) {
@@ -76,24 +62,6 @@ namespace Noire.Demo.D3D11 {
             var c = sender as Control;
             if (c != null) {
                 c.Capture = true;
-            }
-        }
-
-        private void LightMenuItem_Click(object sender, EventArgs e) {
-            var mnu = sender as ToolStripMenuItem;
-            var parent = mnu.OwnerItem as ToolStripMenuItem;
-            foreach (ToolStripMenuItem item in parent.DropDownItems) {
-                item.Checked = item == mnu;
-            }
-            var s = _app.GetChildByType<ShadowScene>();
-            //s.LightCount = (int)mnu.Tag;
-        }
-
-        private void ToggleWireframeRenderMode_Click(object sender, EventArgs e) {
-            var item = sender as ToolStripMenuItem;
-            var scene = _app.GetChildByType<ShadowScene>();
-            if (scene != null) {
-                scene.RenderInWireframe = item.Checked;
             }
         }
 
@@ -139,15 +107,154 @@ namespace Noire.Demo.D3D11 {
             var scene = new ShadowScene(_app, _app);
             scene.Initialize();
             scene.Name = "ShapesScene";
+            _scene = scene;
             _app.ChildComponents.Add(scene);
             var inputHandler = new InputHandler(_app, _app);
             inputHandler.Initialize();
             _app.ChildComponents.Add(inputHandler);
+
+            scene.SetShadowEnabled(true);
+            scene.SetReflectionEnabled(true);
+            scene.SetMaterialType(MaterialType.Copper);
+            scene.SetNumberOfLights(NumberOfLights.Three);
+            scene.SetSkyboxType(SkyboxType.None);
+            scene.SetShadowEnabled(false);
+
+            mnuDisplayNormal.Checked = true;
+            mnuLights3.Checked = true;
+            mnuSkyboxDisabled.Checked = true;
+            mnuTextureCopper.Checked = true;
+            mnuSurfaceDisabled.Checked = true;
+            mnuShadowDisabled.Checked = true;
         }
 
         private readonly D3DApp11 _app;
+        private ShadowScene _scene;
         private System.Drawing.Point _lastMousePos;
         private FormWindowState _lastWindowState;
 
+        private void mnuDisplayNormal_Click(object sender, EventArgs e) {
+            mnuDisplayWireframe.Checked = false;
+            _scene.SetDrawMode(DrawMode.Normal);
+        }
+
+        private void mnuDisplayWireframe_Click(object sender, EventArgs e) {
+            mnuDisplayNormal.Checked = false;
+            _scene.SetDrawMode(DrawMode.Wireframe);
+        }
+
+        private void mnuSkyboxDisabled_Click(object sender, EventArgs e) {
+            _scene.SetSkyboxType(SkyboxType.None);
+            mnuSkyboxDesert.Checked = mnuSkyboxSnowfield.Checked = mnuSkyboxFactory.Checked = false;
+        }
+
+        private void mnuSkyboxDesert_Click(object sender, EventArgs e) {
+            _scene.SetSkyboxType(SkyboxType.Desert);
+            mnuSkyboxDisabled.Checked = mnuSkyboxSnowfield.Checked = mnuSkyboxFactory.Checked = false;
+        }
+
+        private void mnuSkyboxSnowfield_Click(object sender, EventArgs e) {
+            _scene.SetSkyboxType(SkyboxType.Snowfield);
+            mnuSkyboxDesert.Checked = mnuSkyboxDisabled.Checked = mnuSkyboxFactory.Checked = false;
+        }
+
+        private void mnuSkyboxFactory_Click(object sender, EventArgs e) {
+            _scene.SetSkyboxType(SkyboxType.Factory);
+            mnuSkyboxDesert.Checked = mnuSkyboxSnowfield.Checked = mnuSkyboxDisabled.Checked = false;
+        }
+
+        private void mnuShadowDB_Click(object sender, EventArgs e) {
+            _scene.SetQuadVisible(mnuShadowDB.Checked);
+        }
+
+        private void mnuParticleRain_Click(object sender, EventArgs e) {
+            _scene.SetParticleRainVisible(mnuParticleRain.Checked);
+        }
+
+        private void mnuParticleFlame_Click(object sender, EventArgs e) {
+            _scene.SetParticleFlameVisible(mnuParticleFlame.Checked);
+        }
+
+        private void mnuModelDecel_Click(object sender, EventArgs e) {
+            _scene.SetDeceleratorVisible(mnuModelDecel.Checked);
+        }
+
+        private void mnuModelBarb_Click(object sender, EventArgs e) {
+            _scene.SetBarbecueBarVisible(mnuModelBarb.Checked);
+        }
+
+        private void mnuLightsMoving_Click(object sender, EventArgs e) {
+            _scene.SetLightsMoving(mnuLightsMoving.Checked);
+        }
+
+        private void mnuModelTire_Click(object sender, EventArgs e) {
+            _scene.SetTireVisible(mnuModelTire.Checked);
+        }
+
+        private void mnuModelTruck_Click(object sender, EventArgs e) {
+            _scene.SetTruckVisible(mnuModelTruck.Checked);
+        }
+
+        private void mnuLights1_Click(object sender, EventArgs e) {
+            _scene.SetNumberOfLights(NumberOfLights.One);
+            mnuLights2.Checked = mnuLights3.Checked = false;
+        }
+
+        private void mnuLights2_Click(object sender, EventArgs e) {
+            _scene.SetNumberOfLights(NumberOfLights.Two);
+            mnuLights1.Checked = mnuLights3.Checked = false;
+        }
+
+        private void mnuLights3_Click(object sender, EventArgs e) {
+            _scene.SetNumberOfLights(NumberOfLights.Three);
+            mnuLights2.Checked = mnuLights1.Checked = false;
+        }
+
+        private void mnuReflectionDisabled_Click(object sender, EventArgs e) {
+            _scene.SetReflectionEnabled(!mnuReflectionDisabled.Checked);
+        }
+
+        private void mnuTextureDisabled_Click(object sender, EventArgs e) {
+            _scene.SetMaterialType(MaterialType.None);
+            mnuTextureCopper.Checked = mnuTextureSSteel.Checked = mnuTextureAl.Checked = mnuTexturePlywood.Checked = false;
+        }
+
+        private void mnuTextureCopper_Click(object sender, EventArgs e) {
+            _scene.SetMaterialType(MaterialType.Copper);
+            mnuTextureDisabled.Checked = mnuTextureSSteel.Checked = mnuTextureAl.Checked = mnuTexturePlywood.Checked = false;
+        }
+
+        private void mnuTextureSSteel_Click(object sender, EventArgs e) {
+            _scene.SetMaterialType(MaterialType.StainlessSteel);
+            mnuTextureCopper.Checked = mnuTextureDisabled.Checked = mnuTextureAl.Checked = mnuTexturePlywood.Checked = false;
+        }
+
+        private void mnuTextureAl_Click(object sender, EventArgs e) {
+            _scene.SetMaterialType(MaterialType.Aluminium);
+            mnuTextureCopper.Checked = mnuTextureSSteel.Checked = mnuTextureDisabled.Checked = mnuTexturePlywood.Checked = false;
+        }
+
+        private void mnuTexturePlywood_Click(object sender, EventArgs e) {
+            _scene.SetMaterialType(MaterialType.Plywood);
+            mnuTextureCopper.Checked = mnuTextureSSteel.Checked = mnuTextureAl.Checked = mnuTextureDisabled.Checked = false;
+        }
+
+        private void mnuShadowDisabled_Click(object sender, EventArgs e) {
+            _scene.SetShadowEnabled(!mnuShadowDisabled.Checked);
+        }
+
+        private void mnuSurfaceDisabled_Click(object sender, EventArgs e) {
+            _scene.SetSurfaceMapping(SurfaceMapping.Simple);
+            mnuSurfaceNM.Checked = mnuSurfaceDM.Checked = false;
+        }
+
+        private void mnuSurfaceNM_Click(object sender, EventArgs e) {
+            _scene.SetSurfaceMapping(SurfaceMapping.NormalMapping);
+            mnuSurfaceDisabled.Checked = mnuSurfaceDM.Checked = false;
+        }
+
+        private void mnuReflectionReplaceMaterial_Click(object sender, EventArgs e) {
+            _scene.ReplaceDeceleratorSurfaceMaterial();
+        }
     }
 }

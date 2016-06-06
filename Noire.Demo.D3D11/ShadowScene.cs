@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using Noire.Common;
 using Noire.Common.Lighting;
 using Noire.Common.Vertices;
+using Noire.Demo.D3D11.DemoFinal;
+using Noire.Graphics;
 using Noire.Graphics.D3D11;
 using Noire.Graphics.D3D11.FX;
 using Noire.Graphics.D3D11.Model;
@@ -22,18 +25,89 @@ namespace Noire.Demo.D3D11 {
 
         public ShadowScene(IGameComponentRoot root, IGameComponentContainer parent)
             : base(root, parent) {
+            _bufferedSettings = new ShadowSceneSettings();
+            _techniqueTable = new Dictionary<Tuple<bool, bool, SurfaceMapping, NumberOfLights>, Tuple<EffectTechnique, EffectTechnique, EffectTechnique>>();
+            SetNumberOfLights(NumberOfLights.One);
+            UpdateBufferedSettings();
         }
 
-        public bool RenderInWireframe { get; set; }
+        // Buffer Op!
+        public void SetDrawMode(DrawMode drawMode) {
+            _bufferedSettings.DrawMode = drawMode;
+        }
+
+        public void SetQuadVisible(bool visible) {
+            _bufferedSettings.QuadVisible = visible;
+        }
+
+        public void SetParticleFlameVisible(bool visible) {
+            _bufferedSettings.ParticleFlameVisible = visible;
+        }
+
+        public void SetParticleRainVisible(bool visible) {
+            _bufferedSettings.ParticleRainVisible = visible;
+        }
+
+        public void SetLightsMoving(bool moving) {
+            _bufferedSettings.AreLightsMoving = moving;
+        }
+
+        public void SetNumberOfLights(NumberOfLights number) {
+            _bufferedSettings.NumberOfLights = number;
+        }
+
+        public void SetDeceleratorVisible(bool visible) {
+            _bufferedSettings.IsDeceleratorVisible = visible;
+        }
+
+        public void SetBarbecueBarVisible(bool visible) {
+            _bufferedSettings.IsBarbecueBarVisible = visible;
+        }
+
+        public void SetShadowEnabled(bool enabled) {
+            _bufferedSettings.IsShadowEnabled = enabled;
+        }
+
+        public void SetReflectionEnabled(bool enabled) {
+            _bufferedSettings.IsReflectionEnabled = enabled;
+        }
+
+        public void SetSurfaceMapping(SurfaceMapping surfaceMapping) {
+            _bufferedSettings.SurfaceMapping = surfaceMapping;
+        }
+
+        public void SetTruckVisible(bool visible) {
+            _bufferedSettings.IsTruckVisible = visible;
+        }
+
+        public void SetTireVisible(bool visible) {
+            _bufferedSettings.IsTireVisible = visible;
+        }
+
+        public void SetMaterialType(MaterialType materialType) {
+            _bufferedSettings.MaterialType = materialType;
+        }
+
+        public void SetSkyboxType(SkyboxType skyboxType) {
+            _bufferedSettings.SkyboxType = skyboxType;
+        }
+
+        public void ReplaceDeceleratorSurfaceMaterial() {
+            if (IsInitialized) {
+                for (var i = 0; i < _decelModel.Materials.Count; ++i) {
+                    var mat = _decelModel.Materials[i];
+                    mat.Reflect = new Color(0.5f, 0.5f, 0.5f, 0.75f);
+                    _decelModel.Materials[i] = mat;
+                }
+            }
+        }
 
         protected override void InitializeInternal() {
             base.InitializeInternal();
 
             _lightRotationAngle = 0;
 
-            _sceneBounds = new BoundingSphere(new Vector3(), MathF.Sqrt(10 * 10 + 15 * 15));
-
-            _skullWorld = Matrix.Scaling(0.5f, 0.5f, 0.5f) * Matrix.Translation(0, 1.0f, 0);
+            _sceneBounds = new BoundingSphere(new Vector3(), MathF.Sqrt(40 * 40 + 60 * 60));
 
             _dirLights = new[] {
                 new DirectionalLight {
@@ -58,18 +132,10 @@ namespace Noire.Demo.D3D11 {
 
             _originalLightDirs = _dirLights.Select(l => l.Direction).ToArray();
 
-            _skullMat = new Material {
-                Ambient = new Color(0.4f, 0.4f, 0.4f),
-                Diffuse = new Color(0.8f, 0.8f, 0.8f),
-                Specular = new Color(0.8f, 0.8f, 0.8f, 16.0f),
-                Reflect = new Color(0.5f, 0.5f, 0.5f)
-            };
-
             var device = D3DApp11.I.D3DDevice;
-            _sMap = new ShadowMap(device, ShadowMapSize, ShadowMapSize);
+            _shadowMap = new ShadowMap(device, ShadowMapSize, ShadowMapSize);
 
             BuildShapeGeometryBuffers(device);
-            BuildSkullGeometryBuffers(device);
             BuildScreenQuadGeometryBuffers(device);
 
             var context = D3DApp11.I.ImmediateContext;
@@ -79,28 +145,38 @@ namespace Noire.Demo.D3D11 {
             _flareTexSRV = TextureLoader.CreateTexture2DArray(device, context, new[] { NoireConfiguration.GetFullResourcePath("textures/flare0.png") });
             _fire = new ParticleSource(RootContainer, this, device, EffectManager11.Instance.GetEffect<FireParticleEffect11>(), _flareTexSRV, _randomTex, 500);
             _fire.Initialize();
+            _fire.Visible = _settings.ParticleFlameVisible;
             ChildComponents.Add(_fire);
 
             _rainTexSRV = TextureLoader.CreateTexture2DArray(device, context, new[] { NoireConfiguration.GetFullResourcePath("textures/raindrop.png") });
             _rain = new ParticleSource(RootContainer, this, device, EffectManager11.Instance.GetEffect<RainParticleEffect11>(), _rainTexSRV, _randomTex, 10000);
             _rain.Initialize();
+            _rain.Visible = _settings.ParticleRainVisible;
             ChildComponents.Add(_rain);
+
+            var basicFx = EffectManager11.Instance.GetEffect<BasicEffect11>();
+            var normalMapFx = EffectManager11.Instance.GetEffect<NormalMapEffect11>();
+            var displacementMapFx = EffectManager11.Instance.GetEffect<DisplacementMapEffect11>();
+            InitializeTechniqueTable(basicFx, normalMapFx, displacementMapFx);
         }
 
         protected override void UpdateInternal(GameTime gameTime) {
+            UpdateBufferedSettings();
+
             base.UpdateInternal(gameTime);
 
-            _lightRotationAngle = 0.1f * (float)gameTime.TotalGameTime.TotalSeconds;
-            var r = Matrix.RotationY(_lightRotationAngle);
-            for (var i = 0; i < 3; i++) {
-                var lightDir = _originalLightDirs[i];
-                lightDir = Vector3.TransformNormal(lightDir, r);
-                _dirLights[i].Direction = lightDir;
+            if (_settings.AreLightsMoving) {
+                _lightRotationAngle = 0.1f * (float)gameTime.TotalGameTime.TotalSeconds;
+                var r = Matrix.RotationY(_lightRotationAngle);
+                for (var i = 0; i < _dirLights.Length; i++) {
+                    var lightDir = _originalLightDirs[i];
+                    lightDir = Vector3.TransformNormal(lightDir, r);
+                    _dirLights[i].Direction = lightDir;
+                }
             }
 
             var camera = D3DApp11.I.Camera;
             _fire.EyePosW = camera.Position;
-
             _rain.EyePosW = camera.Position;
             _rain.EmitPosW = camera.Position;
 
@@ -114,109 +190,124 @@ namespace Noire.Demo.D3D11 {
             var sky = D3DApp11.I.Skybox;
             var basicFx = EffectManager11.Instance.GetEffect<BasicEffect11>();
             var normalMapFx = EffectManager11.Instance.GetEffect<NormalMapEffect11>();
+            var displacementMapFx = EffectManager11.Instance.GetEffect<DisplacementMapEffect11>();
             var depthStencilView = D3DApp11.I.RenderTarget.DepthStencilView;
             var renderTargetView = D3DApp11.I.RenderTarget.RenderTargetView;
             var viewport = D3DApp11.I.RenderTarget.Viewport;
 
             basicFx.SetShadowMap(null);
             normalMapFx.SetShadowMap(null);
+            displacementMapFx.SetShadowMap(null);
 
-            _sMap.BindDsvAndSetNullRenderTarget(context);
+            _shadowMap.BindDsvAndSetNullRenderTarget(context);
 
             DrawSceneToShadowMap(device);
 
             // 必须复原，避免加入法向贴图和粒子时错误渲染
             context.Rasterizer.State = null;
             context.OutputMerger.BlendState = null;
-            if (RenderInWireframe) {
+            if (_settings.DrawMode == DrawMode.Wireframe) {
                 context.Rasterizer.State = RenderStates11.Instance.WireframeRS;
             }
 
+            context.HullShader.Set(null);
+            context.DomainShader.Set(null);
+            context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
             context.OutputMerger.SetTargets(depthStencilView, renderTargetView);
             context.Rasterizer.SetViewports(new RawViewportF[] { viewport });
 
-            var viewProj = camera.ViewProjectionMatrix;
             var view = camera.ViewMatrix;
             var proj = camera.ProjectionMatrix;
 
             basicFx.SetDirLights(_dirLights);
             basicFx.SetEyePosW(camera.Position);
-            basicFx.SetCubeMap(sky.CubeMapSRV);
-            basicFx.SetShadowMap(_sMap.DepthMapSRV);
+            basicFx.SetCubeMap(_settings.IsReflectionEnabled ? sky.CubeMapSRV : null);
+            basicFx.SetShadowMap(_settings.IsShadowEnabled ? _shadowMap.DepthMapSRV : null);
 
             normalMapFx.SetDirLights(_dirLights);
             normalMapFx.SetEyePosW(camera.Position);
-            normalMapFx.SetCubeMap(sky.CubeMapSRV);
-            normalMapFx.SetShadowMap(_sMap.DepthMapSRV);
+            normalMapFx.SetCubeMap(_settings.IsReflectionEnabled ? sky.CubeMapSRV : null);
+            normalMapFx.SetShadowMap(_settings.IsShadowEnabled ? _shadowMap.DepthMapSRV : null);
 
-            var activeTech = normalMapFx.Light3TexTech;
-            var activeSphereTech = basicFx.Light3ReflectTech;
-            var activeSkullTech = basicFx.Light3ReflectTech;
+            displacementMapFx.SetDirLights(_dirLights);
+            displacementMapFx.SetEyePosW(camera.Position);
+            displacementMapFx.SetCubeMap(_settings.IsReflectionEnabled ? sky.CubeMapSRV : null);
+            displacementMapFx.SetShadowMap(_settings.IsShadowEnabled ? _shadowMap.DepthMapSRV : null);
+            displacementMapFx.SetMaxTessDistance(0.1f);
+            displacementMapFx.SetMinTessDistance(0.05f);
+
+            EffectTechnique activeNonReflectiveGeomTech = normalMapFx.Light3TexTech;
+            EffectTechnique activeReflectiveGeomTech = basicFx.Light3TexReflectTech;
+            EffectTechnique activeModelTech = basicFx.Light3TexReflectTech;
+
+            UpdateTechniques(out activeNonReflectiveGeomTech, out activeReflectiveGeomTech, out activeModelTech);
 
             context.InputAssembler.InputLayout = InputLayouts.PosNormTexTan;
 
-            for (var p = 0; p < activeTech.Description.PassCount; p++) {
+            RenderMode renderMode;
+            switch (_settings.SurfaceMapping) {
+                case SurfaceMapping.Simple:
+                    renderMode = RenderMode.Basic;
+                    break;
+                case SurfaceMapping.NormalMapping:
+                    renderMode = RenderMode.NormalMapped;
+                    break;
+                case SurfaceMapping.DisplacementMapping:
+                    renderMode = RenderMode.DisplacementMapped;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(_settings.SurfaceMapping));
+            }
+
+            for (var p = 0; p < activeNonReflectiveGeomTech.Description.PassCount; p++) {
                 // draw grid
-                var pass = activeTech.GetPassByIndex(p);
+                var pass = activeNonReflectiveGeomTech.GetPassByIndex(p);
                 _grid.ShadowTransform = _shadowTransform;
-                _grid.Draw(context, pass, view, proj);
+                _grid.Draw(context, pass, view, proj, renderMode);
                 // draw box
                 _box.ShadowTransform = _shadowTransform;
-                _box.Draw(context, pass, view, proj);
+                _box.Draw(context, pass, view, proj, renderMode);
 
                 // draw columns
                 foreach (var cylinder in _cylinders) {
                     cylinder.ShadowTransform = _shadowTransform;
-                    cylinder.Draw(context, pass, view, proj);
+                    cylinder.Draw(context, pass, view, proj, renderMode);
                 }
             }
-            context.HullShader.Set(null);
-            context.DomainShader.Set(null);
-            context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
 
-            for (var p = 0; p < activeSphereTech.Description.PassCount; p++) {
-                var pass = activeSphereTech.GetPassByIndex(p);
-
+            for (var p = 0; p < activeReflectiveGeomTech.Description.PassCount; p++) {
+                var pass = activeReflectiveGeomTech.GetPassByIndex(p);
                 foreach (var sphere in _spheres) {
                     sphere.ShadowTransform = _shadowTransform;
                     sphere.Draw(context, pass, view, proj, RenderMode.Basic);
                 }
-
-            }
-            var stride = VertPosNormTex.Stride;
-            const int offset = 0;
-
-            context.Rasterizer.State = null;
-            if (RenderInWireframe) {
-                context.Rasterizer.State = RenderStates11.Instance.WireframeRS;
-            }
-
-            context.InputAssembler.InputLayout = InputLayouts.PosNormTex;
-            context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(_skullVB, stride, offset));
-            context.InputAssembler.SetIndexBuffer(_skullIB, Format.R32_UInt, 0);
-
-            for (var p = 0; p < activeSkullTech.Description.PassCount; p++) {
-                var world = _skullWorld;
-                var wit = MathF.InverseTranspose(world);
-                var wvp = world * viewProj;
-
-                basicFx.SetWorld(world);
-                basicFx.SetWorldInvTranspose(wit);
-                basicFx.SetWorldViewProj(wvp);
-                basicFx.SetShadowTransform(world * _shadowTransform);
-                basicFx.SetMaterial(_skullMat);
-
-                activeSkullTech.GetPassByIndex(p).Apply(context);
-                context.DrawIndexed(_skullIndexCount, 0, 0);
             }
 
             // MIC, decelerator
-            for (var p = 0; p < activeSkullTech.Description.PassCount; ++p) {
-                _decelerator.ShadowTransform = _shadowTransform;
-                _decelerator.Draw(context, activeSkullTech.GetPassByIndex(p), view, proj, RenderMode.Basic);
+            for (var p = 0; p < activeModelTech.Description.PassCount; ++p) {
+                if (_settings.IsDeceleratorVisible) {
+                    _decelInstance.ShadowTransform = _shadowTransform;
+                    _decelInstance.Draw(context, activeModelTech.GetPassByIndex(p), view, proj, RenderMode.Basic);
+                }
+                if (_settings.IsBarbecueBarVisible) {
+                    _barbInstance.ShadowTransform = _shadowTransform;
+                    _barbInstance.Draw(context, activeModelTech.GetPassByIndex(p), view, proj, RenderMode.Basic);
+                }
+                if (_settings.IsTruckVisible) {
+                    _truckInstance.ShadowTransform = _shadowTransform;
+                    _truckInstance.Draw(context, activeModelTech.GetPassByIndex(p), view, proj, RenderMode.Basic);
+                }
+                if (_settings.IsTireVisible) {
+                    _tireInstance.ShadowTransform = _shadowTransform;
+                    _tireInstance.Draw(context, activeModelTech.GetPassByIndex(p), view, proj, RenderMode.Basic);
+                }
             }
 
-            //DrawScreenQuad(device);
+            context.Rasterizer.State = null;
+
+            if (_settings.QuadVisible) {
+                DrawScreenQuad(device);
+            }
 
             base.DrawInternal(gameTime);
         }
@@ -231,9 +322,66 @@ namespace Noire.Demo.D3D11 {
             base.Dispose(disposing);
         }
 
+        private void UpdateTechniques(out EffectTechnique nonReflective, out EffectTechnique reflective, out EffectTechnique models) {
+            var pair = _techniqueTable[new Tuple<bool, bool, SurfaceMapping, NumberOfLights>(
+                _settings.IsReflectionEnabled, _settings.MaterialType != MaterialType.None, _settings.SurfaceMapping, _settings.NumberOfLights)];
+            nonReflective = pair.Item1;
+            reflective = pair.Item2;
+            models = pair.Item3;
+        }
+
+        private void InitializeTechniqueTable(BasicEffect11 basicFx, NormalMapEffect11 normalMapFx, DisplacementMapEffect11 displacementMapFx) {
+            var dict1 = new Dictionary<SurfaceMapping, BasicEffect11>() {
+                [SurfaceMapping.Simple] = basicFx,
+                [SurfaceMapping.NormalMapping] = normalMapFx,
+                [SurfaceMapping.DisplacementMapping] = displacementMapFx
+            };
+            // reflection, texture, surface, lights
+            // non-ref, ref, model
+            foreach (var surface in new[] { SurfaceMapping.Simple, SurfaceMapping.NormalMapping, SurfaceMapping.DisplacementMapping }) {
+                foreach (var reflect in new[] { true, false }) {
+                    foreach (var texture in new[] { true, false }) {
+                        foreach (var lights in new[] { NumberOfLights.One, NumberOfLights.Two, NumberOfLights.Three }) {
+                            _techniqueTable.Add(new Tuple<bool, bool, SurfaceMapping, NumberOfLights>(reflect, texture, surface, lights),
+                                new Tuple<EffectTechnique, EffectTechnique, EffectTechnique>(
+                                    GetTechnique(dict1[surface], texture, false, lights),
+                                    GetTechnique(basicFx, texture, true, lights),
+                                    GetTechnique(basicFx, texture, reflect, lights)));
+                        }
+                    }
+                }
+            }
+        }
+
+        private EffectTechnique GetTechnique(BasicEffect11 effect, bool texture, bool reflection, NumberOfLights lights) {
+            string fieldName;
+            switch (lights) {
+                case NumberOfLights.One:
+                    fieldName = "Light1";
+                    break;
+                case NumberOfLights.Two:
+                    fieldName = "Light2";
+                    break;
+                case NumberOfLights.Three:
+                    fieldName = "Light3";
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            if (texture) {
+                fieldName += "Tex";
+            }
+            if (reflection) {
+                fieldName += "Reflect";
+            }
+            fieldName += "Tech";
+            var prop = effect.GetType().GetProperty(fieldName);
+            return prop.GetValue(effect) as EffectTechnique;
+        }
+
         private void DrawSceneToShadowMap(Device device) {
             var buildShadowMapFx = EffectManager11.Instance.GetEffect<BuildShadowMapEffect11>();
-            var context = D3DApp11.I.ImmediateContext;
+            var context = device.ImmediateContext;
             var camera = D3DApp11.I.Camera;
             var view = _lightView;
             var proj = _lightProj;
@@ -243,20 +391,28 @@ namespace Noire.Demo.D3D11 {
             buildShadowMapFx.SetViewProj(viewProj);
 
             context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
-            var smapTech = buildShadowMapFx.BuildShadowMapTech;
-
-            const int offset = 0;
+            var shadowMapTech = buildShadowMapFx.BuildShadowMapTech;
 
             context.InputAssembler.InputLayout = InputLayouts.PosNormTexTan;
 
-            for (var p = 0; p < smapTech.Description.PassCount; p++) {
-                var pass = smapTech.GetPassByIndex(p);
+            for (var p = 0; p < shadowMapTech.Description.PassCount; p++) {
+                var pass = shadowMapTech.GetPassByIndex(p);
                 _grid.Draw(context, pass, view, proj, RenderMode.ShadowMap);
 
                 _box.Draw(context, pass, view, proj, RenderMode.ShadowMap);
 
-                // MIC
-                _decelerator.Draw(context, pass, view, proj, RenderMode.ShadowMap);
+                if (_settings.IsDeceleratorVisible) {
+                    _decelInstance.Draw(context, pass, view, proj, RenderMode.ShadowMap);
+                }
+                if (_settings.IsBarbecueBarVisible) {
+                    _barbInstance.Draw(context, pass, view, proj, RenderMode.ShadowMap);
+                }
+                if (_settings.IsTruckVisible) {
+                    _truckInstance.Draw(context, pass, view, proj, RenderMode.ShadowMap);
+                }
+                if (_settings.IsTireVisible) {
+                    _tireInstance.Draw(context, pass, view, proj, RenderMode.ShadowMap);
+                }
 
                 foreach (var cylinder in _cylinders) {
                     cylinder.Draw(context, pass, view, proj, RenderMode.ShadowMap);
@@ -267,30 +423,11 @@ namespace Noire.Demo.D3D11 {
             context.DomainShader.Set(null);
             context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
 
-            for (var p = 0; p < smapTech.Description.PassCount; p++) {
-                var pass = smapTech.GetPassByIndex(p);
+            for (var p = 0; p < shadowMapTech.Description.PassCount; p++) {
+                var pass = shadowMapTech.GetPassByIndex(p);
                 foreach (var sphere in _spheres) {
                     sphere.Draw(context, pass, view, proj, RenderMode.ShadowMap);
                 }
-            }
-
-            var stride = VertPosNormTex.Stride;
-            context.Rasterizer.State = null;
-            context.InputAssembler.InputLayout = InputLayouts.PosNormTex;
-            context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(_skullVB, stride, offset));
-            context.InputAssembler.SetIndexBuffer(_skullIB, Format.R32_UInt, 0);
-
-            for (var p = 0; p < smapTech.Description.PassCount; p++) {
-                var world = _skullWorld;
-                var wit = MathF.InverseTranspose(world);
-                var wvp = world * viewProj;
-
-                buildShadowMapFx.SetWorld(world);
-                buildShadowMapFx.SetWorldInvTranspose(wit);
-                buildShadowMapFx.SetWorldViewProj(wvp);
-                buildShadowMapFx.SetTexTransform(Matrix.Scaling(1, 2, 1));
-                smapTech.GetPassByIndex(p).Apply(context);
-                context.DrawIndexed(_skullIndexCount, 0, 0);
             }
         }
 
@@ -316,7 +453,7 @@ namespace Noire.Demo.D3D11 {
             var tech = debugTextureFx.ViewRedTech;
             for (var p = 0; p < tech.Description.PassCount; p++) {
                 debugTextureFx.SetWorldViewProj(world);
-                debugTextureFx.SetTexture(_sMap.DepthMapSRV);
+                debugTextureFx.SetTexture(_shadowMap.DepthMapSRV);
                 tech.GetPassByIndex(p).Apply(context);
                 context.DrawIndexed(6, 0, 0);
             }
@@ -371,7 +508,7 @@ namespace Noire.Demo.D3D11 {
             //_boxModel.DiffuseMapSRV[0] = textureManager.CreateTexture(NoireConfiguration.GetFullResourcePath("textures/metal.jpg"));
             _boxModel.NormalMapSRV[0] = textureManager.CreateTexture(NoireConfiguration.GetFullResourcePath("textures/bricks_nmap.png"));
 
-            _gridModel = BasicModel.CreateGrid(device, 20, 30, 40, 60);
+            _gridModel = BasicModel.CreateGrid(device, 80, 120, 40, 60);
             _gridModel.Materials[0] = new Material {
                 Ambient = new Color(0.8f, 0.8f, 0.8f),
                 Diffuse = new Color(0.8f, 0.8f, 0.8f),
@@ -397,8 +534,8 @@ namespace Noire.Demo.D3D11 {
                 Specular = new Color(0.6f, 0.6f, 0.6f, 16.0f), // leather
                 Reflect = Color.Black
             };
-            _cylinderModel.DiffuseMapSRV[0] = textureManager.CreateTexture(NoireConfiguration.GetFullResourcePath("textures/material/leather_Base_Color.png"));
-            _cylinderModel.NormalMapSRV[0] = textureManager.CreateTexture(NoireConfiguration.GetFullResourcePath("textures/material/leather_Normal.png"));
+            _cylinderModel.DiffuseMapSRV[0] = textureManager.CreateTexture(NoireConfiguration.GetFullResourcePath("textures/material/copper_Base_Color.png"));
+            _cylinderModel.NormalMapSRV[0] = textureManager.CreateTexture(NoireConfiguration.GetFullResourcePath("textures/material/copper_Normal.png"));
 
             for (var i = 0; i < 5; i++) {
                 _cylinders[i * 2] = new BasicModelInstance(_cylinderModel) {
@@ -419,7 +556,7 @@ namespace Noire.Demo.D3D11 {
             }
 
             _grid = new BasicModelInstance(_gridModel) {
-                TexTransform = Matrix.Scaling(8, 10, 1),
+                TexTransform = Matrix.Scaling(32, 40, 1),
                 World = Matrix.Identity
             };
 
@@ -429,80 +566,41 @@ namespace Noire.Demo.D3D11 {
             };
 
             // MIC
-            _deceleratorModel = BasicModel.Create(device, TextureManager11.Instance,
-                NoireConfiguration.GetFullResourcePath("models/decelerator.3ds"), NoireConfiguration.GetFullResourcePath("models"));
-            _deceleratorWorld = Matrix.Scaling(8) * Matrix.Translation(0, 0, 5);
-            _decelerator = new BasicModelInstance(_deceleratorModel) {
+            const string decelFileDir = @"C:\Users\MIC\Documents\3dsMax\export";
+            var decelFile = Path.Combine(decelFileDir, "decel.3ds");
+            _decelModel = BasicModel.Create(device, TextureManager11.Instance, decelFile, decelFileDir);
+            _decelWorld = Matrix.Scaling(8f) * Matrix.Translation(0, 0.6f, 5); // * Matrix.RotationX(MathUtil.DegreesToRadians(-90f));
+            _decelInstance = new BasicModelInstance(_decelModel) {
                 TexTransform = Matrix.Identity,
-                World = _deceleratorWorld
+                World = _decelWorld
             };
-        }
 
-        private void BuildSkullGeometryBuffers(Device device) {
-            var vertices = new List<VertPosNormTex>();
-            var indices = new List<int>();
-            var vcount = 0;
-            var tcount = 0;
-            using (var reader = new StreamReader(NoireConfiguration.GetFullResourcePath("models/skull.txt"))) {
-                var input = reader.ReadLine();
-                if (input != null)
-                    // VertexCount: X
-                    vcount = Convert.ToInt32(input.Split(new[] { ':' })[1].Trim());
+            const string barbFileDir = @"C:\Users\MIC\Desktop\models\barb01";
+            var barbFile = Path.Combine(barbFileDir, "barb01.3ds");
+            _barbModel = BasicModel.Create(device, TextureManager11.Instance, barbFile, barbFileDir);
+            _barbWorld = Matrix.Scaling(0.003f) * Matrix.Translation(0, 1, 0.3f);
+            _barbInstance = new BasicModelInstance(_barbModel) {
+                TexTransform = Matrix.Identity,
+                World = _barbWorld
+            };
 
-                input = reader.ReadLine();
-                if (input != null)
-                    //TriangleCount: X
-                    tcount = Convert.ToInt32(input.Split(new[] { ':' })[1].Trim());
+            const string truckFileDir = @"C:\Users\MIC\Desktop\m4\ea55";
+            var truckFile = Path.Combine(truckFileDir, "mic.3ds");
+            _truckModel = BasicModel.Create(device, TextureManager11.Instance, truckFile, truckFileDir);
+            _truckWorld = Matrix.Scaling(0.003f) * Matrix.Translation(0, 8, 2) * Matrix.RotationX(MathUtil.DegreesToRadians(-90f));
+            _truckInstance = new BasicModelInstance(_truckModel) {
+                TexTransform = Matrix.Identity,
+                World = _truckWorld
+            };
 
-                // skip ahead to the vertex data
-                do {
-                    input = reader.ReadLine();
-                } while (input != null && !input.StartsWith("{"));
-                // Get the vertices  
-                for (var i = 0; i < vcount; i++) {
-                    input = reader.ReadLine();
-                    if (input != null) {
-                        var vals = input.Split(new[] { ' ' });
-                        vertices.Add(
-                                     new VertPosNormTex(
-                                         new Vector3(
-                                             Convert.ToSingle(vals[0].Trim(), CultureInfo.InvariantCulture),
-                                             Convert.ToSingle(vals[1].Trim(), CultureInfo.InvariantCulture),
-                                             Convert.ToSingle(vals[2].Trim(), CultureInfo.InvariantCulture)),
-                                         new Vector3(
-                                             Convert.ToSingle(vals[3].Trim(), CultureInfo.InvariantCulture),
-                                             Convert.ToSingle(vals[4].Trim(), CultureInfo.InvariantCulture),
-                                             Convert.ToSingle(vals[5].Trim(), CultureInfo.InvariantCulture)),
-                                         new Vector2()
-                                         )
-                            );
-                    }
-                }
-                // skip ahead to the index data
-                do {
-                    input = reader.ReadLine();
-                } while (input != null && !input.StartsWith("{"));
-                // Get the indices
-                _skullIndexCount = 3 * tcount;
-                for (var i = 0; i < tcount; i++) {
-                    input = reader.ReadLine();
-                    if (input == null) {
-                        break;
-                    }
-                    var m = input.Trim().Split(new[] { ' ' });
-                    indices.Add(Convert.ToInt32(m[0].Trim()));
-                    indices.Add(Convert.ToInt32(m[1].Trim()));
-                    indices.Add(Convert.ToInt32(m[2].Trim()));
-                }
-            }
-
-            var vbd = new BufferDescription(VertPosNormTex.Stride * vcount, ResourceUsage.Immutable,
-                BindFlags.VertexBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
-            _skullVB = new Buffer(device, DataStream.Create(vertices.ToArray(), false, false), vbd);
-
-            var ibd = new BufferDescription(sizeof(int) * _skullIndexCount, ResourceUsage.Immutable,
-                BindFlags.IndexBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
-            _skullIB = new Buffer(device, DataStream.Create(indices.ToArray(), false, false), ibd);
+            const string tireFileDir = @"C:\Users\MIC\Desktop\models\tire02";
+            var tireFile = Path.Combine(tireFileDir, "tire02.3ds");
+            _tireModel = BasicModel.Create(device, TextureManager11.Instance, tireFile, tireFileDir);
+            _tireWorld = Matrix.Scaling(0.003f) * Matrix.Translation(0, 4, 1) * Matrix.RotationX(MathUtil.DegreesToRadians(-90f));
+            _tireInstance = new BasicModelInstance(_tireModel) {
+                TexTransform = Matrix.Identity,
+                World = _tireWorld
+            };
         }
 
         private void BuildScreenQuadGeometryBuffers(Device device) {
@@ -516,15 +614,74 @@ namespace Noire.Demo.D3D11 {
             _screenQuadIB = new Buffer(device, DataStream.Create(quad.Indices.ToArray(), false, false), ibd);
         }
 
-        private Buffer _skullVB;
-        private Buffer _skullIB;
-        private Buffer _screenQuadVB;
-        private Buffer _screenQuadIB;
+        private void UpdateBufferedSettings() {
+            _settings = _bufferedSettings.Clone();
 
-        private BoundingSphere _sceneBounds;
+            if (IsInitialized) {
+                _fire.Visible = _settings.ParticleFlameVisible;
+                _rain.Visible = _settings.ParticleRainVisible;
+
+                var skybox = D3DApp11.I.Skybox;
+                switch (_settings.SkyboxType) {
+                    case SkyboxType.None:
+                        skybox.CubeMapSRV = null;
+                        break;
+                    case SkyboxType.Desert:
+                        skybox.CubeMapSRV = TextureManager11.Instance.QuickCreateCubeMap("desert");
+                        break;
+                    case SkyboxType.Snowfield:
+                        skybox.CubeMapSRV = TextureManager11.Instance.QuickCreateCubeMap("snowfield");
+                        break;
+                    case SkyboxType.Factory:
+                        skybox.CubeMapSRV = TextureManager11.Instance.QuickCreateCubeMap("factory");
+                        break;
+                    default:
+                        skybox.CubeMapSRV = null;
+                        break;
+                }
+
+                var textureManager = TextureManager11.Instance;
+                string mat;
+                switch (_settings.MaterialType) {
+                    case MaterialType.None:
+                        mat = null;
+                        break;
+                    case MaterialType.Copper:
+                        mat = "copper";
+                        break;
+                    case MaterialType.StainlessSteel:
+                        mat = "s_steel";
+                        break;
+                    case MaterialType.Aluminium:
+                        mat = "aluminium";
+                        break;
+                    case MaterialType.Plywood:
+                        mat = "plywood";
+                        break;
+                    default:
+                        mat = null;
+                        break;
+                }
+                if (mat != null) {
+                    _cylinderModel.DiffuseMapSRV[0] = textureManager.CreateTexture(NoireConfiguration.GetFullResourcePath($"textures/material/{mat}_Base_Color.png"));
+                    _cylinderModel.NormalMapSRV[0] = textureManager.CreateTexture(NoireConfiguration.GetFullResourcePath($"textures/material/{mat}_Normal.png"));
+                } else {
+                    _cylinderModel.DiffuseMapSRV[0] = null;
+                    _cylinderModel.NormalMapSRV[0] = null;
+                }
+            }
+        }
+
+        private ShadowSceneSettings _bufferedSettings;
+        private ShadowSceneSettings _settings;
 
         private static readonly int ShadowMapSize = 2048;
-        private ShadowMap _sMap;
+
+        private Buffer _screenQuadVB;
+        private Buffer _screenQuadIB;
+        private BoundingSphere _sceneBounds;
+
+        private ShadowMap _shadowMap;
         private Matrix _lightView;
         private Matrix _lightProj;
         private Matrix _shadowTransform;
@@ -532,10 +689,6 @@ namespace Noire.Demo.D3D11 {
         private float _lightRotationAngle;
         private Vector3[] _originalLightDirs;
         private DirectionalLight[] _dirLights;
-
-        private Material _skullMat;
-        private Matrix _skullWorld;
-        private int _skullIndexCount;
 
         private BasicModel _boxModel;
         private BasicModel _gridModel;
@@ -547,13 +700,24 @@ namespace Noire.Demo.D3D11 {
         private readonly BasicModelInstance[] _spheres = new BasicModelInstance[10];
         private readonly BasicModelInstance[] _cylinders = new BasicModelInstance[10];
 
-        private Matrix _deceleratorWorld;
-        private BasicModel _deceleratorModel;
-        private BasicModelInstance _decelerator;
+        private Matrix _decelWorld;
+        private BasicModel _decelModel;
+        private BasicModelInstance _decelInstance;
+        private Matrix _barbWorld;
+        private BasicModel _barbModel;
+        private BasicModelInstance _barbInstance;
+        private Matrix _truckWorld;
+        private BasicModel _truckModel;
+        private BasicModelInstance _truckInstance;
+        private Matrix _tireWorld;
+        private BasicModel _tireModel;
+        private BasicModelInstance _tireInstance;
 
         private ShaderResourceView _flareTexSRV;
         private ShaderResourceView _rainTexSRV;
         private ShaderResourceView _randomTex;
+
+        private Dictionary<Tuple<bool, bool, SurfaceMapping, NumberOfLights>, Tuple<EffectTechnique, EffectTechnique, EffectTechnique>> _techniqueTable;
 
         private ParticleSource _fire;
         private ParticleSource _rain;

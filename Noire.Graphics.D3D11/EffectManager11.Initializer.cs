@@ -22,8 +22,8 @@ namespace Noire.Graphics.D3D11 {
             SafeEffectRegister(ref effect);
             effect = CreateEffect<BuildShadowMapEffect11>(device);
             SafeEffectRegister(ref effect);
-            effect = CreateEffect<SsaoNormalDepthEffect11>(device);
-            SafeEffectRegister(ref effect);
+            //effect = CreateEffect<SsaoNormalDepthEffect11>(device);
+            //SafeEffectRegister(ref effect);
             effect = CreateEffect<DebugTextureEffect11>(device);
             SafeEffectRegister(ref effect);
             effect = CreateEffect<FireParticleEffect11>(device);

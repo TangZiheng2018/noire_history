@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using Noire.Common;
 using SharpDX;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
@@ -54,6 +55,10 @@ namespace Noire.Graphics.D3D11 {
                 _textureSRVs.Add(filePath, view);
                 return view;
             }
+        }
+
+        public ShaderResourceView QuickCreateCubeMap(string name) {
+            return CreateCubemap(NoireConfiguration.GetFullResourcePath($"textures/cubemap/{name}.dds"));
         }
 
         public ShaderResourceView CreateCubemap(string filePath) {

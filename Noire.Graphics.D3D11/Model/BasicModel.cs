@@ -335,25 +335,34 @@ namespace Noire.Graphics.D3D11.Model {
                         // DirectX doesn't like to load tgas, so you will need to convert them to pngs yourself with an image editor
                         diffusePath = diffusePath.Replace(".tga", ".png");
                     }
-                    if (!string.IsNullOrEmpty(diffusePath)) {
-                        DiffuseMapSRV.Add(textureManager.CreateTexture(Path.Combine(texturePath, diffusePath)));
+                    var fullDiffusePath = diffusePath == null ? null : Path.Combine(texturePath, diffusePath);
+                    if (File.Exists(fullDiffusePath)) {
+                        DiffuseMapSRV.Add(textureManager.CreateTexture(fullDiffusePath));
                     } else {
                         DiffuseMapSRV.Add(textureManager.CreateColor1By1(material.Diffuse.ToColor()));
                     }
                     TextureSlot normalSlot;
                     mat.GetMaterialTexture(TextureType.Normals, 0, out normalSlot);
                     var normalPath = normalSlot.FilePath;
-                    if (!string.IsNullOrEmpty(normalPath)) {
-                        NormalMapSRV.Add(textureManager.CreateTexture(Path.Combine(texturePath, normalPath)));
+                    var fullNormalPath = normalPath == null ? null : Path.Combine(texturePath, normalPath);
+                    string textureName;
+                    if (File.Exists(fullNormalPath)) {
+                        textureName = fullNormalPath;
                     } else {
-                        if (diffusePath != null) {
-                            var normalExt = Path.GetExtension(diffusePath);
+                        if (File.Exists(fullDiffusePath)) {
+                            var normalExt = Path.GetExtension(fullDiffusePath);
                             normalPath = Path.GetFileNameWithoutExtension(diffusePath) + "_nmap" + normalExt;
-                            NormalMapSRV.Add(textureManager.CreateTexture(Path.Combine(texturePath, normalPath)));
+                            fullNormalPath = Path.Combine(texturePath, normalPath);
+                            if (File.Exists(fullNormalPath)) {
+                                textureName = fullNormalPath;
+                            } else {
+                                textureName = TextureManager11.TexDefaultNorm;
+                            }
                         } else {
-                            NormalMapSRV.Add(textureManager[TextureManager11.TexDefaultNorm]);
+                            textureName = TextureManager11.TexDefaultNorm;
                         }
                     }
+                    NormalMapSRV.Add(textureManager.CreateTexture(textureName));
                 }
             }
 

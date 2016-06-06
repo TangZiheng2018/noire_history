@@ -221,6 +221,19 @@ namespace Noire.Graphics.D3D11.FX {
             }
         }
 
+        public void SetPointLights(PointLight[] lights) {
+            Debug.Assert(lights.Length <= MaxLights, "BasicEffect only supports up to 3 lights");
+            for (var i = 0; i < lights.Length && i < MaxLights; i++) {
+                var light = lights[i];
+                var d = NoireUtilities.StructureToBytes(light);
+                Array.Copy(d, 0, _dirLightsArray, i * DirectionalLight.Stride, DirectionalLight.Stride);
+            }
+            // 这里如果内存释放不当非常容易引发内存泄漏！
+            using (var dataStream = DataStream.Create(_dirLightsArray, false, false)) {
+                _dirLights.SetRawValue(dataStream, _dirLightsArray.Length);
+            }
+        }
+
         public void SetMaterial(Material m) {
             // 这里如果内存释放不当非常容易引发内存泄漏！
             using (var dataStream = DataStream.Create(NoireUtilities.StructureToBytes(m), false, false)) {
